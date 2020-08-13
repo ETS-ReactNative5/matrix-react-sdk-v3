@@ -162,6 +162,27 @@ export default class Tchap {
 
     /**
      *
+     * @param room
+     * @returns {string}
+     */
+    static computeLongRoomNameFromRoom(room) {
+        return `${room.name} [${this.computeDomainFromRoomId(room.roomId)}]`;
+    }
+
+    /**
+     *
+     * @param roomId
+     * @returns {string}
+     */
+    static computeDomainFromRoomId(roomId) {
+        let domainName = roomId;
+        domainName = domainName.split(":")[1];
+        domainName = domainName.startsWith("agent") ? domainName.split(".")[1] : domainName.split(".")[0];
+        return this._capitalize(domainName);
+    }
+
+    /**
+     *
      * @param userId
      * @returns {*}
      */

@@ -65,7 +65,6 @@ export default class GeneralUserSettingsTab extends React.Component {
             msisdns: [],
             redListOption,
             loading3pids: true, // whether or not the emails and msisdns have been loaded
-            ...this._calculateThemeState(),
         };
 
         this.dispatcherRef = dis.register(this._onAction);
@@ -333,7 +332,6 @@ export default class GeneralUserSettingsTab extends React.Component {
                 {this._renderProfileSection()}
                 {this._renderAccountSection()}
                 {this._renderLanguageSection()}
-                {this._renderThemeSection()}
                 <div className="mx_SettingsTab_heading">{_t("Deactivate account")}</div>
                 {this._renderManagementSection()}
             </div>

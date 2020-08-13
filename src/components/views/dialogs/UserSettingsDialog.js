@@ -81,18 +81,6 @@ export default class UserSettingsDialog extends React.Component {
             <GeneralUserSettingsTab closeSettingsFn={this.props.onFinished} />,
         ));
         tabs.push(new Tab(
-            USER_APPEARANCE_TAB,
-            _td("Appearance"),
-            "mx_UserSettingsDialog_appearanceIcon",
-            <AppearanceUserSettingsTab />,
-        ));
-        tabs.push(new Tab(
-            USER_FLAIR_TAB,
-            _td("Flair"),
-            "mx_UserSettingsDialog_flairIcon",
-            <FlairUserSettingsTab />,
-        ));
-        tabs.push(new Tab(
             USER_NOTIFICATIONS_TAB,
             _td("Notifications"),
             "mx_UserSettingsDialog_bellIcon",
@@ -122,14 +110,6 @@ export default class UserSettingsDialog extends React.Component {
                 _td("Labs"),
                 "mx_UserSettingsDialog_labsIcon",
                 <LabsUserSettingsTab />,
-            ));
-        }
-        if (this.state.mjolnirEnabled) {
-            tabs.push(new Tab(
-                USER_MJOLNIR_TAB,
-                _td("Ignored users"),
-                "mx_UserSettingsDialog_mjolnirIcon",
-                <MjolnirUserSettingsTab />,
             ));
         }
         tabs.push(new Tab(

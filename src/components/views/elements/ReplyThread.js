@@ -82,6 +82,9 @@ export default class ReplyThread extends React.Component {
 
     // Part of Replies fallback support
     static stripPlainReply(body) {
+        if (!body) {
+            return;
+        }
         // Removes lines beginning with `> ` until you reach one that doesn't.
         const lines = body.split('\n');
         while (lines.length && lines[0].startsWith('> ')) lines.shift();

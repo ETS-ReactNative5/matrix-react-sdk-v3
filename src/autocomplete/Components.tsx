@@ -16,6 +16,7 @@ limitations under the License.
 
 import React, {forwardRef} from 'react';
 import classNames from 'classnames';
+import Tchap from '../tchap/Tchap';
 
 /* These were earlier stateless functional components but had to be converted
 since we need to use refs/findDOMNode to access the underlying DOM node to focus the correct completion,
@@ -51,6 +52,10 @@ interface IPillCompletionProps extends ITextualCompletionProps {
 
 export const PillCompletion = forwardRef<IPillCompletionProps, any>((props, ref) => {
     const {title, subtitle, description, className, children, ...restProps} = props;
+    let descr = null;
+    if (description.startsWith("#")) {
+        descr = <span className="mx_Autocomplete_Completion_description">{ Tchap.computeDomainFromRoomId(description) }</span>;
+    }
     return (
         <div {...restProps}
              className={classNames('mx_Autocomplete_Completion_pill', className)}
@@ -60,7 +65,7 @@ export const PillCompletion = forwardRef<IPillCompletionProps, any>((props, ref)
             { children }
             <span className="mx_Autocomplete_Completion_title">{ title }</span>
             <span className="mx_Autocomplete_Completion_subtitle">{ subtitle }</span>
-            <span className="mx_Autocomplete_Completion_description">{ description }</span>
+            { descr }
         </div>
     );
 });

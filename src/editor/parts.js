@@ -17,6 +17,7 @@ limitations under the License.
 
 import AutocompleteWrapperModel from "./autocomplete";
 import * as Avatar from "../Avatar";
+import Tchap from "../tchap/Tchap";
 
 class BasePart {
     constructor(text = "") {
@@ -246,7 +247,8 @@ class NewlinePart extends BasePart {
 
 class RoomPillPart extends PillPart {
     constructor(displayAlias, room) {
-        super(displayAlias, displayAlias);
+        const roomDisplayName = room ? Tchap.computeLongRoomNameFromRoom(room) : displayAlias;
+        super(displayAlias, roomDisplayName);
         this._room = room;
     }
 

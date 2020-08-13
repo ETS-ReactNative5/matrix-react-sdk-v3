@@ -530,3 +530,14 @@
     border-top-style: solid;
     border-top-width: 1px;
 }
+
+.mx_IconButton {
+    &.mx_IconButton_icon_edit::before {
+        mask-image: url('$(res)/img/tchap/feather-customised/edit.svg');
+        background-color: #ffffff;
+    }
+    &.mx_IconButton_icon_check::before {
+        mask-image: url('$(res)/img/tchap/feather-customised/check.svg');
+        background-color: #ffffff;
+    }
+}
