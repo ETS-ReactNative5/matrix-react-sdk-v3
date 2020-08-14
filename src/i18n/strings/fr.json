@@ -171,7 +171,7 @@
     "Return to login screen": "Retourner à l’écran de connexion",
     "Riot does not have permission to send you notifications - please check your browser settings": "Riot n’a pas la permission de vous envoyer des notifications - merci de vérifier les paramètres de votre navigateur",
     "Riot was not given permission to send notifications - please try again": "Riot n’a pas reçu la permission de vous envoyer des notifications - veuillez réessayer",
-    "riot-web version:": "Version de riot-web :",
+    "tchap-web version:": "Version de tchap-web :",
     "Room %(roomId)s not visible": "Le salon %(roomId)s n'est pas visible",
     "Room Colour": "Couleur du salon",
     "Rooms": "Salons",
@@ -1114,8 +1114,8 @@
     "Theme": "Thème",
     "Account management": "Gestion du compte",
     "Deactivating your account is a permanent action - be careful!": "La désactivation du compte est une action permanente. Soyez prudent !",
-    "For help with using Riot, click <a>here</a>.": "Pour obtenir de l'aide sur l'utilisation de Riot, cliquez <a>ici</a>.",
-    "For help with using Riot, click <a>here</a> or start a chat with our bot using the button below.": "Pour obtenir de l'aide sur l'utilisation de Riot, cliquez <a>ici</a> ou commencez une discussion avec notre bot en utilisant le bouton ci-dessous.",
+    "For help with using Tchap, click <a>here</a>.": "Pour obtenir de l'aide sur l'utilisation de Tchap, cliquez <a>ici</a>.",
+    "For help with using Tchap, click <a>here</a> or start a chat with our bot using the button below.": "Pour obtenir de l'aide sur l'utilisation de Tchap, cliquez <a>ici</a> ou commencez une discussion avec notre bot en utilisant le bouton ci-dessous.",
     "Help & About": "Aide & À propos",
     "Bug reporting": "Signalement d'anomalies",
     "FAQ": "FAQ",
@@ -2561,5 +2561,6 @@
     "External": "Externe",
     "Direct": "Direct",
     "Tchap": "Tchap",
-    "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?": "Il semblerait que %(user)s ait quitté la conversation. Voulez-vous le <btn>réinviter</btn> ?"
+    "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?": "Il semblerait que %(user)s ait quitté la conversation. Voulez-vous le <btn>réinviter</btn> ?",
+    "Limit access to this room to domain members \"%(domain)s\"": "Limiter l'accès à ce salon aux membres du domaine \"%(domain)s\""
 }

@@ -119,14 +119,6 @@ export default class HelpUserSettingsTab extends React.Component {
                 <span className='mx_SettingsTab_subheading'>{_t("Credits")}</span>
                 <ul>
                     <li>
-                        The <a href="themes/riot/img/backgrounds/valley.jpg" rel="noreferrer noopener" target="_blank">
-                        default cover photo</a> is ©&nbsp;
-                        <a href="https://www.flickr.com/golan" rel="noreferrer noopener" target="_blank">Jesús Roncero</a>{' '}
-                        used under the terms of&nbsp;
-                        <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noreferrer noopener" target="_blank">
-                        CC-BY-SA 4.0</a>.
-                    </li>
-                    <li>
                         The <a href="https://github.com/matrix-org/twemoji-colr" rel="noreferrer noopener"
                                target="_blank"> twemoji-colr</a> font is ©&nbsp;
                         <a href="https://mozilla.org" rel="noreferrer noopener" target="_blank">Mozilla Foundation</a>{' '}
@@ -148,28 +140,12 @@ export default class HelpUserSettingsTab extends React.Component {
     }
 
     render() {
-        let faqText = _t('For help with using Riot, click <a>here</a>.', {}, {
+        const baseUrl = SdkConfig.get().base_host_url;
+        const faqLink = SdkConfig.get().generic_endpoints.faq;
+        let faqText = _t('For help with using Tchap, click <a>here</a>.', {}, {
             'a': (sub) =>
-                <a href="https://about.riot.im/need-help/" rel="noreferrer noopener" target="_blank">{sub}</a>,
+                <a href={baseUrl + faqLink} rel="noreferrer noopener" target="_blank">{sub}</a>,
         });
-        if (SdkConfig.get().welcomeUserId && getCurrentLanguage().startsWith('en')) {
-            faqText = (
-                <div>
-                    {
-                        _t('For help with using Riot, click <a>here</a> or start a chat with our ' +
-                            'bot using the button below.', {}, {
-                            'a': (sub) => <a href="https://about.riot.im/need-help/" rel='noreferrer noopener'
-                                             target='_blank'>{sub}</a>,
-                        })
-                    }
-                    <div>
-                        <AccessibleButton onClick={this._onStartBotChat} kind='primary'>
-                            {_t("Chat with Riot Bot")}
-                        </AccessibleButton>
-                    </div>
-                </div>
-            );
-        }
 
         const vectorVersion = this.state.vectorVersion || 'unknown';
 
@@ -217,7 +193,7 @@ export default class HelpUserSettingsTab extends React.Component {
                 <div className='mx_SettingsTab_section mx_HelpUserSettingsTab_versions'>
                     <span className='mx_SettingsTab_subheading'>{_t("Versions")}</span>
                     <div className='mx_SettingsTab_subsectionText'>
-                        {_t("riot-web version:")} {vectorVersion}<br />
+                        {_t("tchap-web version:")} {vectorVersion}<br />
                         {_t("olm version:")} {olmVersion}<br />
                         {updateButton}
                     </div>

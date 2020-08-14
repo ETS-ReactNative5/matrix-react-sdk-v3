@@ -24,6 +24,8 @@ import withValidation from '../elements/Validation';
 import { _t } from '../../../languageHandler';
 import {Key} from "../../../Keyboard";
 import {privateShouldBeEncrypted} from "../../../createRoom";
+import {MatrixClientPeg} from "../../../MatrixClientPeg";
+import Tchap from "../../../tchap/Tchap";
 
 export default createReactClass({
     displayName: 'CreateRoomDialog',
@@ -188,9 +190,8 @@ export default createReactClass({
         let domainParam = null;
         if (this.state.isPublic) {
             domainParam = (
-                <LabelledToggleSwitch label={
-                    _t('Block users on other matrix homeservers from joining this room ' +
-                        '(This setting cannot be changed later!)')}
+                <LabelledToggleSwitch label={ _t('Limit access to this room to domain members "%(domain)s"',
+                    {domain: Tchap.getShortDomain()}) }
                     onChange={this.onNoFederateChange} value={this.state.noFederate} />
             );
         }

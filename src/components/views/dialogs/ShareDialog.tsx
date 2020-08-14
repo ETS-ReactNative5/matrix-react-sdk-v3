@@ -33,26 +33,6 @@ import StyledCheckbox from '../elements/StyledCheckbox';
 
 const socials = [
     {
-        name: 'Facebook',
-        img: require("../../../../res/img/social/facebook.png"),
-        url: (url) => `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-    }, {
-        name: 'Twitter',
-        img: require("../../../../res/img/social/twitter-2.png"),
-        url: (url) => `https://twitter.com/home?status=${url}`,
-    }, /* // icon missing
-        name: 'Google Plus',
-        img: 'img/social/',
-        url: (url) => `https://plus.google.com/share?url=${url}`,
-    },*/ {
-        name: 'LinkedIn',
-        img: require("../../../../res/img/social/linkedin.png"),
-        url: (url) => `https://www.linkedin.com/shareArticle?mini=true&url=${url}`,
-    }, {
-        name: 'Reddit',
-        img: require("../../../../res/img/social/reddit.png"),
-        url: (url) => `http://www.reddit.com/submit?url=${url}`,
-    }, {
         name: 'email',
         img: require("../../../../res/img/social/email-1.png"),
         url: (url) => `mailto:?body=${url}`,
@@ -216,27 +196,29 @@ export default class ShareDialog extends React.PureComponent<IProps, IState> {
                     </a>
                 </div>
                 { checkbox }
-                <hr />
-
-                <div className="mx_ShareDialog_split">
-                    <div className="mx_ShareDialog_qrcode_container">
-                        <QRCode data={matrixToUrl} width={256} />
+                <br />
+                <details>
+                    <summary>{_t("Share")}</summary>
+                    <div className="mx_ShareDialog_split">
+                        <div className="mx_ShareDialog_qrcode_container">
+                            <QRCode data={matrixToUrl} width={256} />
+                        </div>
+                        <div className="mx_ShareDialog_social_container">
+                            { socials.map((social) => (
+                                <a
+                                    rel="noreferrer noopener"
+                                    target="_blank"
+                                    key={social.name}
+                                    title={social.name}
+                                    href={social.url(encodedUrl)}
+                                    className="mx_ShareDialog_social_icon"
+                                >
+                                    <img src={social.img} alt={social.name} height={64} width={64} />
+                                </a>
+                            )) }
+                        </div>
                     </div>
-                    <div className="mx_ShareDialog_social_container">
-                        { socials.map((social) => (
-                            <a
-                                rel="noreferrer noopener"
-                                target="_blank"
-                                key={social.name}
-                                title={social.name}
-                                href={social.url(encodedUrl)}
-                                className="mx_ShareDialog_social_icon"
-                            >
-                                <img src={social.img} alt={social.name} height={64} width={64} />
-                            </a>
-                        )) }
-                    </div>
-                </div>
+                </details>
             </div>
         </BaseDialog>;
     }

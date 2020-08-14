@@ -801,8 +801,8 @@
     "Deactivate account": "Deactivate account",
     "Legal": "Legal",
     "Credits": "Credits",
-    "For help with using Riot, click <a>here</a>.": "For help with using Riot, click <a>here</a>.",
-    "For help with using Riot, click <a>here</a> or start a chat with our bot using the button below.": "For help with using Riot, click <a>here</a> or start a chat with our bot using the button below.",
+    "For help with using Tchap, click <a>here</a>.": "For help with using Tchap, click <a>here</a>.",
+    "For help with using Tchap, click <a>here</a> or start a chat with our bot using the button below.": "For help with using Tchap, click <a>here</a> or start a chat with our bot using the button below.",
     "Chat with Riot Bot": "Chat with Riot Bot",
     "Help & About": "Help & About",
     "Bug reporting": "Bug reporting",
@@ -815,7 +815,7 @@
     "User Guide": "User Guide",
     "Keyboard Shortcuts": "Keyboard Shortcuts",
     "Versions": "Versions",
-    "riot-web version:": "riot-web version:",
+    "tchap-web version:": "tchap-web version:",
     "olm version:": "olm version:",
     "Homeserver is": "Homeserver is",
     "Identity Server is": "Identity Server is",
@@ -2317,5 +2317,6 @@
     "External": "External",
     "Direct": "Direct",
     "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?": "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?",
-    "Tchap": "Tchap"
+    "Tchap": "Tchap",
+    "Limit access to this room to domain members \"%(domain)s\"": "Limit access to this room to domain members \"%(domain)s\""
 }

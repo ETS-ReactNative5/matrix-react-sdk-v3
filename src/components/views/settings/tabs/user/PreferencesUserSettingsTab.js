@@ -54,10 +54,7 @@ export default class PreferencesUserSettingsTab extends React.Component {
     ];
 
     static ADVANCED_SETTINGS = [
-        'alwaysShowEncryptionIcons',
         'Pill.shouldShowPillAvatar',
-        'TagPanel.enableTagPanel',
-        'promptBeforeInviteUnknownUsers',
         // Start automatically after startup (electron-only)
         // Autocomplete delay (niche text box)
     ];
@@ -194,21 +191,6 @@ export default class PreferencesUserSettingsTab extends React.Component {
                     {minimizeToTrayOption}
                     {autoHideMenuOption}
                     {autoLaunchOption}
-                    <Field
-                        label={_t('Autocomplete delay (ms)')}
-                        type='number'
-                        value={this.state.autocompleteDelay}
-                        onChange={this._onAutocompleteDelayChange} />
-                    <Field
-                        label={_t('Read Marker lifetime (ms)')}
-                        type='number'
-                        value={this.state.readMarkerInViewThresholdMs}
-                        onChange={this._onReadMarkerInViewThresholdMs} />
-                    <Field
-                        label={_t('Read Marker off-screen lifetime (ms)')}
-                        type='number'
-                        value={this.state.readMarkerOutOfViewThresholdMs}
-                        onChange={this._onReadMarkerOutOfViewThresholdMs} />
                 </div>
             </div>
         );

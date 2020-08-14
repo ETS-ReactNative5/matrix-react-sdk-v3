@@ -256,6 +256,7 @@
 .mx_SearchBox {
     flex: 1 1 0;
     min-width: 0;
+    margin: 4px 9px 4px 9px !important;
     &.mx_SearchBox_blurred:hover {
         background-color: #273d64;
     }
@@ -270,6 +271,26 @@
     }
     .mx_SearchBox_closeButton {
         background-image: url('$(res)/img/tchap/icons-close.svg');
+    }
+}
+
+.mx_MemberList {
+    .mx_SearchBox {
+        &.mx_SearchBox_blurred:hover {
+            background-color: #f2f5f8;
+        }
+        &:not(.mx_SearchBox_blurred) {
+            background-color: #f2f5f8;
+            input {
+                color: #2e2f32 !important;
+            }
+            input::placeholder {
+                color: #61708b !important;
+            }
+        }
+        input[type="text"].mx_textinput_icon.mx_textinput_search {
+            background-image: url('$(res)/img/tchap/feather-customised/search-input_dark.svg');
+        }
     }
 }
 
