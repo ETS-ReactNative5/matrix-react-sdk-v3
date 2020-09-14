@@ -26,6 +26,7 @@ import {Key} from "../../../Keyboard";
 import {privateShouldBeEncrypted} from "../../../createRoom";
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import Tchap from "../../../tchap/Tchap";
+import AccessibleButton from "../elements/AccessibleButton";
 
 export default createReactClass({
     displayName: 'CreateRoomDialog',
@@ -47,6 +48,10 @@ export default createReactClass({
             nameIsValid: false,
             externAllowed: false,
             externAllowedSwitchDisabled: this.props.defaultPublic || false,
+            roomOption: this.props.defaultPublic ? "public" : "private",
+            classesRoomOptionPrivate: "tc_CreateRoomDialog_RoomOption_private",
+            classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
+            classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
         };
     },
 
@@ -81,6 +86,7 @@ export default createReactClass({
 
     componentDidMount() {
         this._nameFieldRef.focus();
+        this.setUpRoomOptions(this.state.roomOption);
     },
 
     _onKeyDown: function(event) {
@@ -164,6 +170,53 @@ export default createReactClass({
         return result;
     },
 
+    onRoomOptionChange(ev) {
+        ev.preventDefault();
+        const selected = ev.target.getAttribute("aria-name")
+        this.setUpRoomOptions(selected);
+    },
+
+    setUpRoomOptions(selected) {
+        switch (selected) {
+            case "private": {
+                this.setState({
+                    isPublic: false,
+                    externAllowed: false,
+                    noFederate: false,
+                    roomOption: selected,
+                    classesRoomOptionPrivate: this.state.classesRoomOptionPrivate + " tc_CreateRoomDialog_RoomOption_selected",
+                    classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
+                    classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
+                })
+                break;
+            }
+            case "external": {
+                this.setState({
+                    isPublic: false,
+                    externAllowed: true,
+                    noFederate: false,
+                    roomOption: selected,
+                    classesRoomOptionExternal: this.state.classesRoomOptionExternal + " tc_CreateRoomDialog_RoomOption_selected",
+                    classesRoomOptionPrivate: "tc_CreateRoomDialog_RoomOption_private",
+                    classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
+                })
+                break;
+            }
+            case "public": {
+                this.setState({
+                    isPublic: true,
+                    externAllowed: false,
+                    noFederate: true,
+                    roomOption: selected,
+                    classesRoomOptionPublic: this.state.classesRoomOptionPublic + " tc_CreateRoomDialog_RoomOption_selected",
+                    classesRoomOptionPrivate: "tc_CreateRoomDialog_RoomOption_private",
+                    classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
+                })
+                break;
+            }
+        }
+    },
+
     _validateRoomName: withValidation({
         rules: [
             {
@@ -180,33 +233,43 @@ export default createReactClass({
         const Field = sdk.getComponent('views.elements.Field');
         const LabelledToggleSwitch = sdk.getComponent('views.elements.LabelledToggleSwitch');
 
-        let publicPrivateLabel;
+        let roomOptions = (
+            <div className={"tc_CreateRoomDialog_RoomOption"}>
+                <AccessibleButton className={this.state.classesRoomOptionPrivate} onClick={this.onRoomOptionChange} aria-name={"private"}>
+                    { _t("Private room") }
+                    <div className={"tc_CreateRoomDialog_RoomOption_descr"} onClick={this.onRoomOptionChange} aria-name={"private"}>
+                        { _t("Accessible to all users by invitation from an administrator.") }
+                    </div>
+                </AccessibleButton>
+                <AccessibleButton className={this.state.classesRoomOptionExternal} onClick={this.onRoomOptionChange} aria-name={"external"}>
+                    { _t("Private room opened to externals") }
+                    <div className={"tc_CreateRoomDialog_RoomOption_descr"} onClick={this.onRoomOptionChange} aria-name={"external"}>
+                        { _t("Accessible to all users and to external guests by invitation of an administrator.") }
+                    </div>
+                </AccessibleButton>
+                <AccessibleButton className={this.state.classesRoomOptionPublic} onClick={this.onRoomOptionChange} aria-name={"public"}>
+                    { _t("Forum room") }
+                    <div className={"tc_CreateRoomDialog_RoomOption_descr"} onClick={this.onRoomOptionChange} aria-name={"public"}>
+                        { _t("Accessible to all users from the directory or from a shared link.") }
+                    </div>
+                    <div className={"tc_CreateRoomDialog_RoomOption_suboption"}>
+                        <LabelledToggleSwitch label={ _t('Limit access to this room to domain members "%(domain)s"',
+                            {domain: Tchap.getShortDomain()}) }
+                            onChange={this.onNoFederateChange} value={this.state.noFederate} />
+                    </div>
+                </AccessibleButton>
+            </div>
+        );
+
+        let title = "";
         if (this.state.isPublic) {
-            publicPrivateLabel = null;
+            title = _t('Create a forum room')
+        } else if (!this.state.isPublic && this.state.externAllowed) {
+            title = _t('Create a private room opened to externals')
         } else {
-            publicPrivateLabel = (<p>{_t("This room is private, and can only be joined by invitation.")}</p>);
+            title = _t('Create a private room')
         }
 
-        let domainParam = null;
-        if (this.state.isPublic) {
-            domainParam = (
-                <LabelledToggleSwitch label={ _t('Limit access to this room to domain members "%(domain)s"',
-                    {domain: Tchap.getShortDomain()}) }
-                    onChange={this.onNoFederateChange} value={this.state.noFederate} />
-            );
-        }
-
-        let externAllowedParam = null;
-        if (!this.state.isPublic) {
-            externAllowedParam = (
-                <LabelledToggleSwitch value={this.state.externAllowed}
-                    onChange={ this.onExternAllowedSwitchChange }
-                    label={ _t("Allow the externals to join this room") }
-                    disabled={ this.state.externAllowedSwitchDisabled } />
-            );
-        }
-
-        const title = this.state.isPublic ? _t('Create a public room') : _t('Create a private room');
         return (
             <BaseDialog className="mx_CreateRoomDialog" onFinished={this.props.onFinished}
                 title={title}
@@ -215,10 +278,7 @@ export default createReactClass({
                     <div className="mx_Dialog_content">
                         <Field ref={ref => this._nameFieldRef = ref} label={ _t('Name') } onChange={this.onNameChange} onValidate={this.onNameValidate} value={this.state.name} className="mx_CreateRoomDialog_name" />
                         <Field label={ _t('Topic (optional)') } onChange={this.onTopicChange} value={this.state.topic} className="mx_CreateRoomDialog_topic" />
-                        <LabelledToggleSwitch label={ _t("Make this room public")} onChange={this.onPublicChange} value={this.state.isPublic} />
-                        { publicPrivateLabel }
-                        { externAllowedParam }
-                        { domainParam }
+                        { roomOptions }
                     </div>
                 </form>
                 <DialogButtons primaryButton={_t('Create Room')}

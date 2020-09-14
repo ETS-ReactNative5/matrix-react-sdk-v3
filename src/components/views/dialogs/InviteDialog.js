@@ -586,6 +586,10 @@ export default class InviteDialog extends React.PureComponent {
             return;
         }
 
+
+        // BYPASS IF EMAIL Return a new room
+
+
         let otherRoom = Tchap.getExistingRoom(MatrixClientPeg.get().getUserId(), otherUserId);
         if (otherRoom) {
             switch (otherRoom.state) {

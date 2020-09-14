@@ -2318,5 +2318,13 @@
     "Direct": "Direct",
     "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?": "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?",
     "Tchap": "Tchap",
-    "Limit access to this room to domain members \"%(domain)s\"": "Limit access to this room to domain members \"%(domain)s\""
+    "Limit access to this room to domain members \"%(domain)s\"": "Limit access to this room to domain members \"%(domain)s\"",
+    "Private room": "Private room",
+    "Accessible to all users by invitation from an administrator.": "Accessible to all users by invitation from an administrator.",
+    "Private room opened to externals": "Private room opened to externals",
+    "Accessible to all users and to external guests by invitation of an administrator.": "Accessible to all users and to external guests by invitation of an administrator.",
+    "Forum room": "Salon forum",
+    "Accessible to all users from the directory or from a shared link.": "Accessible to all users from the directory or from a shared link.",
+    "Create a private room opened to externals": "Create a private room opened to externals",
+    "Create a forum room": "Create a forum room"
 }

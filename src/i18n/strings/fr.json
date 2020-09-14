@@ -2562,5 +2562,13 @@
     "Direct": "Direct",
     "Tchap": "Tchap",
     "%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?": "Il semblerait que %(user)s ait quitté la conversation. Voulez-vous le <btn>réinviter</btn> ?",
-    "Limit access to this room to domain members \"%(domain)s\"": "Limiter l'accès à ce salon aux membres du domaine \"%(domain)s\""
+    "Limit access to this room to domain members \"%(domain)s\"": "Limiter l'accès à ce salon aux membres du domaine \"%(domain)s\"",
+    "Private room": "Salon privé",
+    "Accessible to all users by invitation from an administrator.": "Accessible à tous les utilisateurs sur invitation d’un administrateur.",
+    "Private room opened to externals": "Salon privé ouvert aux externes",
+    "Accessible to all users and to external guests by invitation of an administrator.": "Accessible à tous les utilisateurs et aux invités externes sur invitation d’un administrateur.",
+    "Forum room": "Salon forum",
+    "Accessible to all users from the directory or from a shared link.": "Accessible à tous les utilisateurs à partir de l’annuaire ou d’un lien partagé.",
+    "Create a private room opened to externals": "Créer un salon privé ouvert aux externes",
+    "Create a forum room": "Créer un salon forum"
 }
