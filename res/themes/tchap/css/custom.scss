@@ -448,7 +448,13 @@
     transform: scaleX(-1);
 }
 
-.mx_RoomHeader_name:hover div:not(.mx_RoomHeader_editable)/*:not(.mx_RoomHeader_topic)*/ {
+.tc_RoomHeader_forumInfos {
+    position: relative;
+    right: 12px;
+    bottom: 15px;
+}
+
+.mx_RoomHeader_name:hover div:not(.mx_RoomHeader_editable) {
     cursor: initial;
     color: #45474a;
 }
@@ -490,7 +496,7 @@
 .tc_Room_roomType_unrestricted {
     color: #f2994a;
 }
-.tc_Room_roomType_public {
+.tc_Room_roomType_forum {
     color: #6fcf97;
 }
 
@@ -645,4 +651,13 @@
     .tc_CreateRoomDialog_RoomOption_suboption {
         display: block;
     }
+}
+
+.mx_RoomTile_forum {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 45px;
+    z-index: 2;
+    top: 13px;
 }

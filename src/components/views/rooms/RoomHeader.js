@@ -159,15 +159,13 @@ export default createReactClass({
         if (dmUserId) {
             classes += " tc_Room_roomType_direct";
             translation = _t("Direct");
-        } else if (Tchap.getJoinRules(this.props.room.roomId) === "public") {
-            classes += " tc_Room_roomType_public";
-            translation = _t("Public");
-        } else if (Tchap.getJoinRules(this.props.room.roomId) === "invite" &&
-            Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
+        } else if (Tchap.isRoomForum(this.props.room)) {
+            classes += " tc_Room_roomType_forum";
+            translation = _t("Forum");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
             classes += " tc_Room_roomType_restricted";
             translation = _t("Private");
-        } else if (Tchap.getJoinRules(this.props.room.roomId) === "invite" &&
-            Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
             classes += " tc_Room_roomType_unrestricted";
             translation = _t("External");
         }
@@ -334,6 +332,8 @@ export default createReactClass({
         let encryptedIndicator = null;
         if (MatrixClientPeg.get().isRoomEncrypted(this.props.room.roomId)) {
             encryptedIndicator = <img src={require("../../../../res/img/tchap/padlock-encrypted_bordered-white.svg")} width="15" height="19" alt="encrypted" className="tc_RoomHeader_encryptionInfos" />;
+        } else {
+            encryptedIndicator = <img src={require("../../../../res/img/tchap/padlock-forum_mono_dark.svg")} width="15" height="19" alt="encrypted" className="tc_RoomHeader_forumInfos" />;
         }
 
         const rightRow =

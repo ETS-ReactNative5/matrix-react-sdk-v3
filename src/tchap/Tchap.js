@@ -279,6 +279,15 @@ export default class Tchap {
     }
 
     /**
+     * Given a room, return if this room is a "forum room" (old "public")
+     * @param room
+     * @returns {boolean}
+     */
+    static isRoomForum(room) {
+        return !MatrixClientPeg.get().isRoomEncrypted(room.roomId) && this.getJoinRules(room.roomId) === "public";
+    }
+
+    /**
      * Given a roomId, return the access_rule of the room.
      * @param {string} roomId The room ID to test for.
      * @returns {string} The access_rules of the room.

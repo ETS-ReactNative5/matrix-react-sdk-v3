@@ -2556,7 +2556,7 @@
     "Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.": "Votre mot de passe doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.",
     "This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.": "Ce mot de passe est trop faible. Il doit contenir au moins 8 caractères, avec au moins un caractère de chaque type : majuscule, minuscule, chiffre, caractère spécial.",
     "Password too weak !": "Mot de passe trop faible !",
-    "Public": "Public",
+    "Forum": "Forum",
     "Private": "Privé",
     "External": "Externe",
     "Direct": "Direct",
