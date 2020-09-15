@@ -315,7 +315,7 @@ export default createReactClass({
                     label={_t('Favourite')}
                     onClick={this._onClickFavourite}
                     src={require("../../../../res/img/icon_context_fave.svg")}
-                    srcSet={require("../../../../res/img/icon_context_fave_on.svg")}
+                    srcSet={require("../../../../res/img/tchap/notifs/icon_context_fave_on.svg")}
                 />
             </div>
         );

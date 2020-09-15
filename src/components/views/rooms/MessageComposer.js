@@ -352,7 +352,6 @@ export default class MessageComposer extends React.Component {
                     permalinkCreator={this.props.permalinkCreator} />,
                 <UploadButton key="controls_upload" roomId={this.props.room.roomId} />,
                 <EmojiButton key="emoji_button" addEmoji={this.addEmoji} />,
-                <Stickerpicker key="stickerpicker_controls_button" room={this.props.room} />,
             );
 
             if (this.state.showCallButtons) {

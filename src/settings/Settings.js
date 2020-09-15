@@ -533,7 +533,7 @@ export const SETTINGS = {
     },
     "showCallButtonsInComposer": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG,
-        default: false,
+        default: true,
     },
     "e2ee.manuallyVerifyAllSessions": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,

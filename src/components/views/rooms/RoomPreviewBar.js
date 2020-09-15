@@ -218,9 +218,10 @@ export default createReactClass({
     },
 
     _roomName: function(atStart = false) {
-        const name = this.props.room ? this.props.room.name : this.props.roomAlias;
-        if (name) {
-            return name;
+        if (this.props.room) {
+            return this.props.room.name;
+        } else if (this.props.roomAlias) {
+            return this.props.roomAlias.split(':')[0]
         } else if (atStart) {
             return _t("This room");
         } else {
@@ -482,6 +483,9 @@ export default createReactClass({
                 break;
             }
             case MessageCase.ViewingRoom: {
+                const {room} = this.props;
+                console.error("room");
+                console.dir(room);
                 if (this.props.canPreview) {
                     title = _t("You're previewing %(roomName)s. Want to join it?",
                         {roomName: this._roomName()});

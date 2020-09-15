@@ -140,6 +140,14 @@
     }
 }
 
+.tc_LeftPanel_Bottom_logo_collapsed {
+    position: relative;
+    margin: 0 0 2px 7px;
+    & img {
+        height: 29px;
+    }
+}
+
 .tc_LeftPanel_Button_cross {
     margin-right: 19px;
     margin-top: -76px;

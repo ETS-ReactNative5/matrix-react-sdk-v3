@@ -144,7 +144,6 @@ const LeftPanel = createReactClass({
     },
 
     _onPlusClicked: function(e) {
-        console.error("Clicked")
         this.setState({
             plusContextMenuVisible: true,
             plusContextMenuX: e.clientX,
@@ -282,6 +281,12 @@ const LeftPanel = createReactClass({
                         <a href={SdkConfig.get().base_host_url + SdkConfig.get().generic_endpoints.user_guide} rel='noreferrer nofollow noopener' target='_blank'>{_t('User Guide')}</a>
                     </div>
                     <PlusContextMenu />
+                </div>
+            );
+        } else {
+            bottomPanel = (
+                <div className="tc_LeftPanel_Bottom_logo_collapsed">
+                    <img src={require('../../../res/img/tchap/logo_rep_fr.svg')} alt="logo_rep_fr" />
                 </div>
             );
         }
