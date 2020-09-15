@@ -1345,6 +1345,17 @@ const BasicUserInfo = ({room, member, groupId, devices, isRoomEncrypted}) => {
         </div>
     );
 
+    let userOptionSection = null;
+    if (!isMe) {
+        userOptionSection = (
+            <UserOptionsSection
+                devices={devices}
+                canInvite={roomPermissions.canInvite}
+                isIgnored={isIgnored}
+                member={member} />
+        );
+    }
+
     return <React.Fragment>
         { memberDetails &&
         <div className="mx_UserInfo_container mx_UserInfo_separator mx_UserInfo_memberDetailsContainer">
@@ -1353,13 +1364,7 @@ const BasicUserInfo = ({room, member, groupId, devices, isRoomEncrypted}) => {
             </div>
         </div> }
 
-        { securitySection }
-        <UserOptionsSection
-            devices={devices}
-            canInvite={roomPermissions.canInvite}
-            isIgnored={isIgnored}
-            member={member} />
-
+        { userOptionSection }
         { adminToolsContainer }
 
         { spinner }
@@ -1430,6 +1435,7 @@ const UserInfoHeader = ({onClose, member, e2eStatus}) => {
         showPresence = enablePresenceByHsUrl[cli.baseUrl];
     }
 
+    // Presence is disabled for the moment.
     let presenceLabel = null;
     if (showPresence) {
         const PresenceLabel = sdk.getComponent('rooms.PresenceLabel');
@@ -1443,6 +1449,8 @@ const UserInfoHeader = ({onClose, member, e2eStatus}) => {
         statusLabel = <span className="mx_UserInfo_statusMessage">{ statusMessage }</span>;
     }
 
+    // e2e icon is related to key backup and x sign.
+    // We dont want it for the moment.
     let e2eIcon;
     if (e2eStatus) {
         e2eIcon = <E2EIcon size={18} status={e2eStatus} isUser={true} />;
@@ -1457,15 +1465,12 @@ const UserInfoHeader = ({onClose, member, e2eStatus}) => {
             <div className="mx_UserInfo_profile">
                 <div>
                     <h2>
-                        { e2eIcon }
                         <span title={displayName} aria-label={displayName}>
                             { displayName }
                         </span>
                     </h2>
                 </div>
-                <div>{ member.userId }</div>
                 <div className="mx_UserInfo_profileStatus">
-                    {presenceLabel}
                     {statusLabel}
                 </div>
             </div>

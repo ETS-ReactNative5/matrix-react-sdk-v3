@@ -147,6 +147,8 @@ const EntityTile = createReactClass({
             powerLabel = <div className="mx_EntityTile_power">{powerText}</div>;
         }
 
+        // e2e icon is related to key backup and x sign.
+        // We dont want it for the moment.
         let e2eIcon;
         const { e2eStatus } = this.props;
         if (e2eStatus) {
@@ -165,7 +167,6 @@ const EntityTile = createReactClass({
                                   onClick={this.props.onClick}>
                     <div className="mx_EntityTile_avatar">
                         { av }
-                        { e2eIcon }
                     </div>
                     { nameEl }
                     { powerLabel }
