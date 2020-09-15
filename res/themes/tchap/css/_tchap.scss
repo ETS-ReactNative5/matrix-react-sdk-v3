@@ -16,10 +16,17 @@ $monospace-font-family: Inconsolata, Twemoji, 'Apple Color Emoji', 'Segoe UI Emo
 // try to use these colors when possible
 $accent-color: #162d58;
 $accent-bg-color: #273d64;
+$accent-secondary: #35496e;
 $notice-primary-color: #ff4b55;
 $notice-primary-bg-color: rgba(255, 75, 85, 0.16);
 $notice-secondary-color: #61708b;
 $header-panel-bg-color: #f3f8fd;
+
+// room type colors
+$room-type-direct: #9e9e9e;
+$room-type-restricted: #eb5757;
+$room-type-unrestricted: #f2994a;
+$room-type-forum: #27ae60;
 
 // typical text (dark-on-white in light skin)
 $primary-fg-color: #2e2f32;
@@ -36,7 +43,7 @@ $focus-bg-color: #dddddd;
 $accent-fg-color: #ffffff;
 $accent-color-50pct: rgba(3, 179, 129, 0.5);    //#03b381 in rgb
 $accent-color-darker: #92caad;
-$accent-color-alt: #238CF5;
+$accent-color-alt: #238cf5;
 
 $selection-fg-color: $primary-bg-color;
 

@@ -2,67 +2,6 @@
     z-index: 1;
 }
 
-.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar .mx_BaseAvatar_image,
-.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar_image {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    vertical-align: top;
-    background-color: $avatar-bg-color;
-    border-radius: 0;
-}
-
-.mx_RoomHeader_avatar_room .mx_BaseAvatar .mx_BaseAvatar_image,
-.mx_RoomHeader_avatar_room .mx_BaseAvatar_image {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    border-radius: 0;
-}
-
-.mx_RoomHeader_avatar_unrestricted {
-    background-image: url('$(res)/img/cccccc.png');
-    background-position: center;
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    flex: unset;
-    padding: 2px;
-}
-
-.mx_RoomHeader_accessibility {
-    color: #cccccc;
-    font-weight: 400;
-    font-size: 13px;
-    margin: 0 7px;
-    margin-top: 4px; // to align baseline of topic with room name
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid transparent;
-    line-height: 1.2em;
-    max-height: 2.4em;
-    font-style: italic;
-}
-
-.mx_RoomTile_avatar_unrestricted {
-    background-image: url('$(res)/img/cccccc.png');
-    background-position: center;
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    padding: 2px;
-    margin-left: 4px;
-    margin-right: 4px;
-}
-
-.mx_RoomTile_avatar {
-    flex: 0;
-    vertical-align: middle;
-}
-
-.mx_RoomTile_dm {
-    left: 40px;
-    top: 12px;
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-}
-
 .tc_RoomDirectory_roomPreview {
     padding: 7px 4px 7px 4px !important;
 }
@@ -93,7 +32,7 @@
 
 .mx_InviteDialog_warningText {
     margin-right: 45px;
-    color: #eb5757;
+    color: $room-type-restricted;
     font-size: 14px;
 }
 
@@ -151,32 +90,32 @@
 
 // Left Panel Main
 .mx_LeftPanel {
-    background-color: #162d58;
+    background-color: $accent-color;
 }
 
 .mx_LeftPanel_explore .mx_AccessibleButton {
-    color: #dddddd;
+    color: $focus-bg-color;
     &::before {
         mask: url('$(res)/img/tchap/explore.svg');
-        background-color: #dddddd;
+        background-color: $focus-bg-color;
     }
     &:hover {
-        background-color: #273d64;
+        background-color: $accent-bg-color;
     }
 }
 
 .mx_LeftPanel_exploreAndFilterRow input::placeholder {
-    color: #dddddd !important;
+    color: $focus-bg-color !important;
 }
 
 .mx_LeftPanel_exploreAndFilterRow {
-    border-bottom: 1px solid #35496e;
+    border-bottom: 1px solid $accent-secondary;
 }
 
 .tc_LeftPanel_Bottom {
     display: flex;
     height: 80px;
-    border-top: 1px solid #35496e;
+    border-top: 1px solid $accent-secondary;
 }
 
 .tc_LeftPanel_Bottom_links {
@@ -186,9 +125,9 @@
     margin: 30px -55px 0 20px;
     overflow: hidden;
     text-align: right;
-    color: #dddddd;
+    color: $focus-bg-color;
     & a {
-        color: #dddddd;
+        color: $focus-bg-color;
         text-decoration: none;
     }
 }
@@ -221,8 +160,8 @@
 
 // Top Bar
 .mx_TopLeftMenuButton {
-    background-color: #162d58;
-    color: white;
+    background-color: $accent-color;
+    color: $primary-bg-color;
     border-bottom: none;
     padding: 10px 4px;
 }
@@ -230,7 +169,7 @@
 .mx_TopLeftMenu .mx_TopLeftMenu_section_withIcon {
     font-size: 16px;
     .mx_AccessibleButton::after {
-        background-color: #dddddd;
+        background-color: $focus-bg-color;
         width: 22px;
         height: 22px;
         top: 5px;
@@ -245,7 +184,7 @@
         mask-size: 22px;
     }
     .mx_AccessibleButton:hover {
-        background-color: #35496e;
+        background-color: $accent-secondary;
     }
 }
 
@@ -258,15 +197,15 @@
     min-width: 0;
     margin: 4px 9px 4px 9px !important;
     &.mx_SearchBox_blurred:hover {
-        background-color: #273d64;
+        background-color: $accent-bg-color;
     }
     &:not(.mx_SearchBox_blurred) {
-        background-color: #273d64;
+        background-color: $accent-bg-color;
         input {
-            color: #dddddd !important;
+            color: $focus-bg-color !important;
         }
         input::placeholder {
-            color: #61708b !important;
+            color: $focus-bg-color !important;
         }
     }
     .mx_SearchBox_closeButton {
@@ -277,15 +216,15 @@
 .mx_MemberList {
     .mx_SearchBox {
         &.mx_SearchBox_blurred:hover {
-            background-color: #f2f5f8;
+            background-color: $secondary-accent-color;
         }
         &:not(.mx_SearchBox_blurred) {
-            background-color: #f2f5f8;
+            background-color: $secondary-accent-color;
             input {
-                color: #2e2f32 !important;
+                color: $primary-fg-color !important;
             }
             input::placeholder {
-                color: #61708b !important;
+                color: $notice-secondary-color !important;
             }
         }
         input[type="text"].mx_textinput_icon.mx_textinput_search {
@@ -296,7 +235,7 @@
 
 // Room List / SubList
 .mx_RoomSubList_label > span {
-    color: #dddddd;
+    color: $focus-bg-color;
     font-weight: bold;
     font-size: 14px;
 }
@@ -306,7 +245,7 @@
 }
 
 .mx_RoomList > .mx_ResizeHandle > div {
-    background: #35496e;
+    background: $accent-secondary;
 }
 
 .mx_RoomList > .mx_ResizeHandle.mx_ResizeHandle_vertical {
@@ -331,7 +270,7 @@
     min-height: 60px;
     margin-top: -1px;
     &:focus {
-        background-color: #162d58;
+        background-color: $accent-color;
     }
     &::after {
         content: "";
@@ -340,12 +279,21 @@
         bottom: 0;
         height: 1px;
         width: 80%;
-        border-bottom: 1px solid #35496e;
+        border-bottom: 1px solid $accent-secondary;
     }
 }
 
+.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar .mx_BaseAvatar_image,
+.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar_image {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    vertical-align: top;
+    background-color: $avatar-bg-color;
+    border-radius: 0;
+}
+
 .tc_RoomTile_firstLine {
-    color: #dddddd;
+    color: $focus-bg-color;
     padding-left: 10px;
 }
 
@@ -359,13 +307,13 @@
     display: inline-flex;
     position: absolute;
     right: 0;
-    background-color: #162d58;
+    background-color: $accent-color;
     padding: 4px 24px 0 8px;
     font-size: 12px;
 }
 
 .mx_RoomTile_selected .tc_RoomTile_roomType {
-    background-color: #35496e;
+    background-color: $accent-secondary;
 }
 
 .mx_RoomTile_menuButton {
@@ -374,30 +322,30 @@
 
 .mx_RoomTile_selected {
     border-radius: 0;
-    background-color: #35496e;
+    background-color: $accent-secondary;
     &:focus {
-        background-color: #35496e;
+        background-color: $accent-secondary;
     }
 }
 
 .mx_RoomTile_unread .mx_RoomTile_name, .mx_RoomTile_highlight .mx_RoomTile_name {
-    color: #dddddd;
+    color: $focus-bg-color;
     font-weight: bold;
 }
 
 .tc_RoomTile_badge {
     display: inline-flex;
     padding: 0 7px 0 8px;
-    background-color: #dddddd !important;
-    color: #162d58 !important;
+    background-color: $focus-bg-color !important;
+    color: $accent-color !important;
     font-weight: bold;
     margin: 3px 6px 3px 0;
 }
 
 .tc_RoomSubList_badge > div {
     padding: 0 7px 0 8px;
-    background-color: #dddddd !important;
-    color: #162d58 !important;
+    background-color: $focus-bg-color !important;
+    color: $accent-color !important;
     font-weight: bold;
     font-size: 12px;
 }
@@ -406,38 +354,100 @@
     padding: 0 9px 0 9px;
 }
 
+.mx_RoomTile_forum {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 45px;
+    z-index: 2;
+    top: 13px;
+}
+
+
+.mx_RoomTile_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    padding: 2px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.mx_RoomTile_avatar {
+    flex: 0;
+    vertical-align: middle;
+}
+
+.mx_RoomTile_dm {
+    left: 40px;
+    top: 12px;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
 // Context Menus
 .mx_ContextualMenu_top {
-    background-color: #273d64;
-    color: #dddddd;
-    -webkit-box-shadow: 4px 4px 4px 0 #273d64;
-    box-shadow: 4px 4px 4px 0 #273d64;
+    background-color: $accent-bg-color;
+    color: $focus-bg-color;
+    -webkit-box-shadow: 4px 4px 4px 0 $accent-bg-color;
+    box-shadow: 4px 4px 4px 0 $accent-bg-color;
 }
 
 .mx_ContextualMenu.mx_ContextualMenu_withChevron_left {
-    background-color: #273d64;
-    color: #dddddd;
+    background-color: $accent-bg-color;
+    color: $focus-bg-color;
 }
 
 .mx_RoomTileContextMenu_notif_field.mx_AccessibleButton,
 .mx_RoomTileContextMenu_tag_field.mx_AccessibleButton,
 .mx_RoomTileContextMenu_leave.mx_AccessibleButton {
     &:hover {
-        background-color: #35496e;
+        background-color: $accent-secondary;
     }
 }
 
 .mx_ContextualMenu_chevron_left {
-    border-right: 8px solid #273d64;
+    border-right: 8px solid $accent-bg-color;
 }
 
 .mx_RoomTileContextMenu_separator {
-    border-color: #35496e;
+    border-color: $accent-secondary;
 }
 
 // Room Header
 .mx_RoomHeader_wrapper {
     height: 72px;
+}
+
+.mx_RoomHeader_avatar_room .mx_BaseAvatar .mx_BaseAvatar_image,
+.mx_RoomHeader_avatar_room .mx_BaseAvatar_image {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+
+.mx_RoomHeader_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    flex: unset;
+    padding: 2px;
+}
+
+.mx_RoomHeader_accessibility {
+    color: $event-redacted-border-color;
+    font-weight: 400;
+    font-size: 13px;
+    margin: 0 7px;
+    margin-top: 4px; // to align baseline of topic with room name
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid transparent;
+    line-height: 1.2em;
+    max-height: 2.4em;
+    font-style: italic;
 }
 
 .tc_RoomHeader_encryptionInfos {
@@ -456,7 +466,7 @@
 
 .mx_RoomHeader_name:hover div:not(.mx_RoomHeader_editable) {
     cursor: initial;
-    color: #45474a;
+    color: $roomheader-color;
 }
 
 .tc_RoomHeader_infos {
@@ -488,16 +498,16 @@
 }
 
 .tc_Room_roomType_direct {
-    color: #9e9e9e;
+    color: $room-type-direct;
 }
 .tc_Room_roomType_restricted {
-    color: #eb5757;
+    color: $room-type-restricted;
 }
 .tc_Room_roomType_unrestricted {
-    color: #f2994a;
+    color: $room-type-unrestricted;
 }
 .tc_Room_roomType_forum {
-    color: #6fcf97;
+    color: $room-type-forum;
 }
 
 // Message Composer
@@ -523,8 +533,8 @@
 
 .tc_PlusContextMenu {
     height: 104px;
-    color: #dddddd;
-    background-color: #273d64;
+    color: $focus-bg-color;
+    background-color: $accent-bg-color;
     box-shadow: 2px 15px 30px 0 rgba(0, 0, 0, 0.48);
     border-radius: 4px;
     overflow-y: auto;
@@ -538,7 +548,7 @@
     padding: 7px 17px 7px 15px;
     cursor: pointer;
     &:hover {
-        background-color: #35496e;
+        background-color: $accent-secondary;
     }
 }
 
@@ -561,21 +571,31 @@
 .mx_IconButton {
     &.mx_IconButton_icon_edit::before {
         mask-image: url('$(res)/img/tchap/feather-customised/edit.svg');
-        background-color: #ffffff;
+        background-color: $primary-bg-color;
     }
     &.mx_IconButton_icon_check::before {
         mask-image: url('$(res)/img/tchap/feather-customised/check.svg');
-        background-color: #ffffff;
+        background-color: $primary-bg-color;
     }
 }
 
 
-/*
-** TESTS
-*/
+// Event Tile
+.mx_EventTile:hover.mx_EventTile_verified .mx_EventTile_line {
+    border-left: $accent-color 5px solid;
+}
 
+.mx_EventTile:hover.mx_EventTile_unverified .mx_EventTile_line {
+    border-left: $accent-color 5px solid;
+}
+
+.mx_EventTile:hover.mx_EventTile_unknown .mx_EventTile_line {
+    border-left: $accent-color 5px solid;
+}
+
+// Room Creation UI
 .tc_CreateRoomDialog_RoomOption > div {
-    background-color: #f2f5f8;
+    background-color: $secondary-accent-color;
     border-radius: 6px;
     margin: 8px 0 8px 0;
     padding: 4px;
@@ -584,8 +604,8 @@
 }
 
 .tc_CreateRoomDialog_RoomOption_private {
-    border: 0 solid #eb5757;
-    color: #eb5757;
+    border: 0 solid $room-type-restricted;
+    color: $room-type-restricted;
     &::before {
         width: 12px;
         height: 16px;
@@ -600,8 +620,8 @@
 }
 
 .tc_CreateRoomDialog_RoomOption_external {
-    border: 0 solid #f07a12;
-    color: #f07a12;
+    border: 0 solid $room-type-unrestricted;
+    color: $room-type-unrestricted;
     &::before {
         width: 12px;
         height: 16px;
@@ -616,8 +636,8 @@
 }
 
 .tc_CreateRoomDialog_RoomOption_public {
-    border: 0 solid #27ae60;
-    color: #27ae60;
+    border: 0 solid $room-type-forum;
+    color: $room-type-forum;
     &::before {
         width: 12px;
         height: 14px;
@@ -651,13 +671,4 @@
     .tc_CreateRoomDialog_RoomOption_suboption {
         display: block;
     }
-}
-
-.mx_RoomTile_forum {
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 45px;
-    z-index: 2;
-    top: 13px;
 }
