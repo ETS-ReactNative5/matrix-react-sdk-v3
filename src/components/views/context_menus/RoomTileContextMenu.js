@@ -242,32 +242,32 @@ export default createReactClass({
         return (
             <div className="mx_RoomTileContextMenu" role="group" aria-label={_t("Notification settings")}>
                 <div className="mx_RoomTileContextMenu_notif_picker" role="presentation">
-                    <img src={require("../../../../res/img/notif-slider.svg")} width="20" height="107" alt="" />
+                    <img src={require("../../../../res/img/tchap/notifs/notif-slider.svg")} width="20" height="107" alt="" />
                 </div>
 
                 <NotifOption
                     active={this.state.roomNotifState === RoomNotifs.ALL_MESSAGES_LOUD}
                     label={_t('All messages (noisy)')}
                     onClick={this._onClickAlertMe}
-                    src={require("../../../../res/img/icon-context-mute-off-copy.svg")}
+                    src={require("../../../../res/img/tchap/notifs/icon-context-mute-off-copy.svg")}
                 />
                 <NotifOption
                     active={this.state.roomNotifState === RoomNotifs.ALL_MESSAGES}
                     label={_t('All messages')}
                     onClick={this._onClickAllNotifs}
-                    src={require("../../../../res/img/icon-context-mute-off.svg")}
+                    src={require("../../../../res/img/tchap/notifs/icon-context-mute-off.svg")}
                 />
                 <NotifOption
                     active={this.state.roomNotifState === RoomNotifs.MENTIONS_ONLY}
                     label={_t('Mentions only')}
                     onClick={this._onClickMentions}
-                    src={require("../../../../res/img/icon-context-mute-mentions.svg")}
+                    src={require("../../../../res/img/tchap/notifs/icon-context-mute-mentions.svg")}
                 />
                 <NotifOption
                     active={this.state.roomNotifState === RoomNotifs.MUTE}
                     label={_t('Mute')}
                     onClick={this._onClickMute}
-                    src={require("../../../../res/img/icon-context-mute.svg")}
+                    src={require("../../../../res/img/tchap/notifs/icon-context-mute.svg")}
                 />
             </div>
         );

@@ -267,7 +267,8 @@ export default createReactClass({
 
         const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
         const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(this.props.room.roomId));
-        if (this.props.onSettingsClick && !isDMRoom) {
+        const myMembership = this.props.room.getMyMembership();
+        if (this.props.onSettingsClick && !isDMRoom && myMembership === "join") {
             settingsButton =
                 <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_settingsButton"
                     onClick={this.props.onSettingsClick}
@@ -310,7 +311,8 @@ export default createReactClass({
         }
 
         let searchButton;
-        if (this.props.onSearchClick && this.props.inRoom) {
+        if (this.props.onSearchClick && this.props.inRoom
+            && !MatrixClientPeg.get().isRoomEncrypted(this.props.room.roomId)) {
             searchButton =
                 <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_searchButton"
                     onClick={this.props.onSearchClick}
