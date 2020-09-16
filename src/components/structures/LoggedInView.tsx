@@ -31,6 +31,8 @@ import dis from '../../dispatcher/dispatcher';
 import sessionStore from '../../stores/SessionStore';
 import {MatrixClientPeg, IMatrixClientCreds} from '../../MatrixClientPeg';
 import SettingsStore from "../../settings/SettingsStore";
+import Modal from "../../Modal";
+import InfoEncryptionDialog from "../../tchap/components/dialogs/InfoEncryptionDialog.js";
 
 import TagOrderActions from '../../actions/TagOrderActions';
 import RoomListActions from '../../actions/RoomListActions';
@@ -176,6 +178,10 @@ class LoggedInView extends React.PureComponent<IProps, IState> {
         this._matrixClient.on("accountData", this.onAccountData);
         this._matrixClient.on("sync", this.onSync);
         this._matrixClient.on("RoomState.events", this.onRoomStateEvents);
+
+        if (window.localStorage && !window.localStorage.getItem("tc_validate_encryption_informations")) {
+            Modal.createTrackedDialog('', '', InfoEncryptionDialog);
+        }
 
         fixupColorFonts();
 
