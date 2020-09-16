@@ -280,11 +280,11 @@ export default class Tchap {
 
     /**
      * Given a room, return if this room is a "forum room" (old "public")
-     * @param room
+     * @param roomId
      * @returns {boolean}
      */
-    static isRoomForum(room) {
-        return !MatrixClientPeg.get().isRoomEncrypted(room.roomId) && this.getJoinRules(room.roomId) === "public";
+    static isRoomForum(roomId) {
+        return !MatrixClientPeg.get().isRoomEncrypted(roomId) && this.getJoinRules(roomId) === "public";
     }
 
     /**

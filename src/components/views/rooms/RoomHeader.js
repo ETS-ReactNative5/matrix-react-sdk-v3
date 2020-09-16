@@ -159,7 +159,7 @@ export default createReactClass({
         if (dmUserId) {
             classes += " tc_Room_roomType_direct";
             translation = _t("Direct");
-        } else if (Tchap.isRoomForum(this.props.room)) {
+        } else if (Tchap.isRoomForum(this.props.room.roomId)) {
             classes += " tc_Room_roomType_forum";
             translation = _t("Forum");
         } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {

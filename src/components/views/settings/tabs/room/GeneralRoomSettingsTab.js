@@ -18,6 +18,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {_t} from "../../../../../languageHandler";
 import RoomProfileSettings from "../../../room_settings/RoomProfileSettings";
+import RoomAccessSettings from "../../../room_settings/RoomAccessSettings";
 import * as sdk from "../../../../..";
 import AccessibleButton from "../../../elements/AccessibleButton";
 import dis from "../../../../../dispatcher/dispatcher";
@@ -126,6 +127,10 @@ export default class GeneralRoomSettingsTab extends React.Component {
                 <div className="mx_SettingsTab_heading">{_t("General")}</div>
                 <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
                     <RoomProfileSettings roomId={this.props.roomId} />
+                </div>
+                <div className="mx_SettingsTab_heading">{_t("Access")}</div>
+                <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
+                    <RoomAccessSettings roomId={this.props.roomId} />
                 </div>
                 <div className="mx_SettingsTab_heading">{_t("Other")}</div>
                 { roomPublishChange }

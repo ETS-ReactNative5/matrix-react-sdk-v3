@@ -606,6 +606,13 @@
     border-left: $accent-color 5px solid;
 }
 
+// Link Sharing UI
+.tc_LinkSharing_Helper {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
 // Room Creation UI
 .tc_CreateRoomDialog_RoomOption > div {
     background-color: $secondary-accent-color;
