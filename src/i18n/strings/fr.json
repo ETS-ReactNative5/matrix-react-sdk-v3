@@ -2599,5 +2599,15 @@
     "One of your devices wants to check your current device. By performing this verification, a link of trust will be established between your two devices to facilitate the sharing of encryption keys.": "L’un de vos appareils souhaite vérifier votre appareil actuel. En effectuant cette vérification, un lien de confiance s’établira entre vos deux appareils afin de faciliter le partage de clés de chiffrement.",
     "Verify this device by confirming the following emoji appear on their screen:": "Vérifiez l’appareil en confirmant que les émojis suivants apparaissent également sur son écran :",
     "Verify this device by confirming the following number appears on their screen:": "Vérifiez l’appareil en confirmant que les nombres suivants apparaissent également sur son écran :",
-    "Waiting for confirmation from other device...": "Attente de la confirmation de l’autre appareil"
+    "Waiting for confirmation from other device...": "Attente de la confirmation de l’autre appareil",
+    "Invite new room members from a file": "Inviter de nouveaux membres depuis un fichier",
+    "Send %(number)s invites": "Envoyer %(number)s invitations",
+    "Invite users from a file": "Inviter des utilisateurs depuis un fichier",
+    "This file contains at least one invalid email address : %(address)s.": "Le fichier contient au moins une adresse email non valide : %(address)s.",
+    "Error : File too large (max 25 kB).": "Erreur: Fichier trop gros (max 25 kB).",
+    "Error : Invalid file format.": "Erreur : Type de fichier non pris en charge.",
+    "Some users are extern. This room is restricted. They will not be invited.": "Certains utilisateurs de la liste sont externes. Ce salon est restreint. Ils ne seront donc pas invités.",
+    "Supported formats :": "Formats supportés :",
+    ".txt with email addresses separated by ';'": ".txt avec les adresses email séparées par des ';'",
+    ".csv with email addresses separated by lines break": ".csv avec les adresses email séparées par des retours à la ligne"
 }

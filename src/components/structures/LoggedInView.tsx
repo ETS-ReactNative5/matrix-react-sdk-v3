@@ -32,7 +32,7 @@ import sessionStore from '../../stores/SessionStore';
 import {MatrixClientPeg, IMatrixClientCreds} from '../../MatrixClientPeg';
 import SettingsStore from "../../settings/SettingsStore";
 import Modal from "../../Modal";
-import InfoEncryptionDialog from "../../tchap/components/dialogs/InfoEncryptionDialog.js";
+import InfoEncryptionDialog from "../../tchap/components/dialogs/InfoEncryptionDialog";
 
 import TagOrderActions from '../../actions/TagOrderActions';
 import RoomListActions from '../../actions/RoomListActions';

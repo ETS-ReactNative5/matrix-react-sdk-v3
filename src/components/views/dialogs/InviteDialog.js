@@ -316,6 +316,7 @@ export default class InviteDialog extends React.PureComponent {
             room.getMembersWithMembership('join').forEach(m => alreadyInvited.add(m.userId));
             // add banned users, so we don't try to invite them
             room.getMembersWithMembership('ban').forEach(m => alreadyInvited.add(m.userId));
+            this._onInviteFromFileClick = this._onInviteFromFileClick.bind(this);
         }
 
         this.state = {
@@ -1141,6 +1142,11 @@ export default class InviteDialog extends React.PureComponent {
         return restrictionWarning;
     }
 
+    _onInviteFromFileClick() {
+        this.props.onFinished();
+        dis.dispatch({action: 'view_invite_file', roomId: this.props.roomId,});
+    }
+
 
     render() {
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
@@ -1169,6 +1175,18 @@ export default class InviteDialog extends React.PureComponent {
             helpText = _t("Invite someone using their name or email address.");
             buttonText = _t("Invite");
             goButtonFn = this._inviteUsers;
+        }
+
+        let inviteFromFile = null;
+        if (this.props.kind !== KIND_DM) {
+            inviteFromFile = (
+                <details>
+                    <summary>{_t("Advanced")}</summary>
+                    <p><button onClick={this._onInviteFromFileClick}>
+                        { _t("Invite users from a file") }
+                    </button></p>
+                </details>
+            );
         }
 
         const hasSelection = this.state.targets.length > 0
@@ -1202,6 +1220,7 @@ export default class InviteDialog extends React.PureComponent {
                     <div className='mx_InviteDialog_userSections'>
                         {this._renderSection('recents')}
                         {this._renderSection('suggestions')}
+                        { inviteFromFile }
                     </div>
                 </div>
             </BaseDialog>

@@ -39,7 +39,7 @@ import Notifier from '../../Notifier';
 import Modal from "../../Modal";
 import Tinter from "../../Tinter";
 import * as sdk from '../../index';
-import { showRoomInviteDialog, showStartChatInviteDialog } from '../../RoomInvite';
+import { showRoomInviteDialog, showStartChatInviteDialog, showRoomInviteDialogFromFile } from '../../RoomInvite';
 import * as Rooms from '../../Rooms';
 import linkifyMatrix from "../../linkify-matrix";
 import * as Lifecycle from '../../Lifecycle';
@@ -636,6 +636,9 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 break;
             case 'view_invite':
                 showRoomInviteDialog(payload.roomId);
+                break;
+            case 'view_invite_file':
+                showRoomInviteDialogFromFile(payload.roomId);
                 break;
             case 'view_last_screen':
                 // This function does what we want, despite the name. The idea is that it shows

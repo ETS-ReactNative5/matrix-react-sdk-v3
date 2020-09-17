@@ -2355,5 +2355,15 @@
     "One of your devices wants to check your current device. By performing this verification, a link of trust will be established between your two devices to facilitate the sharing of encryption keys.": "One of your devices wants to check your current device. By performing this verification, a link of trust will be established between your two devices to facilitate the sharing of encryption keys.",
     "Verify this device by confirming the following emoji appear on their screen:": "Verify this device by confirming the following emoji appear on their screen:",
     "Verify this device by confirming the following number appears on their screen:": "Verify this device by confirming the following number appears on their screen:",
-    "Waiting for confirmation from other device...": "Waiting for confirmation from other device..."
+    "Waiting for confirmation from other device...": "Waiting for confirmation from other device...",
+    "Send %(number)s invites": "Send %(number)s invites",
+    "Invite new room members from a file": "Invite new room members from a file",
+    "Invite users from a file": "Invite users from a file",
+    "This file contains at least one invalid email address : %(address)s.": "This file contains at least one invalid email address : %(address)s.",
+    "Error : File too large (max 25 kB).": "Error : File too large (max 25 kB).",
+    "Error : Invalid file format.": "Error : Invalid file format.",
+    "Some users are extern. This room is restricted. They will not be invited.": "Some users are extern. This room is restricted. They will not be invited.",
+    "Supported formats :": "Supported formats :",
+    ".txt with email addresses separated by ';'": ".txt with email addresses separated by ';'",
+    ".csv with email addresses separated by lines break": ".csv with email addresses separated by lines break"
 }
