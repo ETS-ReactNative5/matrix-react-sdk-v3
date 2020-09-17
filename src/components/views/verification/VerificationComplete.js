@@ -28,10 +28,8 @@ export default class VerificationComplete extends React.Component {
         const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
         return <div>
             <h2>{_t("Verified!")}</h2>
-            <p>{_t("You've successfully verified this user.")}</p>
             <p>{_t(
-                "Secure messages with this user are end-to-end encrypted and not able to be " +
-                "read by third parties.",
+                "You've successfully verified this device.",
             )}</p>
             <DialogButtons onPrimaryButtonClick={this.props.onDone}
                 primaryButton={_t("Got It")}

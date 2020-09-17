@@ -2351,5 +2351,9 @@
     "Stay connected from at least one other device": "Stay connected from at least one other device",
     "Export your encryption keys": "Export your encryption keys",
     "Find out more": "Find out more",
-    "Export keys and log-out": "Export keys and log-out"
+    "Export keys and log-out": "Export keys and log-out",
+    "One of your devices wants to check your current device. By performing this verification, a link of trust will be established between your two devices to facilitate the sharing of encryption keys.": "One of your devices wants to check your current device. By performing this verification, a link of trust will be established between your two devices to facilitate the sharing of encryption keys.",
+    "Verify this device by confirming the following emoji appear on their screen:": "Verify this device by confirming the following emoji appear on their screen:",
+    "Verify this device by confirming the following number appears on their screen:": "Verify this device by confirming the following number appears on their screen:",
+    "Waiting for confirmation from other device...": "Waiting for confirmation from other device..."
 }

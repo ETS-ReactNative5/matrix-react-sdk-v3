@@ -2595,5 +2595,9 @@
     "Stay connected from at least one other device": "Restez connecté depuis au moins un autre appareil",
     "Export your encryption keys": "Exporter vos clés de chiffrement",
     "Find out more": "En savoir plus",
-    "Export keys and log-out": "Exporter les clés et se déconnecter"
+    "Export keys and log-out": "Exporter les clés et se déconnecter",
+    "One of your devices wants to check your current device. By performing this verification, a link of trust will be established between your two devices to facilitate the sharing of encryption keys.": "L’un de vos appareils souhaite vérifier votre appareil actuel. En effectuant cette vérification, un lien de confiance s’établira entre vos deux appareils afin de faciliter le partage de clés de chiffrement.",
+    "Verify this device by confirming the following emoji appear on their screen:": "Vérifiez l’appareil en confirmant que les émojis suivants apparaissent également sur son écran :",
+    "Verify this device by confirming the following number appears on their screen:": "Vérifiez l’appareil en confirmant que les nombres suivants apparaissent également sur son écran :",
+    "Waiting for confirmation from other device...": "Attente de la confirmation de l’autre appareil"
 }

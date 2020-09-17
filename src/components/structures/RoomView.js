@@ -383,6 +383,7 @@ export default createReactClass({
                     // Stop peeking if anything went wrong
                     this.setState({
                         isPeeking: false,
+                        peekLoading: false,
                     });
 
                     // This won't necessarily be a MatrixError, but we duck-type

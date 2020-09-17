@@ -166,13 +166,9 @@ export default class IncomingSasDialog extends React.Component {
 
         const selfDetailText = [
             <p key="p1">{_t(
-                "Verify this device to mark it as trusted. " +
-                "Trusting this device gives you and other users extra peace of mind when using " +
-                "end-to-end encrypted messages.",
-            )}</p>,
-            <p key="p2">{_t(
-                "Verifying this device will mark it as trusted, and users who have verified with " +
-                "you will trust this device.",
+                "One of your devices wants to check your current device. " +
+                "By performing this verification, a link of trust will be established between " +
+                "your two devices to facilitate the sharing of encryption keys.",
             )}</p>,
         ];
 
@@ -207,7 +203,7 @@ export default class IncomingSasDialog extends React.Component {
         return (
             <div>
                 <Spinner />
-                <p>{_t("Waiting for partner to confirm...")}</p>
+                <p>{_t("Waiting for confirmation from other device...")}</p>
             </div>
         );
     }

@@ -85,6 +85,21 @@
     min-width: 10px;
 }
 
+.mx_FormButton {
+    &.mx_AccessibleButton_kind_primary {
+        color: $primary-bg-color;
+        background-color: $accent-bg-color;
+    }
+}
+
+.mx_VerificationShowSas {
+    .mx_Dialog_buttons {
+        button.mx_VerificationShowSas_matchButton {
+            color: $primary-bg-color;
+        }
+    }
+}
+
 
 //==================== Design V3 ====================//
 
