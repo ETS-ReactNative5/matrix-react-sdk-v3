@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import MFileBody from './MFileBody';
 import Modal from '../../../Modal';
 import * as sdk from '../../../index';
-import { decryptFile } from '../../../utils/DecryptFile';
+import ContentScanner from '../../../tchap/utils/ContentScanner';
 import { _t } from '../../../languageHandler';
 import SettingsStore from "../../../settings/SettingsStore";
 import MatrixClientContext from "../../../contexts/MatrixClientContext";
@@ -62,6 +62,8 @@ export default class MImageBody extends React.Component {
             loadedImageDimensions: null,
             hover: false,
             showImage: SettingsStore.getValue("showImages"),
+            contentUrl: null,
+            isClean: null,
         };
 
         this._image = createRef();
@@ -167,19 +169,11 @@ export default class MImageBody extends React.Component {
         if (content.file !== undefined) {
             return this.state.decryptedUrl;
         } else {
-            return this.context.mxcUrlToHttp(content.url);
+            return this.state.contentUrl;
         }
     }
 
     _getThumbUrl() {
-        // FIXME: the dharma skin lets images grow as wide as you like, rather than capped to 800x600.
-        // So either we need to support custom timeline widths here, or reimpose the cap, otherwise the
-        // thumbnail resolution will be unnecessarily reduced.
-        // custom timeline widths seems preferable.
-        const pixelRatio = window.devicePixelRatio;
-        const thumbWidth = Math.round(800 * pixelRatio);
-        const thumbHeight = Math.round(600 * pixelRatio);
-
         const content = this.props.mxEvent.getContent();
         if (content.file !== undefined) {
             // Don't use the thumbnail for clients wishing to autoplay gifs.
@@ -191,64 +185,9 @@ export default class MImageBody extends React.Component {
             // special case to return clientside sender-generated thumbnails for SVGs, if any,
             // given we deliberately don't thumbnail them serverside to prevent
             // billion lol attacks and similar
-            return this.context.mxcUrlToHttp(
-                content.info.thumbnail_url,
-                thumbWidth,
-                thumbHeight,
-            );
+            return ContentScanner.getUnencryptedContentUrl(content, true);
         } else {
-            // we try to download the correct resolution
-            // for hi-res images (like retina screenshots).
-            // synapse only supports 800x600 thumbnails for now though,
-            // so we'll need to download the original image for this to work
-            // well for now. First, let's try a few cases that let us avoid
-            // downloading the original, including:
-            //   - When displaying a GIF, we always want to thumbnail so that we can
-            //     properly respect the user's GIF autoplay setting (which relies on
-            //     thumbnailing to produce the static preview image)
-            //   - On a low DPI device, always thumbnail to save bandwidth
-            //   - If there's no sizing info in the event, default to thumbnail
-            const info = content.info;
-            if (
-                this._isGif() ||
-                pixelRatio === 1.0 ||
-                (!info || !info.w || !info.h || !info.size)
-            ) {
-                return this.context.mxcUrlToHttp(content.url, thumbWidth, thumbHeight);
-            } else {
-                // we should only request thumbnails if the image is bigger than 800x600
-                // (or 1600x1200 on retina) otherwise the image in the timeline will just
-                // end up resampled and de-retina'd for no good reason.
-                // Ideally the server would pregen 1600x1200 thumbnails in order to provide retina
-                // thumbnails, but we don't do this currently in synapse for fear of disk space.
-                // As a compromise, let's switch to non-retina thumbnails only if the original
-                // image is both physically too large and going to be massive to load in the
-                // timeline (e.g. >1MB).
-
-                const isLargerThanThumbnail = (
-                    info.w > thumbWidth ||
-                    info.h > thumbHeight
-                );
-                const isLargeFileSize = info.size > 1*1024*1024;
-
-                if (isLargeFileSize && isLargerThanThumbnail) {
-                    // image is too large physically and bytewise to clutter our timeline so
-                    // we ask for a thumbnail, despite knowing that it will be max 800x600
-                    // despite us being retina (as synapse doesn't do 1600x1200 thumbs yet).
-                    return this.context.mxcUrlToHttp(
-                        content.url,
-                        thumbWidth,
-                        thumbHeight,
-                    );
-                } else {
-                    // download the original image otherwise, so we can scale it client side
-                    // to take pixelRatio into account.
-                    // ( no width/height means we want the original image)
-                    return this.context.mxcUrlToHttp(
-                        content.url,
-                    );
-                }
-            }
+            return ContentScanner.getUnencryptedContentUrl(content, true);
         }
     }
 
@@ -258,34 +197,54 @@ export default class MImageBody extends React.Component {
 
         const content = this.props.mxEvent.getContent();
         if (content.file !== undefined && this.state.decryptedUrl === null) {
-            let thumbnailPromise = Promise.resolve(null);
-            if (content.info && content.info.thumbnail_file) {
-                thumbnailPromise = decryptFile(
-                    content.info.thumbnail_file,
-                ).then(function(blob) {
-                    return URL.createObjectURL(blob);
-                });
-            }
-            let decryptedBlob;
-            thumbnailPromise.then((thumbnailUrl) => {
-                return decryptFile(content.file).then(function(blob) {
-                    decryptedBlob = blob;
-                    return URL.createObjectURL(blob);
-                }).then((contentUrl) => {
-                    if (this.unmounted) return;
+            ContentScanner.scanContent(content).then(result => {
+                if (result.clean === true) {
                     this.setState({
-                        decryptedUrl: contentUrl,
-                        decryptedThumbnailUrl: thumbnailUrl,
-                        decryptedBlob: decryptedBlob,
+                        isClean: true,
                     });
-                });
-            }).catch((err) => {
-                if (this.unmounted) return;
-                console.warn("Unable to decrypt attachment: ", err);
-                // Set a placeholder image when we can't decrypt the image.
-                this.setState({
-                    error: err,
-                });
+                    let thumbnailPromise = Promise.resolve(null);
+                    if (content.info && content.info.thumbnail_file) {
+                        thumbnailPromise = ContentScanner.downloadEncryptedContent(content, true).then(blob => {
+                            return URL.createObjectURL(blob);
+                        });
+                    }
+                    let decryptedBlob;
+                    thumbnailPromise.then((thumbnailUrl) => {
+                        return Promise.resolve(ContentScanner.downloadEncryptedContent(content)).then(function(blob) {
+                            decryptedBlob = blob;
+                            return URL.createObjectURL(blob);
+                        }).then((contentUrl) => {
+                            this.setState({
+                                decryptedUrl: contentUrl,
+                                decryptedThumbnailUrl: thumbnailUrl,
+                                decryptedBlob: decryptedBlob,
+                            });
+                        });
+                    }).catch((err) => {
+                        console.warn("Unable to decrypt attachment: ", err);
+                        // Set a placeholder image when we can't decrypt the image.
+                        this.setState({
+                            error: err,
+                        });
+                    });
+                } else {
+                    this.setState({
+                        isClean: false,
+                    });
+                }
+            });
+        } else if (content.url !== undefined && this.state.contentUrl === null) {
+            ContentScanner.scanContent(content).then(result => {
+                if (result.clean === true) {
+                    this.setState({
+                        contentUrl: ContentScanner.getUnencryptedContentUrl(content),
+                        isClean: true,
+                    })
+                }
+            });
+        } else {
+            this.setState({
+                isClean: false,
             });
         }
 
@@ -454,12 +413,34 @@ export default class MImageBody extends React.Component {
 
     render() {
         const content = this.props.mxEvent.getContent();
+        const isClean = this.state.isClean;
 
         if (this.state.error !== null) {
             return (
                 <span className="mx_MImageBody">
-                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16" />
+                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16"  alt="warning"/>
                     { _t("Error decrypting image") }
+                </span>
+            );
+        }
+
+        if (isClean === null) {
+            return (
+                <span className="mx_MFileBody" ref="body">
+                    <img
+                        src={require("../../../../res/img/spinner.gif")}
+                        alt={ _t("Analysis in progress") }
+                        width="32"
+                        height="32"
+                    />
+                    { _t("Analysis in progress") }
+                </span>
+            );
+        } else if (isClean === false) {
+            return (
+                <span className="mx_MFileBody" ref="body">
+                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16"  alt="warning"/>
+                    { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
                 </span>
             );
         }

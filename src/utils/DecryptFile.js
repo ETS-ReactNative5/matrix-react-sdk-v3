@@ -19,6 +19,7 @@ limitations under the License.
 import encrypt from 'browser-encrypt-attachment';
 // Grab the client so that we can turn mxc:// URLs into https:// URLS.
 import {MatrixClientPeg} from '../MatrixClientPeg';
+import TchapApi from '../tchap/TchapApi'
 
 // WARNING: We have to be very careful about what mime-types we allow into blobs,
 // as for performance reasons these are now rendered via URL.createObjectURL()
@@ -85,10 +86,38 @@ const ALLOWED_BLOB_MIMETYPES = {
  * @param file.url {string} An mxc:// URL for the encrypted file.
  * @param file.mimetype {string} The MIME-type of the plaintext file.
  */
-export function decryptFile(file) {
-    const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
+export async function decryptFile(file) {
+    const baseUrl = MatrixClientPeg.get()['baseUrl'];
+
+    let publicKey;
+    try {
+        const publicKeyData = await fetch(baseUrl + TchapApi.publicKeyUrl);
+        const publicKeyObject = await publicKeyData.json();
+        publicKey = publicKeyObject.public_key;
+    } catch (err) {
+        console.warn(`Unable to retrive the publicKey : ${err}`);
+    }
+
+    let body;
+    if (publicKey) {
+        // Setting up the encryption
+        const encryption = new global.Olm.PkEncryption();
+        encryption.set_recipient_key(publicKey);
+        body = {encrypted_body: encryption.encrypt(JSON.stringify({file: file}))};
+    } else {
+        body = {file: file};
+    }
+
+
+    //const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
     // Download the encrypted file as an array buffer.
-    return Promise.resolve(fetch(url)).then(function(response) {
+    return Promise.resolve(fetch(baseUrl + TchapApi.downloadEncryptedUrl, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method: "POST",
+        body: JSON.stringify(body),
+    })).then(function(response) {
         return response.arrayBuffer();
     }).then(function(responseData) {
         // Decrypt the array buffer using the information taken from
@@ -106,7 +135,6 @@ export function decryptFile(file) {
             mimetype = 'application/octet-stream';
         }
 
-        const blob = new Blob([dataArray], {type: mimetype});
-        return blob;
+        return new Blob([dataArray], {type: mimetype});
     });
 }
