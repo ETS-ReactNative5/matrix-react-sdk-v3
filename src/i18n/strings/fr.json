@@ -2611,5 +2611,11 @@
     ".txt with email addresses separated by ';'": ".txt avec les adresses email séparées par des ';'",
     ".csv with email addresses separated by lines break": ".csv avec les adresses email séparées par des retours à la ligne",
     "The file %(file)s was rejected by the security policy": "Le fichier %(file)s a été filtré par la politique de sécurité",
-    "Analysis in progress": "Analyse en cours"
+    "Analysis in progress": "Analyse en cours",
+    "The validity period of your account has expired": "La durée de validité de votre compte a expiré",
+    "The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.": "La durée de validité de votre compte a expiré. Un email vous a été envoyé pour la renouveler. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.",
+    "An email has been sent to you. Once you’ve followed the link it contains, click below.": "Un e-mail vous a été envoyé. Une fois que vous aurez suivi le lien qu'il contient, cliquez ci-dessous.",
+    "I renewed the validity of my account": "J’ai renouvelé mon compte",
+    "Request a renewal email": "Demander l’envoi d’un nouvel email",
+    "Decrypting...": "Déchiffrement..."
 }

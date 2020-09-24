@@ -1295,6 +1295,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         this.firstSyncComplete = false;
         this.firstSyncPromise = defer();
         const cli = MatrixClientPeg.get();
+        let expiredAccount = false;
 
         // Allow the JS SDK to reap timeline events. This reduces the amount of
         // memory consumed as the JS SDK stores multiple distinct copies of room
@@ -1326,33 +1327,48 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             // its own dispatch).
             dis.dispatch({action: 'sync_state', prevState, state});
 
-            if (state === "ERROR" || state === "RECONNECTING") {
-                if (data.error instanceof InvalidStoreError) {
-                    Lifecycle.handleInvalidStoreError(data.error);
+            if (!expiredAccount) {
+                if (data.error && data.error.errcode === "ORG_MATRIX_EXPIRED_ACCOUNT") {
+                    expiredAccount = true;
+                    MatrixClientPeg.get().stopClient();
+                    MatrixClientPeg.get().store.deleteAllData().done();
+                    const ExpiredAccountDialog = sdk.getComponent("dialogs.ExpiredAccountDialog");
+                    Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
+                        onFinished: () => {
+                            expiredAccount = false;
+                            MatrixClientPeg.start();
+                        },
+                    });
                 }
-                this.setState({syncError: data.error || true});
-            } else if (this.state.syncError) {
-                this.setState({syncError: null});
+
+                if (state === "ERROR" || state === "RECONNECTING") {
+                    if (data.error instanceof InvalidStoreError) {
+                        Lifecycle.handleInvalidStoreError(data.error);
+                    }
+                    this.setState({syncError: data.error || true});
+                } else if (this.state.syncError) {
+                    this.setState({syncError: null});
+                }
+
+                this.updateStatusIndicator(state, prevState);
+                if (state === "SYNCING" && prevState === "SYNCING") {
+                    return;
+                }
+                console.info("MatrixClient sync state => %s", state);
+                if (state !== "PREPARED") { return; }
+
+                this.firstSyncComplete = true;
+                this.firstSyncPromise.resolve();
+
+                if (Notifier.shouldShowToolbar()) {
+                    showNotificationsToast();
+                }
+
+                dis.fire(Action.FocusComposer);
+                this.setState({
+                    ready: true,
+                });
             }
-
-            this.updateStatusIndicator(state, prevState);
-            if (state === "SYNCING" && prevState === "SYNCING") {
-                return;
-            }
-            console.info("MatrixClient sync state => %s", state);
-            if (state !== "PREPARED") { return; }
-
-            this.firstSyncComplete = true;
-            this.firstSyncPromise.resolve();
-
-            if (Notifier.shouldShowToolbar()) {
-                showNotificationsToast();
-            }
-
-            dis.fire(Action.FocusComposer);
-            this.setState({
-                ready: true,
-            });
         });
         cli.on('Call.incoming', function(call) {
             // we dispatch this synchronously to make sure that the event

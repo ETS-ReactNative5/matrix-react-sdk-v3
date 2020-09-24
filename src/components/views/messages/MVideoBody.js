@@ -120,7 +120,7 @@ export default createReactClass({
                         this.setState({
                             error: err,
                         });
-                    }).done();
+                    });
                 } else {
                     this.setState({
                         isClean: false,

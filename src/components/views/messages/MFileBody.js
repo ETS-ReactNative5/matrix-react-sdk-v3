@@ -126,6 +126,7 @@ export default createReactClass({
             contentUrl: null,
             isClean: null,
             isEncrypted: false,
+            decrypting: false,
         };
     },
 
@@ -255,18 +256,20 @@ export default createReactClass({
         const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
         const fileSize = content.info ? content.info.size : null;
         const fileType = content.info ? content.info.mimetype : "application/octet-stream";
+        let decrypting = this.state.decrypting;
 
         if (isEncrypted) {
             if (this.state.decryptedBlob === null) {
                 // Need to decrypt the attachment
                 // Wait for the user to click on the link before downloading
                 // and decrypting the attachment.
-                let decrypting = false;
                 const decrypt = (e) => {
                     if (decrypting) {
                         return false;
                     }
-                    decrypting = true;
+                    this.setState({
+                        decrypting: true,
+                    });
                     Promise.resolve(ContentScanner.downloadEncryptedContent(content )).then((blob) => {
                         if (blob.size > 0) {
                             this.setState({
@@ -286,10 +289,11 @@ export default createReactClass({
                             description: _t("Error decrypting attachment"),
                         });
                     }).finally(() => {
-                        decrypting = false;
+                        this.setState({
+                            decrypting: false,
+                        });
                     });
                 };
-
 
                 if (isClean === null) {
                     return (
@@ -297,10 +301,22 @@ export default createReactClass({
                             <img
                                 src={require("../../../../res/img/spinner.gif")}
                                 alt={ _t("Analysis in progress") }
-                                width="32"
-                                height="32"
+                                width="16"
+                                height="16"
                             />
                             { _t("Analysis in progress") }
+                        </span>
+                    );
+                } else if (decrypting) {
+                    return (
+                        <span className="mx_MFileBody" ref="body">
+                            <img
+                                src={require("../../../../res/img/spinner.gif")}
+                                alt={ _t("Decrypting...") }
+                                width="16"
+                                height="16"
+                            />
+                            { _t("Decrypting...") }
                         </span>
                     );
                 } else if (isClean === true) {
@@ -340,7 +356,6 @@ export default createReactClass({
             };
 
             const url = "usercontent/"; // XXX: this path should probably be passed from the skin
-            let renderer_url = MatrixClientPeg.get().getHomeserverUrl() + "/v1.html";
 
             // If the attachment is encrypted then put the link inside an iframe.
             return (
@@ -355,7 +370,7 @@ export default createReactClass({
                             <a ref={this._dummyLink} />
                         </div>
                         <iframe
-                            src={`${renderer_url}?origin=${encodeURIComponent(window.location.origin)}`}
+                            src={`${url}?origin=${encodeURIComponent(window.location.origin)}`}
                             onLoad={onIframeLoad}
                             ref={this._iframe}
                             sandbox="allow-scripts allow-downloads allow-downloads-without-user-activation" />
