@@ -181,6 +181,10 @@
     margin-bottom: 90px;
 }
 
+.mx_RoomTile_labelContainer {
+    min-width: initial !important;
+}
+
 // Top Bar
 .mx_TopLeftMenuButton {
     background-color: $accent-color;

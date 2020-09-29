@@ -486,7 +486,7 @@ function textForPinnedEvent(event) {
 }
 
 function textForWidgetEvent(event) {
-    const senderName = event.getSender();
+    const senderName = event.sender ? event.sender.rawDisplayName : event.getSender();
     const {name: prevName, type: prevType, url: prevUrl} = event.getPrevContent();
     const {name, type, url} = event.getContent() || {};
 

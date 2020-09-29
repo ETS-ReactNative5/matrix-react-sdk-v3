@@ -264,8 +264,13 @@ export default createReactClass({
             errCode = "HTTP " + err.httpStatus;
         }
 
-        let errorText = _t("Error: Problem communicating with the given homeserver.") +
+        let errorText = "";
+        if (errCode === 'M_LIMIT_EXCEEDED') {
+            errorText = "Your last three login attempts have failed. Please try again in 30 minutes.";
+        } else {
+            errorText = _t("Error: Problem communicating with the given homeserver.") +
                 (errCode ? " (" + errCode + ")" : "");
+        }
 
         if (err.cors === 'rejected') {
             errorText = <span>

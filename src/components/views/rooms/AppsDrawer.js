@@ -121,12 +121,14 @@ export default createReactClass({
     },
 
     _canUserModify: function() {
-        try {
+/*        try {
             return WidgetUtils.canUserModifyWidgets(this.props.room.roomId);
         } catch (err) {
             console.error(err);
             return false;
-        }
+        }*/
+        // We only want jitsi for VOIP atm.
+        return false;
     },
 
     _launchManageIntegrations: function() {

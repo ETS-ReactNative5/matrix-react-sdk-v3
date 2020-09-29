@@ -2373,5 +2373,9 @@
     "An email has been sent to you. Once you’ve followed the link it contains, click below.": "An email has been sent to you. Once you’ve followed the link it contains, click below.",
     "I renewed the validity of my account": "I renewed the validity of my account",
     "Request a renewal email": "Request a renewal email",
-    "Decrypting...": "Déchiffrement..."
+    "Decrypting...": "Déchiffrement...",
+    "Encryption key request": "Encryption key request",
+    "Ignore request": "Ignore request",
+    "Your unverified device '%(name)s' is requesting encryption keys.": "Your unverified device '%(name)s' is requesting encryption keys.",
+    "Your last three login attempts have failed. Please try again in 30 minutes.": "Your last three login attempts have failed. Please try again in 30 minutes."
 }

@@ -2617,5 +2617,7 @@
     "An email has been sent to you. Once you’ve followed the link it contains, click below.": "Un e-mail vous a été envoyé. Une fois que vous aurez suivi le lien qu'il contient, cliquez ci-dessous.",
     "I renewed the validity of my account": "J’ai renouvelé mon compte",
     "Request a renewal email": "Demander l’envoi d’un nouvel email",
-    "Decrypting...": "Déchiffrement..."
+    "Decrypting...": "Déchiffrement...",
+    "Your unverified device '%(name)s' is requesting encryption keys.": "Votre appareil non vérifié \"%(name)s\" demande des clés de chiffrement.",
+    "Your last three login attempts have failed. Please try again in 30 minutes.": "Vos trois dernières tentatives de connexion ont échoué. Veuillez réessayer dans 30 minutes."
 }
