@@ -29,6 +29,7 @@ import * as Lifecycle from '../../../Lifecycle';
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import AuthPage from "../../views/auth/AuthPage";
 import Tchap from "../../../tchap/Tchap";
+import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
 // Phases
 // Show the appropriate registration flow(s) for the server
@@ -98,7 +99,7 @@ export default createReactClass({
             matrixClient: null,
 
             // whether the HS requires an ID server to register with a threepid
-            serverRequiresIdServer: null,
+            serverRequiresIdServer: false,
 
             // The user ID we've just registered
             registeredUsername: null,
@@ -106,6 +107,7 @@ export default createReactClass({
             // if a different user ID to the one we just registered is logged in,
             // this is the user ID that's logged in.
             differentLoggedInUserId: null,
+            hsUrl: null,
         };
     },
 
@@ -182,11 +184,37 @@ export default createReactClass({
     },
 
     onFormSubmit: function(formVals) {
-        this.setState({
-            errorText: "",
-            busy: true,
-            formVals: formVals,
-            doingUIAuth: true,
+        Tchap.discoverPlatform(formVals.email).then(hs => {
+            TchapStrongPassword.validatePassword(hs, formVals.password).then(isPasswdValid => {
+                if (!isPasswdValid) {
+                    this.setState({
+                        hsUrl: hs,
+                        errorText: _t('This password is too weak. It must include a lower-case letter, an upper-case letter, ' +
+                            'a number and a symbol and be at a minimum 8 characters in length.'),
+                    });
+                } else {
+                    this.setState({
+                        hsUrl: hs,
+                        errorText: "",
+                        busy: true,
+                        formVals: formVals,
+                        doingUIAuth: true,
+                    });
+                }
+                this._replaceClient(hs);
+            });
+        }).catch(err => {
+            console.warn(err);
+            let errorText;
+            if (err === "ERR_UNREACHABLE_HOMESERVER") {
+                errorText = _t('Unreachable Homeserver');
+            } else {
+                errorText = err;
+            }
+            this.setState({
+                errorText: errorText,
+                busy: false,
+            });
         });
     },
 
@@ -410,7 +438,7 @@ export default createReactClass({
                 flows={this.state.flows}
                 serverConfig={null}
                 canSubmit={!this.state.serverErrorIsFatal}
-                serverRequiresIdServer={this.state.serverRequiresIdServer}
+                serverRequiresIdServer={false}
             />;
         }
     },

@@ -24,8 +24,6 @@ import ThemeWatcher from "./settings/watchers/ThemeWatcher";
 
 export function enumerateThemes() {
     const BUILTIN_THEMES = {
-        "light": _t("Light"),
-        "dark": _t("Dark"),
         "tchap": _t("Tchap"),
     };
     const customThemes = SettingsStore.getValue("custom_themes");
