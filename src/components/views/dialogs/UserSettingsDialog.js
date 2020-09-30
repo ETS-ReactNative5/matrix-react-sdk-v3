@@ -32,6 +32,7 @@ import FlairUserSettingsTab from "../settings/tabs/user/FlairUserSettingsTab";
 import * as sdk from "../../../index";
 import SdkConfig from "../../../SdkConfig";
 import MjolnirUserSettingsTab from "../settings/tabs/user/MjolnirUserSettingsTab";
+import {UIFeature} from "../../../settings/UIFeature";
 
 export const USER_GENERAL_TAB = "USER_GENERAL_TAB";
 export const USER_APPEARANCE_TAB = "USER_APPEARANCE_TAB";
@@ -54,7 +55,7 @@ export default class UserSettingsDialog extends React.Component {
         super();
 
         this.state = {
-            mjolnirEnabled: SettingsStore.isFeatureEnabled("feature_mjolnir"),
+            mjolnirEnabled: SettingsStore.getValue("feature_mjolnir"),
         };
     }
 
@@ -80,6 +81,14 @@ export default class UserSettingsDialog extends React.Component {
             "mx_UserSettingsDialog_settingsIcon",
             <GeneralUserSettingsTab closeSettingsFn={this.props.onFinished} />,
         ));
+        if (SettingsStore.getValue(UIFeature.Flair)) {
+            tabs.push(new Tab(
+                USER_FLAIR_TAB,
+                _td("Flair"),
+                "mx_UserSettingsDialog_flairIcon",
+                <FlairUserSettingsTab />,
+            ));
+        }
         tabs.push(new Tab(
             USER_NOTIFICATIONS_TAB,
             _td("Notifications"),
@@ -92,18 +101,38 @@ export default class UserSettingsDialog extends React.Component {
             "mx_UserSettingsDialog_preferencesIcon",
             <PreferencesUserSettingsTab />,
         ));
-        tabs.push(new Tab(
-            USER_VOICE_TAB,
-            _td("Voice & Video"),
-            "mx_UserSettingsDialog_voiceIcon",
-            <VoiceUserSettingsTab />,
-        ));
+
+        if (SettingsStore.getValue(UIFeature.Voip)) {
+            tabs.push(new Tab(
+                USER_VOICE_TAB,
+                _td("Voice & Video"),
+                "mx_UserSettingsDialog_voiceIcon",
+                <VoiceUserSettingsTab />,
+            ));
+        }
+
         tabs.push(new Tab(
             USER_SECURITY_TAB,
             _td("Security & Privacy"),
             "mx_UserSettingsDialog_securityIcon",
             <SecurityUserSettingsTab closeSettingsFn={this.props.onFinished} />,
         ));
+        if (SdkConfig.get()['showLabsSettings'] || SettingsStore.getLabsFeatures().length > 0) {
+            tabs.push(new Tab(
+                USER_LABS_TAB,
+                _td("Labs"),
+                "mx_UserSettingsDialog_labsIcon",
+                <LabsUserSettingsTab />,
+            ));
+        }
+        if (this.state.mjolnirEnabled) {
+            tabs.push(new Tab(
+                USER_MJOLNIR_TAB,
+                _td("Ignored users"),
+                "mx_UserSettingsDialog_mjolnirIcon",
+                <MjolnirUserSettingsTab />,
+            ));
+        }
         tabs.push(new Tab(
             USER_HELP_TAB,
             _td("Help & About"),

@@ -19,6 +19,7 @@ import { _t } from './languageHandler';
 import * as Roles from './Roles';
 import {isValid3pidInvite} from "./RoomInvite";
 import SettingsStore from "./settings/SettingsStore";
+import {WidgetType} from "./widgets/WidgetType";
 import {ALL_RULE_TYPES, ROOM_RULE_TYPES, SERVER_RULE_TYPES, USER_RULE_TYPES} from "./mjolnir/BanList";
 import Tchap from "./tchap/Tchap";
 
@@ -270,22 +271,13 @@ function textForServerACLEvent(ev) {
     return text + changes.join(" ");
 }
 
-function textForMessageEvent(ev, skipUserPrefix) {
+function textForMessageEvent(ev) {
     const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
     let message = senderDisplayName + ': ' + ev.getContent().body;
-    if (skipUserPrefix) {
-        message = ev.getContent().body;
-        if (ev.getContent().msgtype === "m.emote") {
-            message = senderDisplayName + " " + message;
-        } else if (ev.getContent().msgtype === "m.image") {
-            message = _t('sent an image.');
-        }
-    } else {
-        if (ev.getContent().msgtype === "m.emote") {
-            message = "* " + senderDisplayName + " " + message;
-        } else if (ev.getContent().msgtype === "m.image") {
-            message = _t('%(senderDisplayName)s sent an image.', {senderDisplayName});
-        }
+    if (ev.getContent().msgtype === "m.emote") {
+        message = "* " + senderDisplayName + " " + message;
+    } else if (ev.getContent().msgtype === "m.image") {
+        message = _t('%(senderDisplayName)s sent an image.', {senderDisplayName});
     }
     return message;
 }
@@ -359,7 +351,7 @@ function textForCallHangupEvent(event) {
         } else if (eventContent.reason === "invite_timeout") {
             reason = _t('(no answer)');
         } else if (eventContent.reason === "user hangup") {
-            // workaround for https://github.com/vector-im/riot-web/issues/5178
+            // workaround for https://github.com/vector-im/element-web/issues/5178
             // it seems Android randomly sets a reason of "user hangup" which is
             // interpreted as an error code :(
             // https://github.com/vector-im/riot-android/issues/2623
@@ -490,6 +482,10 @@ function textForWidgetEvent(event) {
     const {name: prevName, type: prevType, url: prevUrl} = event.getPrevContent();
     const {name, type, url} = event.getContent() || {};
 
+    if (WidgetType.JITSI.matches(type) || WidgetType.JITSI.matches(prevType)) {
+        return textForJitsiWidgetEvent(event, senderName, url, prevUrl);
+    }
+
     let widgetName = name || prevName || type || prevType || '';
     // Apply sentence case to widget name
     if (widgetName && widgetName.length > 0) {
@@ -511,6 +507,24 @@ function textForWidgetEvent(event) {
     } else {
         return _t('%(widgetName)s widget removed by %(senderName)s', {
             widgetName, senderName,
+        });
+    }
+}
+
+function textForJitsiWidgetEvent(event, senderName, url, prevUrl) {
+    if (url) {
+        if (prevUrl) {
+            return _t('Group call modified by %(senderName)s', {
+                senderName,
+            });
+        } else {
+            return _t('Group call started by %(senderName)s', {
+                senderName,
+            });
+        }
+    } else {
+        return _t('Group call ended by %(senderName)s', {
+            senderName,
         });
     }
 }
@@ -618,7 +632,7 @@ const stateHandlers = {
     'm.room.guest_access': textForGuestAccessEvent,
     'm.room.related_groups': textForRelatedGroupsEvent,
 
-    // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
+    // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
     'im.vector.modular.widgets': textForWidgetEvent,
 };
 
@@ -627,8 +641,8 @@ for (const evType of ALL_RULE_TYPES) {
     stateHandlers[evType] = textForMjolnirEvent;
 }
 
-export function textForEvent(ev, skipUserPrefix) {
+export function textForEvent(ev) {
     const handler = (ev.isState() ? stateHandlers : handlers)[ev.getType()];
-    if (handler) return handler(ev, skipUserPrefix);
+    if (handler) return handler(ev);
     return '';
 }

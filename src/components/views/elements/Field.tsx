@@ -17,7 +17,7 @@ limitations under the License.
 import React, {InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes} from 'react';
 import classNames from 'classnames';
 import * as sdk from '../../../index';
-import { debounce } from 'lodash';
+import {debounce} from "lodash";
 import {IFieldState, IValidationResult} from "./Validation";
 
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
@@ -50,10 +50,12 @@ interface IProps {
     // to the user.
     onValidate?: (input: IFieldState) => Promise<IValidationResult>;
     // If specified, overrides the value returned by onValidate.
-    flagInvalid?: boolean;
+    forceValidity?: boolean;
     // If specified, contents will appear as a tooltip on the element and
     // validation feedback tooltips will be suppressed.
     tooltipContent?: React.ReactNode;
+    // If specified the tooltip will be shown regardless of feedback
+    forceTooltipVisible?: boolean;
     // If specified alongside tooltipContent, the class name to apply to the
     // tooltip itself.
     tooltipClassName?: string;
@@ -85,20 +87,20 @@ interface ITextareaProps extends IProps, TextareaHTMLAttributes<HTMLTextAreaElem
 type PropShapes = IInputProps | ISelectProps | ITextareaProps;
 
 interface IState {
-    valid: boolean,
-    feedback: React.ReactNode,
-    feedbackVisible: boolean,
-    focused: boolean,
+    valid: boolean;
+    feedback: React.ReactNode;
+    feedbackVisible: boolean;
+    focused: boolean;
 }
 
 export default class Field extends React.PureComponent<PropShapes, IState> {
     private id: string;
     private input: HTMLInputElement;
 
-    private static defaultProps = {
+    public static readonly defaultProps = {
         element: "input",
         type: "text",
-    }
+    };
 
     /*
      * This was changed from throttle to debounce: this is more traditional for
@@ -196,12 +198,10 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         }
     }
 
-
-
     public render() {
-        const {
-            element, prefixComponent, postfixComponent, className, onValidate, children,
-            tooltipContent, flagInvalid, tooltipClassName, list, ...inputProps} = this.props;
+        /* eslint @typescript-eslint/no-unused-vars: ["error", { "ignoreRestSiblings": true }] */
+        const { element, prefixComponent, postfixComponent, className, onValidate, children,
+            tooltipContent, forceValidity, tooltipClassName, list, ...inputProps} = this.props;
 
         // Set some defaults for the <input> element
         const ref = input => this.input = input;
@@ -226,15 +226,15 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
             postfixContainer = <span className="mx_Field_postfix">{postfixComponent}</span>;
         }
 
-        const hasValidationFlag = flagInvalid !== null && flagInvalid !== undefined;
+        const hasValidationFlag = forceValidity !== null && forceValidity !== undefined;
         const fieldClasses = classNames("mx_Field", `mx_Field_${this.props.element}`, className, {
             // If we have a prefix element, leave the label always at the top left and
             // don't animate it, as it looks a bit clunky and would add complexity to do
             // properly.
             mx_Field_labelAlwaysTopLeft: prefixComponent,
-            mx_Field_valid: onValidate && this.state.valid === true,
+            mx_Field_valid: hasValidationFlag ? forceValidity : onValidate && this.state.valid === true,
             mx_Field_invalid: hasValidationFlag
-                ? flagInvalid
+                ? !forceValidity
                 : onValidate && this.state.valid === false,
         });
 
@@ -242,11 +242,11 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         const Tooltip = sdk.getComponent("elements.Tooltip");
         let fieldTooltip;
         if (tooltipContent || this.state.feedback) {
-            const addlClassName = tooltipClassName ? tooltipClassName : '';
             fieldTooltip = <Tooltip
-                tooltipClassName={`mx_Field_tooltip ${addlClassName}`}
-                visible={this.state.feedbackVisible}
+                tooltipClassName={classNames("mx_Field_tooltip", tooltipClassName)}
+                visible={(this.state.focused && this.props.forceTooltipVisible) || this.state.feedbackVisible}
                 label={tooltipContent || this.state.feedback}
+                forceOnRight
             />;
         }
 

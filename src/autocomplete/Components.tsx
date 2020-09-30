@@ -35,9 +35,9 @@ export const TextualCompletion = forwardRef<ITextualCompletionProps, any>((props
     const {title, subtitle, description, className, ...restProps} = props;
     return (
         <div {...restProps}
-             className={classNames('mx_Autocomplete_Completion_block', className)}
-             role="option"
-             ref={ref}
+            className={classNames('mx_Autocomplete_Completion_block', className)}
+            role="option"
+            ref={ref}
         >
             <span className="mx_Autocomplete_Completion_title">{ title }</span>
             <span className="mx_Autocomplete_Completion_subtitle">{ subtitle }</span>
@@ -47,7 +47,7 @@ export const TextualCompletion = forwardRef<ITextualCompletionProps, any>((props
 });
 
 interface IPillCompletionProps extends ITextualCompletionProps {
-    children?: React.ReactNode,
+    children?: React.ReactNode;
 }
 
 export const PillCompletion = forwardRef<IPillCompletionProps, any>((props, ref) => {
@@ -58,9 +58,9 @@ export const PillCompletion = forwardRef<IPillCompletionProps, any>((props, ref)
     }
     return (
         <div {...restProps}
-             className={classNames('mx_Autocomplete_Completion_pill', className)}
-             role="option"
-             ref={ref}
+            className={classNames('mx_Autocomplete_Completion_pill', className)}
+            role="option"
+            ref={ref}
         >
             { children }
             <span className="mx_Autocomplete_Completion_title">{ title }</span>

@@ -17,6 +17,7 @@ limitations under the License.
 import { Room } from "matrix-js-sdk/src/models/room";
 import { RoomUpdateCause, TagID } from "../../models";
 import { SortAlgorithm } from "../models";
+import AwaitLock from "await-lock";
 
 /**
  * Represents a list ordering algorithm. Subclasses should populate the
@@ -25,6 +26,7 @@ import { SortAlgorithm } from "../models";
 export abstract class OrderingAlgorithm {
     protected cachedOrderedRooms: Room[];
     protected sortingAlgorithm: SortAlgorithm;
+    protected readonly updateLock = new AwaitLock();
 
     protected constructor(protected tagId: TagID, initialSortingAlgorithm: SortAlgorithm) {
         // noinspection JSIgnoredPromiseFromCall
@@ -67,6 +69,14 @@ export abstract class OrderingAlgorithm {
      * @param cause The cause of the update.
      * @returns True if the update requires the Algorithm to update the presentation layers.
      */
-    // XXX: TODO: We assume this will only ever be a position update and NOT a NewRoom or RemoveRoom change!!
     public abstract handleRoomUpdate(room: Room, cause: RoomUpdateCause): Promise<boolean>;
+
+    protected getRoomIndex(room: Room): number {
+        let roomIdx = this.cachedOrderedRooms.indexOf(room);
+        if (roomIdx === -1) { // can only happen if the js-sdk's store goes sideways.
+            console.warn(`Degrading performance to find missing room in "${this.tagId}": ${room.roomId}`);
+            roomIdx = this.cachedOrderedRooms.findIndex(r => r.roomId === room.roomId);
+        }
+        return roomIdx;
+    }
 }

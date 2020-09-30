@@ -18,7 +18,6 @@ limitations under the License.
 */
 
 import React from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import * as sdk from '../../../index';
 import * as Email from '../../../email';
@@ -35,13 +34,11 @@ const FIELD_PASSWORD_CONFIRM = 'field_password_confirm';
 
 const PASSWORD_MIN_SCORE = 0; // safely unguessable: moderate protection from offline slow-hash scenario.
 
-/**
+/*
  * A pure UI component which displays a registration form.
  */
-export default createReactClass({
-    displayName: 'RegistrationForm',
-
-    propTypes: {
+export default class RegistrationForm extends React.Component {
+    static propTypes = {
         // Values pre-filled in the input boxes when the component loads
         defaultEmail: PropTypes.string,
         defaultPassword: PropTypes.string,
@@ -50,17 +47,17 @@ export default createReactClass({
         flows: PropTypes.arrayOf(PropTypes.object).isRequired,
         canSubmit: PropTypes.bool,
         serverRequiresIdServer: PropTypes.bool,
-    },
+    };
 
-    getDefaultProps: function() {
-        return {
-            onValidationChange: console.error,
-            canSubmit: true,
-        };
-    },
+    static defaultProps = {
+        onValidationChange: console.error,
+        canSubmit: true,
+    };
 
-    getInitialState: function() {
-        return {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             // Field error codes by field ID
             fieldValid: {},
             email: this.props.defaultEmail || "",
@@ -68,9 +65,9 @@ export default createReactClass({
             passwordConfirm: this.props.defaultPassword || "",
             passwordComplexity: null,
         };
-    },
+    }
 
-    onSubmit: async function(ev) {
+    onSubmit = async ev => {
         ev.preventDefault();
 
         if (!this.props.canSubmit) return;
@@ -81,9 +78,9 @@ export default createReactClass({
         }
 
         this._doSubmit(ev);
-    },
+    };
 
-    _doSubmit: function(ev) {
+    _doSubmit(ev) {
         let email = this.state.email.trim();
         email = email.toLowerCase();
         const promise = this.props.onRegisterClick({
@@ -97,7 +94,7 @@ export default createReactClass({
                 ev.target.disabled = false;
             });
         }
-    },
+    }
 
     async verifyFieldsBeforeSubmit() {
         // Blur the active element if any, so we first run its blur validation,
@@ -146,12 +143,12 @@ export default createReactClass({
         invalidField.focus();
         invalidField.validate({ allowEmpty: false, focused: true });
         return false;
-    },
+    }
 
     /**
      * @returns {boolean} true if all fields were valid last time they were validated.
      */
-    allFieldsValid: function() {
+    allFieldsValid() {
         const keys = Object.keys(this.state.fieldValid);
         for (let i = 0; i < keys.length; ++i) {
             if (!this.state.fieldValid[keys[i]]) {
@@ -159,7 +156,7 @@ export default createReactClass({
             }
         }
         return true;
-    },
+    }
 
     findFirstInvalidField(fieldIDs) {
         for (const fieldID of fieldIDs) {
@@ -168,34 +165,36 @@ export default createReactClass({
             }
         }
         return null;
-    },
+    }
 
-    markFieldValid: function(fieldID, valid) {
+    markFieldValid(fieldID, valid) {
         const { fieldValid } = this.state;
         fieldValid[fieldID] = valid;
         this.setState({
             fieldValid,
         });
-    },
+    }
 
-    onEmailChange(ev) {
+    onEmailChange = ev => {
         this.setState({
             email: ev.target.value,
         });
-    },
+    };
 
-    async onEmailValidate(fieldState) {
+    onEmailValidate = async fieldState => {
         const result = await this.validateEmailRules(fieldState);
         this.markFieldValid(FIELD_EMAIL, result.valid);
         return result;
-    },
+    };
 
-    validateEmailRules: withValidation({
+    validateEmailRules = withValidation({
         description: () => _t("Use an email address to recover your account"),
         rules: [
             {
                 key: "required",
-                test: ({ value, allowEmpty }) => allowEmpty || !!value,
+                test({ value, allowEmpty }) {
+                    return allowEmpty || !!value;
+                },
                 invalid: () => _t("Enter email address"),
             },
             {
@@ -204,31 +203,31 @@ export default createReactClass({
                 invalid: () => _t("Doesn't look like a valid email address"),
             },
         ],
-    }),
+    });
 
-    onPasswordChange(ev) {
+    onPasswordChange = ev => {
         this.setState({
             password: ev.target.value,
         });
-    },
+    };
 
-    onPasswordValidate(result) {
+    onPasswordValidate = result => {
         this.markFieldValid(FIELD_PASSWORD, result.valid);
-    },
+    };
 
-    onPasswordConfirmChange(ev) {
+    onPasswordConfirmChange = ev => {
         this.setState({
             passwordConfirm: ev.target.value,
         });
-    },
+    };
 
-    async onPasswordConfirmValidate(fieldState) {
+    onPasswordConfirmValidate = async fieldState => {
         const result = await this.validatePasswordConfirmRules(fieldState);
         this.markFieldValid(FIELD_PASSWORD_CONFIRM, result.valid);
         return result;
-    },
+    };
 
-    validatePasswordConfirmRules: withValidation({
+    validatePasswordConfirmRules = withValidation({
         rules: [
             {
                 key: "required",
@@ -237,13 +236,13 @@ export default createReactClass({
             },
             {
                 key: "match",
-                test: function({ value }) {
+                test({ value }) {
                     return !value || value === this.state.password;
                 },
                 invalid: () => _t("Passwords don't match"),
             },
          ],
-    }),
+    });
 
     renderEmail() {
         const Field = sdk.getComponent('elements.Field');
@@ -255,7 +254,7 @@ export default createReactClass({
             onChange={this.onEmailChange}
             onValidate={this.onEmailValidate}
         />;
-    },
+    }
 
     renderPassword() {
         return <PassphraseField
@@ -266,7 +265,7 @@ export default createReactClass({
             onChange={this.onPasswordChange}
             onValidate={this.onPasswordValidate}
         />;
-    },
+    }
 
     renderPasswordConfirm() {
         const Field = sdk.getComponent('elements.Field');
@@ -280,9 +279,9 @@ export default createReactClass({
             onChange={this.onPasswordConfirmChange}
             onValidate={this.onPasswordConfirmValidate}
         />;
-    },
+    }
 
-    render: function() {
+    render() {
         const registerButton = (
             <input className="mx_Login_submit" type="submit" value={_t("Register")} disabled={!this.props.canSubmit} />
         );
@@ -301,5 +300,5 @@ export default createReactClass({
                 </form>
             </div>
         );
-    },
-});
+    }
+}

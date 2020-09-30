@@ -17,7 +17,6 @@ limitations under the License.
 
 import React, {createRef} from 'react';
 import PropTypes from 'prop-types';
-import createReactClass from 'create-react-class';
 import filesize from 'filesize';
 import {MatrixClientPeg} from '../../../MatrixClientPeg';
 import * as sdk from '../../../index';
@@ -117,20 +116,8 @@ function computedStyle(element) {
     return cssText;
 }
 
-export default createReactClass({
-    displayName: 'MFileBody',
-
-    getInitialState: function() {
-        return {
-            decryptedBlob: (this.props.decryptedBlob ? this.props.decryptedBlob : null),
-            contentUrl: null,
-            isClean: null,
-            isEncrypted: false,
-            decrypting: false,
-        };
-    },
-
-    propTypes: {
+export default class MFileBody extends React.Component {
+    static propTypes = {
         /* the MatrixEvent to show */
         mxEvent: PropTypes.object.isRequired,
         /* already decrypted blob */
@@ -139,7 +126,23 @@ export default createReactClass({
         onHeightChanged: PropTypes.func,
         /* the shape of the tile, used */
         tileShape: PropTypes.string,
-    },
+    };
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            decryptedBlob: (this.props.decryptedBlob ? this.props.decryptedBlob : null),
+            contentUrl: null,
+            isClean: null,
+            isEncrypted: false,
+            decrypting: false,
+        };
+
+        this._iframe = createRef();
+        this._dummyLink = createRef();
+        this._downloadImage = createRef();
+    }
 
     /**
      * Extracts a human readable label for the file attachment to use as
@@ -148,7 +151,7 @@ export default createReactClass({
      * @params {Object} content The "content" key of the matrix event.
      * @return {string} the human readable link text for the attachment.
      */
-    presentableTextForFile: function(content) {
+    presentableTextForFile(content) {
         let linkText = _t("Attachment");
         if (content.body && content.body.length > 0) {
             // The content body should be the name of the file including a
@@ -167,20 +170,15 @@ export default createReactClass({
             linkText += ' (' + filesize(content.info.size) + ')';
         }
         return linkText;
-    },
+    }
 
-    _getContentUrl: function() {
+    _getContentUrl() {
+        /*const content = this.props.mxEvent.getContent();
+        return MatrixClientPeg.get().mxcUrlToHttp(content.url);*/
         return this.state.contentUrl;
-    },
+    }
 
-    // TODO: [REACT-WARNING] Replace component with real class, use constructor for refs
-    UNSAFE_componentWillMount: function() {
-        this._iframe = createRef();
-        this._dummyLink = createRef();
-        this._downloadImage = createRef();
-    },
-
-    componentDidMount: function() {
+    componentDidMount() {
         // Add this to the list of mounted components to receive notifications
         // when the tint changes.
         this.id = nextMountId++;
@@ -217,20 +215,20 @@ export default createReactClass({
                 }
             });
         }
-    },
+    }
 
-    componentDidUpdate: function(prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState) {
         if (this.props.onHeightChanged && !prevState.decryptedBlob && this.state.decryptedBlob) {
             this.props.onHeightChanged();
         }
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         // Remove this from the list of mounted components
         delete mounts[this.id];
-    },
+    }
 
-    tint: function() {
+    tint = () => {
         // Update our tinted copy of require("../../../../res/img/download.svg")
         if (this._downloadImage.current) {
             this._downloadImage.current.src = tintedDownloadImageURL;
@@ -244,9 +242,9 @@ export default createReactClass({
                 style: computedStyle(this._dummyLink.current),
             }, "*");
         }
-    },
+    };
 
-    render: function() {
+    render() {
         const content = this.props.mxEvent.getContent();
         const text = this.presentableTextForFile(content);
         const isEncrypted = this.state.isEncrypted;
@@ -389,63 +387,63 @@ export default createReactClass({
                     href: contentUrl,
                 };
 
-                // Blobs can only have up to 500mb, so if the file reports as being too large then
-                // we won't try and convert it. Likewise, if the file size is unknown then we'll assume
-                // it is too big. There is the risk of the reported file size and the actual file size
-                // being different, however the user shouldn't normally run into this problem.
-                const fileTooBig = typeof (fileSize) === 'number' ? fileSize > 524288000 : true;
+            // Blobs can only have up to 500mb, so if the file reports as being too large then
+            // we won't try and convert it. Likewise, if the file size is unknown then we'll assume
+            // it is too big. There is the risk of the reported file size and the actual file size
+            // being different, however the user shouldn't normally run into this problem.
+            const fileTooBig = typeof(fileSize) === 'number' ? fileSize > 524288000 : true;
 
-                if (["application/pdf"].includes(fileType) && !fileTooBig) {
-                    // We want to force a download on this type, so use an onClick handler.
-                    downloadProps["onClick"] = (e) => {
-                        console.log(`Downloading ${fileType} as blob (unencrypted)`);
+            if (["application/pdf"].includes(fileType) && !fileTooBig) {
+                // We want to force a download on this type, so use an onClick handler.
+                downloadProps["onClick"] = (e) => {
+                    console.log(`Downloading ${fileType} as blob (unencrypted)`);
 
-                        // Avoid letting the <a> do its thing
-                        e.preventDefault();
-                        e.stopPropagation();
+                    // Avoid letting the <a> do its thing
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                        // Start a fetch for the download
-                        // Based upon https://stackoverflow.com/a/49500465
-                        fetch(contentUrl).then((response) => response.blob()).then((blob) => {
-                            const blobUrl = URL.createObjectURL(blob);
+                    // Start a fetch for the download
+                    // Based upon https://stackoverflow.com/a/49500465
+                    fetch(contentUrl).then((response) => response.blob()).then((blob) => {
+                        const blobUrl = URL.createObjectURL(blob);
 
-                            // We have to create an anchor to download the file
-                            const tempAnchor = document.createElement('a');
-                            tempAnchor.download = fileName;
-                            tempAnchor.href = blobUrl;
-                            document.body.appendChild(tempAnchor); // for firefox: https://stackoverflow.com/a/32226068
-                            tempAnchor.click();
-                            tempAnchor.remove();
-                        });
-                    };
-                } else {
-                    // Else we are hoping the browser will do the right thing
-                    downloadProps["download"] = fileName;
-                }
+                        // We have to create an anchor to download the file
+                        const tempAnchor = document.createElement('a');
+                        tempAnchor.download = fileName;
+                        tempAnchor.href = blobUrl;
+                        document.body.appendChild(tempAnchor); // for firefox: https://stackoverflow.com/a/32226068
+                        tempAnchor.click();
+                        tempAnchor.remove();
+                    });
+                };
+            } else {
+                // Else we are hoping the browser will do the right thing
+                downloadProps["download"] = fileName;
+            }
 
-                // If the attachment is not encrypted then we check whether we
-                // are being displayed in the room timeline or in a list of
-                // files in the right hand side of the screen.
-                if (this.props.tileShape === "file_grid") {
-                    return (
-                        <span className="mx_MFileBody">
+            // If the attachment is not encrypted then we check whether we
+            // are being displayed in the room timeline or in a list of
+            // files in the right hand side of the screen.
+            if (this.props.tileShape === "file_grid") {
+                return (
+                    <span className="mx_MFileBody">
                         <div className="mx_MFileBody_download">
                             <a className="mx_MFileBody_downloadLink" {...downloadProps}>
-                                {fileName}
+                                { fileName }
                             </a>
                             <div className="mx_MImageBody_size">
-                                {content.info && content.info.size ? filesize(content.info.size) : ""}
+                                { content.info && content.info.size ? filesize(content.info.size) : "" }
                             </div>
                         </div>
                     </span>
-                    );
-                } else {
-                    return (
-                        <span className="mx_MFileBody">
+                );
+            } else {
+                return (
+                    <span className="mx_MFileBody">
                         <div className="mx_MFileBody_download">
                             <a {...downloadProps}>
-                                <img src={tintedDownloadImageURL} width="12" height="14" ref={this._downloadImage}/>
-                                {_t("Download %(text)s", {text: text})}
+                                <img src={tintedDownloadImageURL} width="12" height="14" ref={this._downloadImage} />
+                                { _t("Download %(text)s", { text: text }) }
                             </a>
                         </div>
                     </span>
@@ -465,5 +463,5 @@ export default createReactClass({
                 { _t("Invalid file%(extra)s", { extra: extra }) }
             </span>;
         }
-    },
-});
+    }
+}

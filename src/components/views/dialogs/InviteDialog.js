@@ -31,12 +31,18 @@ import dis from "../../../dispatcher/dispatcher";
 import IdentityAuthClient from "../../../IdentityAuthClient";
 import Modal from "../../../Modal";
 import createRoom, {canEncryptToAllUsers, privateShouldBeEncrypted} from "../../../createRoom";
-import {inviteMultipleToRoom} from "../../../RoomInvite";
+import {inviteMultipleToRoom, showCommunityInviteDialog} from "../../../RoomInvite";
 import {Key} from "../../../Keyboard";
 import {Action} from "../../../dispatcher/actions";
-import {RoomListStoreTempProxy} from "../../../stores/room-list/RoomListStoreTempProxy";
 import {DefaultTagID} from "../../../stores/room-list/models";
+import RoomListStore from "../../../stores/room-list/RoomListStore";
+import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
+import SettingsStore from "../../../settings/SettingsStore";
+import {UIFeature} from "../../../settings/UIFeature";
 import Tchap from "../../../tchap/Tchap";
+
+// we have a number of types defined from the Matrix spec which can't reasonably be altered here.
+/* eslint-disable camelcase */
 
 export const KIND_DM = "dm";
 export const KIND_INVITE = "invite";
@@ -322,7 +328,7 @@ export default class InviteDialog extends React.PureComponent {
         this.state = {
             targets: [], // array of Member objects (see interface above)
             filterText: "",
-            recents: this._buildRecents(alreadyInvited),
+            recents: InviteDialog.buildRecents(alreadyInvited),
             numRecentsShown: INITIAL_ROOMS_SHOWN,
             suggestions: this._buildSuggestions(alreadyInvited),
             numSuggestionsShown: INITIAL_ROOMS_SHOWN,
@@ -339,13 +345,12 @@ export default class InviteDialog extends React.PureComponent {
         this._editorRef = createRef();
     }
 
-    _buildRecents(excludedTargetIds: Set<string>): {userId: string, user: RoomMember, lastActive: number} {
+    static buildRecents(excludedTargetIds: Set<string>): {userId: string, user: RoomMember, lastActive: number} {
         const rooms = DMRoomMap.shared().getUniqueRoomsWithIndividuals(); // map of userId => js-sdk Room
 
         // Also pull in all the rooms tagged as DefaultTagID.DM so we don't miss anything. Sometimes the
         // room list doesn't tag the room for the DMRoomMap, but does for the room list.
-        const taggedRooms = RoomListStoreTempProxy.getRoomLists();
-        const dmTaggedRooms = taggedRooms[DefaultTagID.DM];
+        const dmTaggedRooms = RoomListStore.instance.orderedLists[DefaultTagID.DM] || [];
         const myUserId = MatrixClientPeg.get().getUserId();
         for (const dmRoom of dmTaggedRooms) {
             const otherMembers = dmRoom.getJoinedMembers().filter(u => u.userId !== myUserId);
@@ -559,7 +564,7 @@ export default class InviteDialog extends React.PureComponent {
         if (this.state.filterText.startsWith('@')) {
             // Assume mxid
             newMember = new DirectoryMember({user_id: this.state.filterText, display_name: null, avatar_url: null});
-        } else {
+        } else if (SettingsStore.getValue(UIFeature.IdentityServer)) {
             // Assume email
             newMember = new ThreepidMember(this.state.filterText);
         }
@@ -789,7 +794,7 @@ export default class InviteDialog extends React.PureComponent {
                 this.setState({tryingIdentityServer: true});
                 return;
             }
-            if (term.indexOf('@') > 0 && Email.looksValid(term)) {
+            if (term.indexOf('@') > 0 && Email.looksValid(term) && SettingsStore.getValue(UIFeature.IdentityServer)) {
                 // Start off by suggesting the plain email while we try and resolve it
                 // to a real account.
                 this.setState({
@@ -963,12 +968,23 @@ export default class InviteDialog extends React.PureComponent {
         this.props.onFinished();
     };
 
+    _onCommunityInviteClick = (e) => {
+        this.props.onFinished();
+        showCommunityInviteDialog(CommunityPrototypeStore.instance.getSelectedCommunityId());
+    };
+
     _renderSection(kind: "recents"|"suggestions") {
         let sourceMembers = kind === 'recents' ? this.state.recents : this.state.suggestions;
         let showNum = kind === 'recents' ? this.state.numRecentsShown : this.state.numSuggestionsShown;
         const showMoreFn = kind === 'recents' ? this._showMoreRecents.bind(this) : this._showMoreSuggestions.bind(this);
         const lastActive = (m) => kind === 'recents' ? m.lastActive : null;
         let sectionName = kind === 'recents' ? _t("Recent Conversations") : _t("Suggestions");
+        let sectionSubname = null;
+
+        if (kind === 'suggestions' && CommunityPrototypeStore.instance.getSelectedCommunityId()) {
+            const communityName = CommunityPrototypeStore.instance.getSelectedCommunityName();
+            sectionSubname = _t("May include members not in %(communityName)s", {communityName});
+        }
 
         if (this.props.kind === KIND_INVITE) {
             sectionName = kind === 'recents' ? _t("Recently Direct Messaged") : _t("Suggestions");
@@ -1061,6 +1077,7 @@ export default class InviteDialog extends React.PureComponent {
         return (
             <div className='mx_InviteDialog_section'>
                 <h3>{sectionName}</h3>
+                {sectionSubname ? <p className="mx_InviteDialog_subname">{sectionSubname}</p> : null}
                 {tiles}
                 {showMore}
             </div>
@@ -1097,7 +1114,9 @@ export default class InviteDialog extends React.PureComponent {
     }
 
     _renderIdentityServerWarning() {
-        if (!this.state.tryingIdentityServer || this.state.canUseIdentityServer) {
+        if (!this.state.tryingIdentityServer || this.state.canUseIdentityServer ||
+            !SettingsStore.getValue(UIFeature.IdentityServer)
+        ) {
             return null;
         }
 
@@ -1163,6 +1182,8 @@ export default class InviteDialog extends React.PureComponent {
         let helpText;
         let buttonText;
         let goButtonFn;
+
+        const identityServersEnabled = SettingsStore.getValue(UIFeature.IdentityServer);
 
         const userId = MatrixClientPeg.get().getUserId();
         if (this.props.kind === KIND_DM) {

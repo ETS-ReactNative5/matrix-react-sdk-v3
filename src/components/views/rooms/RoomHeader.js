@@ -17,29 +17,23 @@ limitations under the License.
 
 import React, {createRef} from 'react';
 import PropTypes from 'prop-types';
-import createReactClass from 'create-react-class';
 import classNames from 'classnames';
-import * as sdk from '../../../index';
 import { _t } from '../../../languageHandler';
 import {MatrixClientPeg} from '../../../MatrixClientPeg';
-import Modal from "../../../Modal";
 import RateLimitedFunc from '../../../ratelimitedfunc';
 
 import { linkifyElement } from '../../../HtmlUtils';
-import AccessibleButton from '../elements/AccessibleButton';
-import ManageIntegsButton from '../elements/ManageIntegsButton';
 import {CancelButton} from './SimpleRoomHeader';
 import SettingsStore from "../../../settings/SettingsStore";
 import RoomHeaderButtons from '../right_panel/RoomHeaderButtons';
+import DecoratedRoomAvatar from "../avatars/DecoratedRoomAvatar";
+import {DefaultTagID} from "../../../stores/room-list/models";
+import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
 import DMRoomMap from '../../../utils/DMRoomMap';
-import E2EIcon from './E2EIcon';
-import InviteOnlyIcon from './InviteOnlyIcon';
 import Tchap from "../../../tchap/Tchap";
 
-export default createReactClass({
-    displayName: 'RoomHeader',
-
-    propTypes: {
+export default class RoomHeader extends React.Component {
+    static propTypes = {
         room: PropTypes.object,
         oobData: PropTypes.object,
         inRoom: PropTypes.bool,
@@ -49,22 +43,21 @@ export default createReactClass({
         onLeaveClick: PropTypes.func,
         onCancelClick: PropTypes.func,
         e2eStatus: PropTypes.string,
-    },
+    };
 
-    getDefaultProps: function() {
-        return {
-            editing: false,
-            inRoom: false,
-            onCancelClick: null,
-        };
-    },
+    static defaultProps = {
+        editing: false,
+        inRoom: false,
+        onCancelClick: null,
+    };
 
-    // TODO: [REACT-WARNING] Replace component with real class, use constructor for refs
-    UNSAFE_componentWillMount: function() {
+    constructor(props) {
+        super(props);
+
         this._topic = createRef();
-    },
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
         const cli = MatrixClientPeg.get();
         cli.on("RoomState.events", this._onRoomStateEvents);
         cli.on("Room.accountData", this._onRoomAccountData);
@@ -75,15 +68,15 @@ export default createReactClass({
         if (this.props.room) {
             this.props.room.on("Room.name", this._onRoomNameChange);
         }
-    },
+    }
 
-    componentDidUpdate: function() {
+    componentDidUpdate() {
         if (this._topic.current) {
             linkifyElement(this._topic.current);
         }
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         if (this.props.room) {
             this.props.room.removeListener("Room.name", this._onRoomNameChange);
         }
@@ -92,41 +85,34 @@ export default createReactClass({
             cli.removeListener("RoomState.events", this._onRoomStateEvents);
             cli.removeListener("Room.accountData", this._onRoomAccountData);
         }
-    },
+    }
 
-    _onRoomStateEvents: function(event, state) {
+    _onRoomStateEvents = (event, state) => {
         if (!this.props.room || event.getRoomId() !== this.props.room.roomId) {
             return;
         }
 
         // redisplay the room name, topic, etc.
         this._rateLimitedUpdate();
-    },
+    };
 
-    _onRoomAccountData: function(event, room) {
+    _onRoomAccountData = (event, room) => {
         if (!this.props.room || room.roomId !== this.props.room.roomId) return;
         if (event.getType() !== "im.vector.room.read_pins") return;
 
         this._rateLimitedUpdate();
-    },
+    };
 
-    _rateLimitedUpdate: new RateLimitedFunc(function() {
+    _rateLimitedUpdate = new RateLimitedFunc(function() {
         /* eslint-disable babel/no-invalid-this */
         this.forceUpdate();
-    }, 500),
+    }, 500);
 
-    _onRoomNameChange: function(room) {
+    _onRoomNameChange = (room) => {
         this.forceUpdate();
-    },
+    };
 
-    onShareRoomClick: function(ev) {
-        const ShareDialog = sdk.getComponent("dialogs.ShareDialog");
-        Modal.createTrackedDialog('share room dialog', '', ShareDialog, {
-            target: this.props.room,
-        });
-    },
-
-    _hasUnreadPins: function() {
+    _hasUnreadPins() {
         const currentPinEvent = this.props.room.currentState.getStateEvents("m.room.pinned_events", '');
         if (!currentPinEvent) return false;
         if (currentPinEvent.getContent().pinned && currentPinEvent.getContent().pinned.length <= 0) {
@@ -143,16 +129,16 @@ export default createReactClass({
 
         // There's pins, and we haven't read any of them
         return true;
-    },
+    }
 
-    _hasPins: function() {
+    _hasPins() {
         const currentPinEvent = this.props.room.currentState.getStateEvents("m.room.pinned_events", '');
         if (!currentPinEvent) return false;
 
         return !(currentPinEvent.getContent().pinned && currentPinEvent.getContent().pinned.length <= 0);
-    },
+    }
 
-    renderRoomTypeElement: function() {
+    renderRoomTypeElement() {
         const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
         let classes = "tc_RoomHeader_roomType";
         let translation = "";
@@ -171,28 +157,14 @@ export default createReactClass({
         }
 
         return (<div className={classes}>{translation}</div>);
-    },
+    }
 
-    render: function() {
+    render() {
         const RoomAvatar = sdk.getComponent("avatars.RoomAvatar");
 
         let searchStatus = null;
         let cancelButton = null;
-        let settingsButton = null;
         let pinnedEventsButton = null;
-
-        const e2eIcon = this.props.e2eStatus ?
-            <E2EIcon status={this.props.e2eStatus} /> :
-            undefined;
-
-        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
-        const joinRules = this.props.room && this.props.room.currentState.getStateEvents("m.room.join_rules", "");
-        const joinRule = joinRules && joinRules.getContent().join_rule;
-        let privateIcon;
-        // Don't show an invite-only icon for DMs. Users know they're invite-only.
-        if (!dmUserId && joinRule === "invite") {
-            privateIcon = <InviteOnlyIcon />;
-        }
 
         if (this.props.onCancelClick) {
             cancelButton = <CancelButton onClick={this.props.onCancelClick} />;
@@ -257,27 +229,16 @@ export default createReactClass({
 
         let roomAvatar;
         if (this.props.room) {
-            roomAvatar = (<RoomAvatar
+            roomAvatar = <DecoratedRoomAvatar
                 room={this.props.room}
-                width={avatarSize}
-                height={avatarSize}
+                avatarSize={32}
+                tag={DefaultTagID.Untagged} // to apply room publicity badging
                 oobData={this.props.oobData}
-                viewAvatarOnClick={true} />);
+                viewAvatarOnClick={true}
+            />;
         }
 
-        const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
-        const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(this.props.room.roomId));
-        const myMembership = this.props.room.getMyMembership();
-        if (this.props.onSettingsClick && !isDMRoom && myMembership === "join") {
-            settingsButton =
-                <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_settingsButton"
-                    onClick={this.props.onSettingsClick}
-                    title={_t("Settings")}
-                >
-                </AccessibleButton>;
-        }
-
-        if (this.props.onPinnedClick && SettingsStore.isFeatureEnabled('feature_pinning')) {
+        if (this.props.onPinnedClick && SettingsStore.getValue('feature_pinning')) {
             let pinsIndicator = null;
             if (this._hasUnreadPins()) {
                 pinsIndicator = (<div className="mx_RoomHeader_pinsIndicator mx_RoomHeader_pinsIndicatorUnread" />);
@@ -286,66 +247,37 @@ export default createReactClass({
             }
 
             pinnedEventsButton =
-                <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_pinnedButton"
-                                  onClick={this.props.onPinnedClick} title={_t("Pinned Messages")}>
+                <AccessibleTooltipButton
+                    className="mx_RoomHeader_button mx_RoomHeader_pinnedButton"
+                    onClick={this.props.onPinnedClick}
+                    title={_t("Pinned Messages")}
+                >
                     { pinsIndicator }
-                </AccessibleButton>;
+                </AccessibleTooltipButton>;
         }
-
-//        var leave_button;
-//        if (this.props.onLeaveClick) {
-//            leave_button =
-//                <div className="mx_RoomHeader_button" onClick={this.props.onLeaveClick} title="Leave room">
-//                    <TintableSvg src={require("../../../../res/img/leave.svg")} width="26" height="20"/>
-//                </div>;
-//        }
 
         let forgetButton;
         if (this.props.onForgetClick) {
             forgetButton =
-                <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_forgetButton"
+                <AccessibleTooltipButton
+                    className="mx_RoomHeader_button mx_RoomHeader_forgetButton"
                     onClick={this.props.onForgetClick}
-                    title={_t("Forget room")}
-                >
-                </AccessibleButton>;
+                    title={_t("Forget room")} />;
         }
 
         let searchButton;
         if (this.props.onSearchClick && this.props.inRoom
             && !MatrixClientPeg.get().isRoomEncrypted(this.props.room.roomId)) {
             searchButton =
-                <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_searchButton"
+                <AccessibleTooltipButton
+                    className="mx_RoomHeader_button mx_RoomHeader_searchButton"
                     onClick={this.props.onSearchClick}
-                    title={_t("Search")}
-                >
-                </AccessibleButton>;
-        }
-
-        let shareRoomButton;
-        if (this.props.inRoom && (Tchap.isRoomForum(this.props.room.roomId) ||
-            (MatrixClientPeg.get().isRoomEncrypted(this.props.room.roomId)
-                && Tchap.getJoinRules(this.props.room.roomId) === "public"
-                && Tchap.getAccessRules(this.props.room.roomId) === "restricted"))) {
-            shareRoomButton =
-                <AccessibleButton className="mx_RoomHeader_button mx_RoomHeader_shareButton"
-                    onClick={this.onShareRoomClick}
-                    title={_t('Share room')}
-                >
-                </AccessibleButton>;
-        }
-
-        let encryptedIndicator = null;
-        if (MatrixClientPeg.get().isRoomEncrypted(this.props.room.roomId)) {
-            encryptedIndicator = <img src={require("../../../../res/img/tchap/padlock-encrypted_bordered-white.svg")} width="15" height="19" alt="encrypted" className="tc_RoomHeader_encryptionInfos" />;
-        } else {
-            encryptedIndicator = <img src={require("../../../../res/img/tchap/padlock-forum_mono_dark.svg")} width="15" height="19" alt="encrypted" className="tc_RoomHeader_forumInfos" />;
+                    title={_t("Search")} />;
         }
 
         const rightRow =
             <div className="mx_RoomHeader_buttons">
-                { settingsButton }
                 { pinnedEventsButton }
-                { shareRoomButton }
                 { forgetButton }
                 { searchButton }
             </div>;
@@ -357,24 +289,14 @@ export default createReactClass({
         return (
             <div className="mx_RoomHeader light-panel">
                 <div className="mx_RoomHeader_wrapper" aria-owns="mx_RightPanel">
-                    <div className={mainAvatarClasses}>{ roomAvatar }</div>
-                    { encryptedIndicator }
-                    <div className="tc_RoomHeader_infos">
-                        <div className="tc_RoomHeader_classicInfos">
-                            { name }
-                            { topicElement }
-                        </div>
-                        <div className="tc_RoomHeader_advancedInfos">
-                            { roomType }
-                            { memberCount ? <span className="tc_RoomHeader_middot">&middot;</span> : null }
-                            { memberCount }
-                        </div>
-                    </div>
+                    <div className="mx_RoomHeader_avatar">{ roomAvatar }</div>
+                    { name }
+                    { topicElement }
                     { cancelButton }
                     { rightRow }
                     <RoomHeaderButtons />
                 </div>
             </div>
         );
-    },
-});
+    }
+}

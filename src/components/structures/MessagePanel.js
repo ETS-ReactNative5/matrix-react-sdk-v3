@@ -135,6 +135,9 @@ export default class MessagePanel extends React.Component {
 
         // whether to use the irc layout
         useIRCLayout: PropTypes.bool,
+
+        // whether or not to show flair at all
+        enableFlair: PropTypes.bool,
     };
 
     // Force props to be loaded for useIRCLayout
@@ -346,9 +349,9 @@ export default class MessagePanel extends React.Component {
         }
     }
 
-    _isUnmounting() {
+    _isUnmounting = () => {
         return !this._isMounted;
-    }
+    };
 
     // TODO: Implement granular (per-room) hide options
     _shouldShowEvent(mxEv) {
@@ -388,8 +391,11 @@ export default class MessagePanel extends React.Component {
             }
 
             return (
-                <li key={"readMarker_"+eventId} ref={this._readMarkerNode}
-                      className="mx_RoomView_myReadMarker_container">
+                <li key={"readMarker_"+eventId}
+                    ref={this._readMarkerNode}
+                    className="mx_RoomView_myReadMarker_container"
+                    data-scroll-tokens={eventId}
+                >
                     { hr }
                 </li>
             );
@@ -512,10 +518,13 @@ export default class MessagePanel extends React.Component {
             if (!grouper) {
                 const wantTile = this._shouldShowEvent(mxEv);
                 if (wantTile) {
+                    const nextEvent = i < this.props.events.length - 1
+                        ? this.props.events[i + 1]
+                        : null;
                     // make sure we unpack the array returned by _getTilesForEvent,
                     // otherwise react will auto-generate keys and we will end up
                     // replacing all of the DOM elements every time we paginate.
-                    ret.push(...this._getTilesForEvent(prevEvent, mxEv, last));
+                    ret.push(...this._getTilesForEvent(prevEvent, mxEv, last, nextEvent));
                     prevEvent = mxEv;
                 }
 
@@ -531,7 +540,7 @@ export default class MessagePanel extends React.Component {
         return ret;
     }
 
-    _getTilesForEvent(prevEvent, mxEv, last) {
+    _getTilesForEvent(prevEvent, mxEv, last, nextEvent) {
         const TileErrorBoundary = sdk.getComponent('messages.TileErrorBoundary');
         const EventTile = sdk.getComponent('rooms.EventTile');
         const DateSeparator = sdk.getComponent('messages.DateSeparator');
@@ -556,6 +565,11 @@ export default class MessagePanel extends React.Component {
             ret.push(dateSeparator);
         }
 
+        let willWantDateSeparator = false;
+        if (nextEvent) {
+            willWantDateSeparator = this._wantsDateSeparator(mxEv, nextEvent.getDate() || new Date());
+        }
+
         // is this a continuation of the previous message?
         const continuation = !wantsDateSeparator && shouldFormContinuation(prevEvent, mxEv);
 
@@ -568,17 +582,16 @@ export default class MessagePanel extends React.Component {
 
         const readReceipts = this._readReceiptsByEvent[eventId];
 
-        // Dev note: `this._isUnmounting.bind(this)` is important - it ensures that
-        // the function is run in the context of this class and not EventTile, therefore
-        // ensuring the right `this._mounted` variable is used by read receipts (which
-        // don't update their position if we, the MessagePanel, is unmounting).
+        // use txnId as key if available so that we don't remount during sending
         ret.push(
-            <li key={eventId}
+            <li
+                key={mxEv.getTxnId() || eventId}
                 ref={this._collectEventNode.bind(this, eventId)}
                 data-scroll-tokens={scrollToken}
             >
                 <TileErrorBoundary mxEvent={mxEv}>
-                    <EventTile mxEvent={mxEv}
+                    <EventTile
+                        mxEvent={mxEv}
                         continuation={continuation}
                         isRedacted={mxEv.isRedacted()}
                         replacingEventId={mxEv.replacingEventId()}
@@ -587,16 +600,18 @@ export default class MessagePanel extends React.Component {
                         readReceipts={readReceipts}
                         readReceiptMap={this._readReceiptMap}
                         showUrlPreview={this.props.showUrlPreview}
-                        checkUnmounting={this._isUnmounting.bind(this)}
+                        checkUnmounting={this._isUnmounting}
                         eventSendStatus={mxEv.getAssociatedStatus()}
                         tileShape={this.props.tileShape}
                         isTwelveHour={this.props.isTwelveHour}
                         permalinkCreator={this.props.permalinkCreator}
                         last={last}
+                        lastInSection={willWantDateSeparator}
                         isSelectedEvent={highlight}
                         getRelationsForEvent={this.props.getRelationsForEvent}
                         showReactions={this.props.showReactions}
                         useIRCLayout={this.props.useIRCLayout}
+                        enableFlair={this.props.enableFlair}
                     />
                 </TileErrorBoundary>
             </li>,

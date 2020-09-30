@@ -19,6 +19,7 @@ limitations under the License.
 
 import { randomString } from "matrix-js-sdk/src/randomstring";
 import { EventEmitter } from "events";
+import { objectClone } from "../utils/objects";
 
 export enum Capability {
     Screenshot = "m.capability.screenshot",
@@ -33,6 +34,7 @@ export enum KnownWidgetActions {
     GetCapabilities = "capabilities",
     SendEvent = "send_event",
     UpdateVisibility = "visibility",
+    GetOpenIDCredentials = "get_openid",
     ReceiveOpenIDCredentials = "openid_credentials",
     SetAlwaysOnScreen = "set_always_on_screen",
     ClientReady = "im.vector.ready",
@@ -63,8 +65,15 @@ export interface FromWidgetRequest extends WidgetRequest {
     response: any;
 }
 
+export interface OpenIDCredentials {
+    accessToken: string;
+    tokenType: string;
+    matrixServerName: string;
+    expiresIn: number;
+}
+
 /**
- * Handles Riot <--> Widget interactions for embedded/standalone widgets.
+ * Handles Element <--> Widget interactions for embedded/standalone widgets.
  *
  * Emitted events:
  * - terminate(wait): client requested the widget to terminate.
@@ -72,10 +81,12 @@ export interface FromWidgetRequest extends WidgetRequest {
  *   the given promise resolves.
  */
 export class WidgetApi extends EventEmitter {
-    private origin: string;
+    private readonly origin: string;
     private inFlightRequests: { [requestId: string]: (reply: FromWidgetRequest) => void } = {};
-    private readyPromise: Promise<any>;
+    private readonly readyPromise: Promise<any>;
     private readyPromiseResolve: () => void;
+    private openIDCredentialsCallback: () => void;
+    public openIDCredentials: OpenIDCredentials;
 
     /**
      * Set this to true if your widget is expecting a ready message from the client. False otherwise (default).
@@ -112,13 +123,17 @@ export class WidgetApi extends EventEmitter {
                     // Finalization needs to be async, so postpone with a promise
                     let finalizePromise = Promise.resolve();
                     const wait = (promise) => {
-                        finalizePromise = finalizePromise.then(value => promise);
+                        finalizePromise = finalizePromise.then(() => promise);
                     };
                     this.emit('terminate', wait);
                     Promise.resolve(finalizePromise).then(() => {
                         // Acknowledge that we're shut down now
                         this.replyToRequest(<ToWidgetRequest>payload, {});
                     });
+                } else if (payload.action === KnownWidgetActions.ReceiveOpenIDCredentials) {
+                    // Save OpenID credentials
+                    this.setOpenIDCredentials(<ToWidgetRequest>payload);
+                    this.replyToRequest(<ToWidgetRequest>payload, {});
                 } else {
                     console.warn(`[WidgetAPI] Got unexpected action: ${payload.action}`);
                 }
@@ -133,6 +148,32 @@ export class WidgetApi extends EventEmitter {
         });
     }
 
+    public setOpenIDCredentials(value: WidgetRequest) {
+        const data = value.data;
+        if (data.state === 'allowed') {
+            this.openIDCredentials = {
+                accessToken: data.access_token,
+                tokenType: data.token_type,
+                matrixServerName: data.matrix_server_name,
+                expiresIn: data.expires_in,
+            }
+        } else if (data.state === 'blocked') {
+            this.openIDCredentials = null;
+        }
+        if (['allowed', 'blocked'].includes(data.state) && this.openIDCredentialsCallback) {
+            this.openIDCredentialsCallback()
+        }
+    }
+
+    public requestOpenIDCredentials(credentialsResponseCallback: () => void) {
+        this.openIDCredentialsCallback = credentialsResponseCallback;
+        this.callAction(
+            KnownWidgetActions.GetOpenIDCredentials,
+            {},
+            this.setOpenIDCredentials,
+        );
+    }
+
     public waitReady(): Promise<any> {
         return this.readyPromise;
     }
@@ -140,7 +181,7 @@ export class WidgetApi extends EventEmitter {
     private replyToRequest(payload: ToWidgetRequest, reply: any) {
         if (!window.parent) return;
 
-        const request = JSON.parse(JSON.stringify(payload));
+        const request: ToWidgetRequest & {response?: any} = objectClone(payload);
         request.response = reply;
 
         window.parent.postMessage(request, this.origin);

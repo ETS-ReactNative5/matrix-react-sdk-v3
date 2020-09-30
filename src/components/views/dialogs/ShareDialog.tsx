@@ -30,6 +30,10 @@ import * as ContextMenu from "../../structures/ContextMenu";
 import {toRightOf} from "../../structures/ContextMenu";
 import {copyPlaintext, selectText} from "../../../utils/strings";
 import StyledCheckbox from '../elements/StyledCheckbox';
+import AccessibleTooltipButton from '../elements/AccessibleTooltipButton';
+import { IDialogProps } from "./IDialogProps";
+import SettingsStore from "../../../settings/SettingsStore";
+import {UIFeature} from "../../../settings/UIFeature";
 
 const socials = [
     {
@@ -39,8 +43,7 @@ const socials = [
     },
 ];
 
-interface IProps {
-    onFinished: () => void;
+interface IProps extends IDialogProps {
     target: Room | User | Group | RoomMember | MatrixEvent;
     permalinkCreator: RoomPermalinkCreator;
 }
@@ -165,8 +168,8 @@ export default class ShareDialog extends React.PureComponent<IProps, IState> {
             title = _t('Share Room Message');
             checkbox = <div>
                 <StyledCheckbox
-                       checked={this.state.linkSpecificEvent}
-                       onClick={this.onLinkSpecificEventCheckboxClick}
+                    checked={this.state.linkSpecificEvent}
+                    onClick={this.onLinkSpecificEventCheckboxClick}
                 >
                     { _t('Link to selected message') }
                 </StyledCheckbox>
@@ -176,49 +179,59 @@ export default class ShareDialog extends React.PureComponent<IProps, IState> {
         const matrixToUrl = this.getUrl();
         const encodedUrl = encodeURIComponent(matrixToUrl);
 
+        const showQrCode = SettingsStore.getValue(UIFeature.ShareQRCode);
+        const showSocials = SettingsStore.getValue(UIFeature.ShareSocial);
+
+        let qrSocialSection;
+        if (showQrCode || showSocials) {
+            qrSocialSection = <>
+                <hr />
+                <div className="mx_ShareDialog_split">
+                    { showQrCode && <div className="mx_ShareDialog_qrcode_container">
+                        <QRCode data={matrixToUrl} width={256} />
+                    </div> }
+                    { showSocials && <div className="mx_ShareDialog_social_container">
+                        { socials.map((social) => (
+                            <a
+                                rel="noreferrer noopener"
+                                target="_blank"
+                                key={social.name}
+                                title={social.name}
+                                href={social.url(encodedUrl)}
+                                className="mx_ShareDialog_social_icon"
+                            >
+                                <img src={social.img} alt={social.name} height={64} width={64} />
+                            </a>
+                        )) }
+                    </div> }
+                </div>
+            </>;
+        }
+
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
-        return <BaseDialog title={title}
-                           className='mx_ShareDialog'
-                           contentId='mx_Dialog_content'
-                           onFinished={this.props.onFinished}
+        return <BaseDialog
+            title={title}
+            className='mx_ShareDialog'
+            contentId='mx_Dialog_content'
+            onFinished={this.props.onFinished}
         >
             <div className="mx_ShareDialog_content">
                 <div className="mx_ShareDialog_matrixto">
-                    <a href={matrixToUrl}
-                       onClick={ShareDialog.onLinkClick}
-                       className="mx_ShareDialog_matrixto_link"
+                    <a
+                        href={matrixToUrl}
+                        onClick={ShareDialog.onLinkClick}
+                        className="mx_ShareDialog_matrixto_link"
                     >
                         { matrixToUrl }
                     </a>
-                    <a href={matrixToUrl} className="mx_ShareDialog_matrixto_copy" onClick={this.onCopyClick}>
-                        { _t('COPY') }
-                        <div>&nbsp;</div>
-                    </a>
+                    <AccessibleTooltipButton
+                        title={_t("Copy")}
+                        onClick={this.onCopyClick}
+                        className="mx_ShareDialog_matrixto_copy"
+                    />
                 </div>
                 { checkbox }
-                <br />
-                <details>
-                    <summary>{_t("Share")}</summary>
-                    <div className="mx_ShareDialog_split">
-                        <div className="mx_ShareDialog_qrcode_container">
-                            <QRCode data={matrixToUrl} width={256} />
-                        </div>
-                        <div className="mx_ShareDialog_social_container">
-                            { socials.map((social) => (
-                                <a
-                                    rel="noreferrer noopener"
-                                    target="_blank"
-                                    key={social.name}
-                                    title={social.name}
-                                    href={social.url(encodedUrl)}
-                                    className="mx_ShareDialog_social_icon"
-                                >
-                                    <img src={social.img} alt={social.name} height={64} width={64} />
-                                </a>
-                            )) }
-                        </div>
-                    </div>
-                </details>
+                { qrSocialSection }
             </div>
         </BaseDialog>;
     }

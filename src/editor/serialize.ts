@@ -31,7 +31,8 @@ export function mdSerialize(model: EditorModel) {
                 return html + part.text;
             case "room-pill":
             case "user-pill":
-                return html + `[${part.text.replace(/[[\\\]]/g, c => "\\" + c)}](${makeGenericPermalink(part.resourceId)})`;
+                return html +
+                    `[${part.text.replace(/[[\\\]]/g, c => "\\" + c)}](${makeGenericPermalink(part.resourceId)})`;
         }
     }, "");
 }
@@ -41,6 +42,10 @@ export function htmlSerializeIfNeeded(model: EditorModel, {forceHTML = false} = 
     const parser = new Markdown(md);
     if (!parser.isPlainText() || forceHTML) {
         return parser.toHTML();
+    }
+    // ensure removal of escape backslashes in non-Markdown messages
+    if (md.indexOf("\\") > -1) {
+        return parser.toPlaintext();
     }
 }
 

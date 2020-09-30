@@ -29,18 +29,21 @@ import { _t } from '../../../languageHandler';
 import * as sdk from '../../../index';
 import AppPermission from './AppPermission';
 import AppWarning from './AppWarning';
-import MessageSpinner from './MessageSpinner';
+import Spinner from './Spinner';
 import WidgetUtils from '../../../utils/WidgetUtils';
 import dis from '../../../dispatcher/dispatcher';
 import ActiveWidgetStore from '../../../stores/ActiveWidgetStore';
 import classNames from 'classnames';
 import {IntegrationManagers} from "../../../integrations/IntegrationManagers";
-import SettingsStore, {SettingLevel} from "../../../settings/SettingsStore";
+import SettingsStore from "../../../settings/SettingsStore";
 import {aboveLeftOf, ContextMenu, ContextMenuButton} from "../../structures/ContextMenu";
 import PersistedElement from "./PersistedElement";
 import {WidgetType} from "../../../widgets/WidgetType";
 import {Capability} from "../../../widgets/WidgetApi";
 import {sleep} from "../../../utils/promise";
+import {SettingLevel} from "../../../settings/SettingLevel";
+import WidgetStore from "../../../stores/WidgetStore";
+import {Action} from "../../../dispatcher/actions";
 
 const ALLOWED_APP_URL_SCHEMES = ['https:', 'http:'];
 const ENABLE_REACT_PERF = false;
@@ -99,6 +102,8 @@ export default class AppTile extends React.Component {
     _getNewState(newProps) {
         // This is a function to make the impact of calling SettingsStore slightly less
         const hasPermissionToLoad = () => {
+            if (this._usingLocalWidget()) return true;
+
             const currentlyAllowedWidgets = SettingsStore.getValue("allowedWidgets", newProps.room.roomId);
             return !!currentlyAllowedWidgets[newProps.app.eventId];
         };
@@ -309,35 +314,12 @@ export default class AppTile extends React.Component {
         if (this.props.onEditClick) {
             this.props.onEditClick();
         } else {
-            // TODO: Open the right manager for the widget
-            if (SettingsStore.isFeatureEnabled("feature_many_integration_managers")) {
-                IntegrationManagers.sharedInstance().openAll(
-                    this.props.room,
-                    'type_' + this.props.type,
-                    this.props.app.id,
-                );
-            } else {
-                IntegrationManagers.sharedInstance().getPrimaryManager().open(
-                    this.props.room,
-                    'type_' + this.props.type,
-                    this.props.app.id,
-                );
-            }
+            WidgetUtils.editWidget(this.props.room, this.props.app);
         }
     }
 
     _onSnapshotClick() {
-        console.log("Requesting widget snapshot");
-        ActiveWidgetStore.getWidgetMessaging(this.props.app.id).getScreenshot()
-            .catch((err) => {
-                console.error("Failed to get screenshot", err);
-            })
-            .then((screenshot) => {
-                dis.dispatch({
-                    action: 'picture_snapshot',
-                    file: screenshot,
-                }, true);
-            });
+        WidgetUtils.snapshotWidget(this.props.app);
     }
 
     /**
@@ -360,14 +342,14 @@ export default class AppTile extends React.Component {
         return terminationPromise.finally(() => {
             // HACK: This is a really dirty way to ensure that Jitsi cleans up
             // its hold on the webcam. Without this, the widget holds a media
-            // stream open, even after death. See https://github.com/vector-im/riot-web/issues/7351
+            // stream open, even after death. See https://github.com/vector-im/element-web/issues/7351
             if (this._appFrame.current) {
                 // In practice we could just do `+= ''` to trick the browser
                 // into thinking the URL changed, however I can foresee this
                 // being optimized out by a browser. Instead, we'll just point
                 // the iframe at a page that is reasonably safe to use in the
                 // event the iframe doesn't wink away.
-                // This is relative to where the Riot instance is located.
+                // This is relative to where the Element instance is located.
                 this._appFrame.current.src = 'about:blank';
             }
 
@@ -416,6 +398,10 @@ export default class AppTile extends React.Component {
                 },
             });
         }
+    }
+
+    _onUnpinClicked = () => {
+        WidgetStore.instance.unpinWidget(this.props.app.id);
     }
 
     _onRevokeClicked() {
@@ -489,12 +475,20 @@ export default class AppTile extends React.Component {
         if (payload.widgetId === this.props.app.id) {
             switch (payload.action) {
                 case 'm.sticker':
-                if (this._hasCapability('m.sticker')) {
-                    dis.dispatch({action: 'post_sticker_message', data: payload.data});
-                } else {
-                    console.warn('Ignoring sticker message. Invalid capability');
-                }
-                break;
+                    if (this._hasCapability('m.sticker')) {
+                        dis.dispatch({action: 'post_sticker_message', data: payload.data});
+                    } else {
+                        console.warn('Ignoring sticker message. Invalid capability');
+                    }
+                    break;
+
+                case Action.AppTileDelete:
+                    this._onDeleteClick();
+                    break;
+
+                case Action.AppTileRevoke:
+                    this._onRevokeClicked();
+                    break;
             }
         }
     }
@@ -613,6 +607,15 @@ export default class AppTile extends React.Component {
     }
 
     /**
+     * Whether we're using a local version of the widget rather than loading the
+     * actual widget URL
+     * @returns {bool} true If using a local version of the widget
+     */
+    _usingLocalWidget() {
+        return WidgetType.JITSI.matches(this.props.app.type);
+    }
+
+    /**
      * Get the URL used in the iframe
      * In cases where we supply our own UI for a widget, this is an internal
      * URL different to the one used if the widget is popped out to a separate
@@ -625,7 +628,10 @@ export default class AppTile extends React.Component {
 
         if (WidgetType.JITSI.matches(this.props.app.type)) {
             console.log("Replacing Jitsi widget URL with local wrapper");
-            url = WidgetUtils.getLocalJitsiWrapperUrl({forLocalRender: true});
+            url = WidgetUtils.getLocalJitsiWrapperUrl({
+                forLocalRender: true,
+                auth: this.props.app.data ? this.props.app.data.auth : null,
+            });
             url = this._addWurlParams(url);
         } else {
             url = this._getSafeUrl(this.state.widgetUrl);
@@ -636,7 +642,10 @@ export default class AppTile extends React.Component {
     _getPopoutUrl() {
         if (WidgetType.JITSI.matches(this.props.app.type)) {
             return this._templatedUrl(
-                WidgetUtils.getLocalJitsiWrapperUrl({forLocalRender: false}),
+                WidgetUtils.getLocalJitsiWrapperUrl({
+                    forLocalRender: false,
+                    auth: this.props.app.data ? this.props.app.data.auth : null,
+                }),
                 this.props.app.type,
             );
         } else {
@@ -704,6 +713,7 @@ export default class AppTile extends React.Component {
 
     _onReloadWidgetClick() {
         // Reload iframe in this way to avoid cross-origin restrictions
+        // eslint-disable-next-line no-self-assign
         this._appFrame.current.src = this._appFrame.current.src;
     }
 
@@ -725,7 +735,7 @@ export default class AppTile extends React.Component {
 
         // Note that there is advice saying allow-scripts shouldn't be used with allow-same-origin
         // because that would allow the iframe to programmatically remove the sandbox attribute, but
-        // this would only be for content hosted on the same origin as the riot client: anything
+        // this would only be for content hosted on the same origin as the element client: anything
         // hosted on the same origin as the client will get the same access as if you clicked
         // a link to it.
         const sandboxFlags = "allow-forms allow-popups allow-popups-to-escape-sandbox "+
@@ -733,14 +743,14 @@ export default class AppTile extends React.Component {
 
         // Additional iframe feature pemissions
         // (see - https://sites.google.com/a/chromium.org/dev/Home/chromium-security/deprecating-permissions-in-cross-origin-iframes and https://wicg.github.io/feature-policy/)
-        const iframeFeatures = "microphone; camera; encrypted-media; autoplay;";
+        const iframeFeatures = "microphone; camera; encrypted-media; autoplay; display-capture;";
 
         const appTileBodyClass = 'mx_AppTileBody' + (this.props.miniMode ? '_mini  ' : ' ');
 
         if (this.props.show) {
             const loadingElement = (
                 <div className="mx_AppLoading_spinner_fadeIn">
-                    <MessageSpinner msg='Loading...' />
+                    <Spinner message={_t("Loading...")} />
                 </div>
             );
             if (!this.state.hasPermissionToLoad) {
@@ -802,14 +812,16 @@ export default class AppTile extends React.Component {
         const showMinimiseButton = this.props.showMinimise && this.props.show;
         const showMaximiseButton = this.props.showMinimise && !this.props.show;
 
-        let appTileClass;
+        let appTileClasses;
         if (this.props.miniMode) {
-            appTileClass = 'mx_AppTile_mini';
+            appTileClasses = {mx_AppTile_mini: true};
         } else if (this.props.fullWidth) {
-            appTileClass = 'mx_AppTileFullWidth';
+            appTileClasses = {mx_AppTileFullWidth: true};
         } else {
-            appTileClass = 'mx_AppTile';
+            appTileClasses = {mx_AppTile: true};
         }
+        appTileClasses.mx_AppTile_minimised = !this.props.show;
+        appTileClasses = classNames(appTileClasses);
 
         const menuBarClasses = classNames({
             mx_AppTileMenuBar: true,
@@ -829,6 +841,9 @@ export default class AppTile extends React.Component {
             contextMenu = (
                 <ContextMenu {...aboveLeftOf(elementRect, null)} onFinished={this._closeContextMenu}>
                     <WidgetContextMenu
+                        onUnpinClicked={
+                            ActiveWidgetStore.getWidgetPersistence(this.props.app.id) ? null : this._onUnpinClicked
+                        }
                         onRevokeClicked={this._onRevokeClicked}
                         onEditClicked={showEditButton ? this._onEditClick : undefined}
                         onDeleteClicked={showDeleteButton ? this._onDeleteClick : undefined}
@@ -841,20 +856,20 @@ export default class AppTile extends React.Component {
         }
 
         return <React.Fragment>
-            <div className={appTileClass} id={this.props.app.id}>
+            <div className={appTileClasses} id={this.props.app.id}>
                 { this.props.showMenubar &&
                 <div ref={this._menu_bar} className={menuBarClasses} onClick={this.onClickMenuBar}>
                     <span className="mx_AppTileMenuBarTitle" style={{pointerEvents: (this.props.handleMinimisePointerEvents ? 'all' : false)}}>
                         { /* Minimise widget */ }
                         { showMinimiseButton && <AccessibleButton
                             className="mx_AppTileMenuBar_iconButton mx_AppTileMenuBar_iconButton_minimise"
-                            title={_t('Minimize apps')}
+                            title={_t('Minimize widget')}
                             onClick={this._onMinimiseClick}
                         /> }
                         { /* Maximise widget */ }
                         { showMaximiseButton && <AccessibleButton
                             className="mx_AppTileMenuBar_iconButton mx_AppTileMenuBar_iconButton_maximise"
-                            title={_t('Maximize apps')}
+                            title={_t('Maximize widget')}
                             onClick={this._onMinimiseClick}
                         /> }
                         { /* Title */ }
@@ -922,7 +937,7 @@ AppTile.propTypes = {
     // Optionally show the reload widget icon
     // This is not currently intended for use with production widgets. However
     // it can be useful when developing persistent widgets in order to avoid
-    // having to reload all of riot to get new widget content.
+    // having to reload all of Element to get new widget content.
     showReload: PropTypes.bool,
     // Widget capabilities to allow by default (without user confirmation)
     // NOTE -- Use with caution. This is intended to aid better integration / UX

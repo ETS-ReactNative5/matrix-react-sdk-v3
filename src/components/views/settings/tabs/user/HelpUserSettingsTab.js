@@ -1,5 +1,6 @@
 /*
 Copyright 2019 New Vector Ltd
+Copyright 2020 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,13 +37,13 @@ export default class HelpUserSettingsTab extends React.Component {
         super();
 
         this.state = {
-            vectorVersion: null,
+            appVersion: null,
             canUpdate: false,
         };
     }
 
     componentDidMount(): void {
-        PlatformPeg.get().getAppVersion().then((ver) => this.setState({vectorVersion: ver})).catch((e) => {
+        PlatformPeg.get().getAppVersion().then((ver) => this.setState({appVersion: ver})).catch((e) => {
             console.error("Error getting vector version: ", e);
         });
         PlatformPeg.get().canSelfUpdate().then((v) => this.setState({canUpdate: v})).catch((e) => {
@@ -147,7 +148,7 @@ export default class HelpUserSettingsTab extends React.Component {
                 <a href={baseUrl + faqLink} rel="noreferrer noopener" target="_blank">{sub}</a>,
         });
 
-        const vectorVersion = this.state.vectorVersion || 'unknown';
+        const appVersion = this.state.appVersion || 'unknown';
 
         let olmVersion = MatrixClientPeg.get().olmVersion;
         olmVersion = olmVersion ? `${olmVersion[0]}.${olmVersion[1]}.${olmVersion[2]}` : '<not-enabled>';
@@ -157,9 +158,9 @@ export default class HelpUserSettingsTab extends React.Component {
             updateButton = <UpdateCheckButton />;
         }
 
-        return (
-            <div className="mx_SettingsTab mx_HelpUserSettingsTab">
-                <div className="mx_SettingsTab_heading">{_t("Help & About")}</div>
+        let bugReportingSection;
+        if (SdkConfig.get().bug_report_endpoint_url) {
+            bugReportingSection = (
                 <div className="mx_SettingsTab_section">
                     <span className='mx_SettingsTab_subheading'>{_t('Bug reporting')}</span>
                     <div className='mx_SettingsTab_subsectionText'>
@@ -174,13 +175,15 @@ export default class HelpUserSettingsTab extends React.Component {
                                 {_t("Report an error")}
                             </AccessibleButton>
                         </div>
-                        <div className='mx_HelpUserSettingsTab_debugButton'>
-                            <AccessibleButton onClick={this._onClearCacheAndReload} kind='danger'>
-                                {_t("Clear cache and reload")}
-                            </AccessibleButton>
-                        </div>
                     </div>
                 </div>
+            );
+        }
+
+        return (
+            <div className="mx_SettingsTab mx_HelpUserSettingsTab">
+                <div className="mx_SettingsTab_heading">{_t("Help & About")}</div>
+                { bugReportingSection }
                 <div className='mx_SettingsTab_section'>
                     <span className='mx_SettingsTab_subheading'>{_t("FAQ")}</span>
                     <div className='mx_SettingsTab_subsectionText'>
@@ -193,7 +196,7 @@ export default class HelpUserSettingsTab extends React.Component {
                 <div className='mx_SettingsTab_section mx_HelpUserSettingsTab_versions'>
                     <span className='mx_SettingsTab_subheading'>{_t("Versions")}</span>
                     <div className='mx_SettingsTab_subsectionText'>
-                        {_t("tchap-web version:")} {vectorVersion}<br />
+                        {_t("%(brand)s version:", { brand })} {appVersion}<br />
                         {_t("olm version:")} {olmVersion}<br />
                         {updateButton}
                     </div>
@@ -210,6 +213,11 @@ export default class HelpUserSettingsTab extends React.Component {
                                           data-spoiler={MatrixClientPeg.get().getAccessToken()}>
                             &lt;{ _t("click to reveal") }&gt;
                         </AccessibleButton>
+                        <div className='mx_HelpUserSettingsTab_debugButton'>
+                            <AccessibleButton onClick={this._onClearCacheAndReload} kind='danger'>
+                                {_t("Clear cache and reload")}
+                            </AccessibleButton>
+                        </div>
                     </div>
                 </div>
             </div>

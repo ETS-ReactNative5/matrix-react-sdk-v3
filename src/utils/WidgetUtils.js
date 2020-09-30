@@ -31,6 +31,8 @@ import {IntegrationManagers} from "../integrations/IntegrationManagers";
 import {Capability} from "../widgets/WidgetApi";
 import {Room} from "matrix-js-sdk/src/models/room";
 import {WidgetType} from "../widgets/WidgetType";
+import {objectClone} from "./objects";
+import {_t} from "../languageHandler";
 
 export default class WidgetUtils {
     /* Returns true if user is able to send state events to modify widgets in this room
@@ -68,7 +70,7 @@ export default class WidgetUtils {
             return false;
         }
 
-        // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
+        // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
         return room.currentState.maySendStateEvent('im.vector.modular.widgets', me);
     }
 
@@ -184,7 +186,7 @@ export default class WidgetUtils {
             }
 
             const room = MatrixClientPeg.get().getRoom(roomId);
-            // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
+            // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
             const startingWidgetEvents = room.currentState.getStateEvents('im.vector.modular.widgets');
             if (eventsInIntendedState(startingWidgetEvents)) {
                 resolve();
@@ -194,7 +196,7 @@ export default class WidgetUtils {
             function onRoomStateEvents(ev) {
                 if (ev.getRoomId() !== roomId) return;
 
-                // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
+                // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
                 const currentWidgetEvents = room.currentState.getStateEvents('im.vector.modular.widgets');
 
                 if (eventsInIntendedState(currentWidgetEvents)) {
@@ -222,7 +224,7 @@ export default class WidgetUtils {
         const client = MatrixClientPeg.get();
         // Get the current widgets and clone them before we modify them, otherwise
         // we'll modify the content of the old event.
-        const userWidgets = JSON.parse(JSON.stringify(WidgetUtils.getUserWidgets()));
+        const userWidgets = objectClone(WidgetUtils.getUserWidgets());
 
         // Delete existing widget with ID
         try {
@@ -262,8 +264,8 @@ export default class WidgetUtils {
 
         if (addingWidget) {
             content = {
-                // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
-                // For now we'll send the legacy event type for compatibility with older apps/riots
+                // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
+                // For now we'll send the legacy event type for compatibility with older apps/elements
                 type: widgetType.legacy,
                 url: widgetUrl,
                 name: widgetName,
@@ -276,7 +278,7 @@ export default class WidgetUtils {
         WidgetEchoStore.setRoomWidgetEcho(roomId, widgetId, content);
 
         const client = MatrixClientPeg.get();
-        // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
+        // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
         return client.sendStateEvent(roomId, "im.vector.modular.widgets", content, widgetId).then(() => {
             return WidgetUtils.waitForRoomWidget(widgetId, roomId, addingWidget);
         }).finally(() => {
@@ -290,7 +292,7 @@ export default class WidgetUtils {
      * @return {[object]} Array containing current / active room widgets
      */
     static getRoomWidgets(room: Room) {
-        // TODO: Enable support for m.widget event type (https://github.com/vector-im/riot-web/issues/13111)
+        // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
         const appsStateEvents = room.currentState.getStateEvents('im.vector.modular.widgets');
         if (!appsStateEvents) {
             return [];
@@ -404,6 +406,7 @@ export default class WidgetUtils {
         app.creatorUserId = senderUserId;
 
         app.id = appId;
+        app.roomId = roomId;
         app.eventId = eventId;
         app.name = app.name || app.type;
 
@@ -447,16 +450,21 @@ export default class WidgetUtils {
         return encodeURIComponent(`${widgetLocation}::${widgetUrl}`);
     }
 
-    static getLocalJitsiWrapperUrl(opts: {forLocalRender?: boolean}={}) {
+    static getLocalJitsiWrapperUrl(opts: {forLocalRender?: boolean, auth?: string}={}) {
         // NB. we can't just encodeURIComponent all of these because the $ signs need to be there
-        const queryString = [
+        const queryStringParts = [
             'conferenceDomain=$domain',
             'conferenceId=$conferenceId',
             'isAudioOnly=$isAudioOnly',
             'displayName=$matrix_display_name',
             'avatarUrl=$matrix_avatar_url',
             'userId=$matrix_user_id',
-        ].join('&');
+            'roomId=$matrix_room_id',
+        ];
+        if (opts.auth) {
+            queryStringParts.push(`auth=${opts.auth}`);
+        }
+        const queryString = queryStringParts.join('&');
 
         let baseUrl = window.location;
         if (window.location.protocol !== "https:" && !opts.forLocalRender) {
@@ -465,9 +473,38 @@ export default class WidgetUtils {
             // safe to send.
             // We'll end up using a local render URL when we see a Jitsi widget anyways, so this is
             // really just for backwards compatibility and to appease the spec.
-            baseUrl = "https://riot.im/app/";
+            baseUrl = "https://app.element.io/";
         }
         const url = new URL("jitsi.html#" + queryString, baseUrl); // this strips hash fragment from baseUrl
         return url.href;
+    }
+
+    static getWidgetName(app) {
+        return app?.name?.trim() || _t("Unknown App");
+    }
+
+    static getWidgetDataTitle(app) {
+        return app?.data?.title?.trim() || "";
+    }
+
+    static editWidget(room, app) {
+        // TODO: Open the right manager for the widget
+        if (SettingsStore.getValue("feature_many_integration_managers")) {
+            IntegrationManagers.sharedInstance().openAll(room, 'type_' + app.type, app.id);
+        } else {
+            IntegrationManagers.sharedInstance().getPrimaryManager().open(room, 'type_' + app.type, app.id);
+        }
+    }
+
+    static snapshotWidget(app) {
+        console.log("Requesting widget snapshot");
+        ActiveWidgetStore.getWidgetMessaging(app.id).getScreenshot().catch((err) => {
+            console.error("Failed to get screenshot", err);
+        }).then((screenshot) => {
+            dis.dispatch({
+                action: 'picture_snapshot',
+                file: screenshot,
+            }, true);
+        });
     }
 }

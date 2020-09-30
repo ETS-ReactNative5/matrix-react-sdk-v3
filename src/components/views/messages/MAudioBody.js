@@ -21,6 +21,7 @@ import MFileBody from './MFileBody';
 
 import ContentScanner from '../../../tchap/utils/ContentScanner';
 import { _t } from '../../../languageHandler';
+import InlineSpinner from '../elements/InlineSpinner';
 
 export default class MAudioBody extends React.Component {
     constructor(props) {
@@ -137,7 +138,7 @@ export default class MAudioBody extends React.Component {
             // Not sure how tall the audio player is so not sure how tall it should actually be.
             return (
                 <span className="mx_MAudioBody">
-                    <img src={require("../../../../res/img/spinner.gif")} alt={content.body} width="16" height="16" />
+                    <InlineSpinner />
                 </span>
             );
         }

@@ -20,7 +20,6 @@ import React from 'react';
 import {_t} from "../../../../../languageHandler";
 import ProfileSettings from "../../ProfileSettings";
 import * as languageHandler from "../../../../../languageHandler";
-import {SettingLevel} from "../../../../../settings/SettingsStore";
 import SettingsStore from "../../../../../settings/SettingsStore";
 import LanguageDropdown from "../../../elements/LanguageDropdown";
 import AccessibleButton from "../../../elements/AccessibleButton";
@@ -39,6 +38,8 @@ import { getThreepidsWithBindStatus } from '../../../../../boundThreepids';
 import LabelledToggleSwitch from "../../../elements/LabelledToggleSwitch";
 import Tchap from '../../../../../tchap/Tchap';
 import Spinner from "../../../elements/Spinner";
+import {SettingLevel} from "../../../../../settings/SettingLevel";
+import {UIFeature} from "../../../../../settings/UIFeature";
 
 export default class GeneralUserSettingsTab extends React.Component {
     static propTypes = {
@@ -301,15 +302,6 @@ export default class GeneralUserSettingsTab extends React.Component {
         );
     }
 
-    _renderThemeSection() {
-        const SettingsFlag = sdk.getComponent("views.elements.SettingsFlag");
-        return (
-            <div className="mx_SettingsTab_section mx_GeneralUserSettingsTab_themeSection">
-                <SettingsFlag name="useCompactLayout" level={SettingLevel.ACCOUNT} />
-            </div>
-        );
-    }
-
     _renderManagementSection() {
         // TODO: Improve warning text for account deactivation
         return (
@@ -326,14 +318,28 @@ export default class GeneralUserSettingsTab extends React.Component {
     }
 
     render() {
+        const discoWarning = this.state.requiredPolicyInfo.hasTerms
+            ? <img className='mx_GeneralUserSettingsTab_warningIcon'
+                src={require("../../../../../../res/img/feather-customised/warning-triangle.svg")}
+                width="18" height="18" alt={_t("Warning")} />
+            : null;
+
+        let accountManagementSection;
+        if (SettingsStore.getValue(UIFeature.Deactivate)) {
+            accountManagementSection = <>
+                <div className="mx_SettingsTab_heading">{_t("Deactivate account")}</div>
+                {this._renderManagementSection()}
+            </>;
+        }
+
         return (
             <div className="mx_SettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("General")}</div>
                 {this._renderProfileSection()}
                 {this._renderAccountSection()}
                 {this._renderLanguageSection()}
-                <div className="mx_SettingsTab_heading">{_t("Deactivate account")}</div>
-                {this._renderManagementSection()}
+                {this._renderIntegrationManagerSection() /* Has its own title */}
+                { accountManagementSection }
             </div>
         );
     }

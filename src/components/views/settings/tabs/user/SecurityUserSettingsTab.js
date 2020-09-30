@@ -1,5 +1,6 @@
 /*
 Copyright 2019 New Vector Ltd
+Copyright 2020 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,7 +18,7 @@ limitations under the License.
 import React from 'react';
 import PropTypes from 'prop-types';
 import {_t} from "../../../../../languageHandler";
-import {SettingLevel} from "../../../../../settings/SettingsStore";
+import SdkConfig from "../../../../../SdkConfig";
 import {MatrixClientPeg} from "../../../../../MatrixClientPeg";
 import * as FormattingUtils from "../../../../../utils/FormattingUtils";
 import AccessibleButton from "../../../elements/AccessibleButton";
@@ -27,6 +28,11 @@ import * as sdk from "../../../../..";
 import {sleep} from "../../../../../utils/promise";
 import dis from "../../../../../dispatcher/dispatcher";
 import {privateShouldBeEncrypted} from "../../../../../createRoom";
+import {SettingLevel} from "../../../../../settings/SettingLevel";
+import SecureBackupPanel from "../../SecureBackupPanel";
+import SettingsStore from "../../../../../settings/SettingsStore";
+import {UIFeature} from "../../../../../settings/UIFeature";
+import {isE2eAdvancedPanelPossible} from "../../E2eAdvancedPanel";
 
 export class IgnoredUser extends React.Component {
     static propTypes = {
@@ -100,14 +106,14 @@ export default class SecurityUserSettingsTab extends React.Component {
 
     _onExportE2eKeysClicked = () => {
         Modal.createTrackedDialogAsync('Export E2E Keys', '',
-            import('../../../../../async-components/views/dialogs/ExportE2eKeysDialog'),
+            import('../../../../../async-components/views/dialogs/security/ExportE2eKeysDialog'),
             {matrixClient: MatrixClientPeg.get()},
         );
     };
 
     _onImportE2eKeysClicked = () => {
         Modal.createTrackedDialogAsync('Import E2E Keys', '',
-            import('../../../../../async-components/views/dialogs/ImportE2eKeysDialog'),
+            import('../../../../../async-components/views/dialogs/security/ImportE2eKeysDialog'),
             {matrixClient: MatrixClientPeg.get()},
         );
     };
@@ -214,6 +220,15 @@ export default class SecurityUserSettingsTab extends React.Component {
             );
         }
 
+        let noSendUnverifiedSetting;
+        if (SettingsStore.isEnabled("blacklistUnverifiedDevices")) {
+            noSendUnverifiedSetting = <SettingsFlag
+                name='blacklistUnverifiedDevices'
+                level={SettingLevel.DEVICE}
+                onChange={this._updateBlacklistDevicesFlag}
+            />;
+        }
+
         return (
             <div className='mx_SettingsTab_section'>
                 <span className='mx_SettingsTab_subheading'>{_t("Cryptography")}</span>
@@ -228,8 +243,7 @@ export default class SecurityUserSettingsTab extends React.Component {
                     </li>
                 </ul>
                 {importExportButtons}
-                <SettingsFlag name='blacklistUnverifiedDevices' level={SettingLevel.DEVICE}
-                              onChange={this._updateBlacklistDevicesFlag} />
+                {noSendUnverifiedSetting}
             </div>
         );
     }
@@ -281,16 +295,16 @@ export default class SecurityUserSettingsTab extends React.Component {
     }
 
     render() {
+        const brand = SdkConfig.get().brand;
         const DevicesPanel = sdk.getComponent('views.settings.DevicesPanel');
         const SettingsFlag = sdk.getComponent('views.elements.SettingsFlag');
         const EventIndexPanel = sdk.getComponent('views.settings.EventIndexPanel');
 
-        const KeyBackupPanel = sdk.getComponent('views.settings.KeyBackupPanel');
-        const keyBackup = (
+        const secureBackup = (
             <div className='mx_SettingsTab_section'>
-                <span className="mx_SettingsTab_subheading">{_t("Key backup")}</span>
+                <span className="mx_SettingsTab_subheading">{_t("Secure Backup")}</span>
                 <div className='mx_SettingsTab_subsectionText'>
-                    <KeyBackupPanel />
+                    <SecureBackupPanel />
                 </div>
             </div>
         );
@@ -308,15 +322,13 @@ export default class SecurityUserSettingsTab extends React.Component {
         // can remove this.
         const CrossSigningPanel = sdk.getComponent('views.settings.CrossSigningPanel');
         const crossSigning = (
-                <div className='mx_SettingsTab_section'>
-                    <span className="mx_SettingsTab_subheading">{_t("Cross-signing")}</span>
-                    <div className='mx_SettingsTab_subsectionText'>
-                        <CrossSigningPanel />
-                    </div>
+            <div className='mx_SettingsTab_section'>
+                <span className="mx_SettingsTab_subheading">{_t("Cross-signing")}</span>
+                <div className='mx_SettingsTab_subsectionText'>
+                    <CrossSigningPanel />
                 </div>
-            );
-
-        const E2eAdvancedPanel = sdk.getComponent('views.settings.E2eAdvancedPanel');
+            </div>
+        );
 
         let warning;
         if (!privateShouldBeEncrypted()) {
@@ -326,15 +338,53 @@ export default class SecurityUserSettingsTab extends React.Component {
             </div>;
         }
 
+        let privacySection;
+        if (Analytics.canEnable()) {
+            privacySection = <React.Fragment>
+                <div className="mx_SettingsTab_heading">{_t("Privacy")}</div>
+                <div className="mx_SettingsTab_section">
+                    <span className="mx_SettingsTab_subheading">{_t("Analytics")}</span>
+                    <div className="mx_SettingsTab_subsectionText">
+                        {_t(
+                            "%(brand)s collects anonymous analytics to allow us to improve the application.",
+                            { brand },
+                        )}
+                        &nbsp;
+                        {_t("Privacy is important to us, so we don't collect any personal or " +
+                            "identifiable data for our analytics.")}
+                        <AccessibleButton className="mx_SettingsTab_linkBtn" onClick={Analytics.showDetailsModal}>
+                            {_t("Learn more about how we use analytics.")}
+                        </AccessibleButton>
+                    </div>
+                    <SettingsFlag name="analyticsOptIn" level={SettingLevel.DEVICE} onChange={this._updateAnalytics} />
+                </div>
+            </React.Fragment>;
+        }
+
+        const E2eAdvancedPanel = sdk.getComponent('views.settings.E2eAdvancedPanel');
+        let advancedSection;
+        if (SettingsStore.getValue(UIFeature.AdvancedSettings)) {
+            const ignoreUsersPanel = this._renderIgnoredUsers();
+            const invitesPanel = this._renderManageInvites();
+            const e2ePanel = isE2eAdvancedPanelPossible() ? <E2eAdvancedPanel /> : null;
+            // only show the section if there's something to show
+            if (ignoreUsersPanel || invitesPanel || e2ePanel) {
+                advancedSection = <>
+                    <div className="mx_SettingsTab_heading">{_t("Advanced")}</div>
+                    <div className="mx_SettingsTab_section">
+                        {ignoreUsersPanel}
+                        {invitesPanel}
+                        {e2ePanel}
+                    </div>
+                </>;
+            }
+        }
+
         return (
             <div className="mx_SettingsTab mx_SecurityUserSettingsTab">
                 {warning}
-                <div className="mx_SettingsTab_heading">{_t("Security & Privacy")}</div>
-                {this._renderCurrentDeviceInfo()}
-                {this._renderIgnoredUsers()}
-                {this._renderManageInvites()}
+                <div className="mx_SettingsTab_heading">{_t("Where you’re logged in")}</div>
                 <div className="mx_SettingsTab_section">
-                    <span className="mx_SettingsTab_subheading">{_t("Where you’re logged in")}</span>
                     <span>
                         {_t(
                             "Manage the names of and sign out of your sessions below or " +
@@ -351,6 +401,15 @@ export default class SecurityUserSettingsTab extends React.Component {
                         <DevicesPanel />
                     </div>
                 </div>
+                <div className="mx_SettingsTab_heading">{_t("Encryption")}</div>
+                <div className="mx_SettingsTab_section">
+                    {secureBackup}
+                    {eventIndex}
+                    {crossSigning}
+                    {this._renderCurrentDeviceInfo()}
+                </div>
+                { privacySection }
+                { advancedSection }
             </div>
         );
     }

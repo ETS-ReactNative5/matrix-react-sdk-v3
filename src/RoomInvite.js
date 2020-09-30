@@ -100,7 +100,7 @@ export function isValid3pidInvite(event) {
 export function inviteUsersToRoom(roomId, userIds) {
     return inviteMultipleToRoom(roomId, userIds).then((result) => {
         const room = MatrixClientPeg.get().getRoom(roomId);
-        return _showAnyInviteErrors(result.states, room, result.inviter);
+        showAnyInviteErrors(result.states, room, result.inviter);
     }).catch((err) => {
         console.error(err.stack);
         const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
@@ -111,7 +111,7 @@ export function inviteUsersToRoom(roomId, userIds) {
     });
 }
 
-function _showAnyInviteErrors(addrs, room, inviter) {
+export function showAnyInviteErrors(addrs, room, inviter) {
     // Show user any errors
     const failedUsers = Object.keys(addrs).filter(a => addrs[a] === 'error');
     if (failedUsers.length === 1 && inviter.fatal) {
@@ -123,6 +123,7 @@ function _showAnyInviteErrors(addrs, room, inviter) {
             title: _t("Failed to invite users to the room:", {roomName: room.name}),
             description: inviter.getErrorText(failedUsers[0]),
         });
+        return false;
     } else {
         const errorList = [];
         for (const addr of failedUsers) {
@@ -141,8 +142,9 @@ function _showAnyInviteErrors(addrs, room, inviter) {
                 title: _t("Failed to invite the following users to the %(roomName)s room:", {roomName: room.name}),
                 description,
             });
+            return false;
         }
     }
 
-    return addrs;
+    return true;
 }

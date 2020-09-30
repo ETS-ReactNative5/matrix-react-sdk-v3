@@ -15,10 +15,37 @@ limitations under the License.
 */
 
 /**
+ * Clones an array as fast as possible, retaining references of the array's values.
+ * @param a The array to clone. Must be defined.
+ * @returns A copy of the array.
+ */
+export function arrayFastClone(a: any[]): any[] {
+    return a.slice(0, a.length);
+}
+
+/**
+ * Determines if the two arrays are different either in length, contents,
+ * or order of those contents.
+ * @param a The first array. Must be defined.
+ * @param b The second array. Must be defined.
+ * @returns True if they are different, false otherwise.
+ */
+export function arrayHasOrderChange(a: any[], b: any[]): boolean {
+    if (a.length === b.length) {
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return true;
+        }
+        return false;
+    } else {
+        return true; // like arrayHasDiff, a difference in length is a natural change
+    }
+}
+
+/**
  * Determines if two arrays are different through a shallow comparison.
  * @param a The first array. Must be defined.
  * @param b The second array. Must be defined.
- * @returns True if they are the same, false otherwise.
+ * @returns True if they are different, false otherwise.
  */
 export function arrayHasDiff(a: any[], b: any[]): boolean {
     if (a.length === b.length) {
@@ -26,6 +53,9 @@ export function arrayHasDiff(a: any[], b: any[]): boolean {
         // an element from the other.
         if (b.some(i => !a.includes(i))) return true;
         if (a.some(i => !b.includes(i))) return true;
+
+        // if all the keys are common, say so
+        return false;
     } else {
         return true; // different lengths means they are naturally diverged
     }
@@ -44,6 +74,28 @@ export function arrayDiff<T>(a: T[], b: T[]): { added: T[], removed: T[] } {
         added: b.filter(i => !a.includes(i)),
         removed: a.filter(i => !b.includes(i)),
     };
+}
+
+/**
+ * Returns the union of two arrays.
+ * @param a The first array. Must be defined.
+ * @param b The second array. Must be defined.
+ * @returns The union of the arrays.
+ */
+export function arrayUnion<T>(a: T[], b: T[]): T[] {
+    return a.filter(i => b.includes(i));
+}
+
+/**
+ * Merges arrays, deduping contents using a Set.
+ * @param a The arrays to merge.
+ * @returns The merged array.
+ */
+export function arrayMerge<T>(...a: T[][]): T[] {
+    return Array.from(a.reduce((c, v) => {
+        v.forEach(i => c.add(i));
+        return c;
+    }, new Set<T>()));
 }
 
 /**

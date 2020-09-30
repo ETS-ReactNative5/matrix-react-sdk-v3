@@ -16,7 +16,6 @@ limitations under the License.
 */
 
 import React from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import * as sdk from '../../../index';
 import SdkConfig from '../../../SdkConfig';
@@ -24,20 +23,22 @@ import withValidation from '../elements/Validation';
 import { _t } from '../../../languageHandler';
 import {Key} from "../../../Keyboard";
 import {privateShouldBeEncrypted} from "../../../createRoom";
+import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import Tchap from "../../../tchap/Tchap";
 import AccessibleButton from "../elements/AccessibleButton";
 
-export default createReactClass({
-    displayName: 'CreateRoomDialog',
-    propTypes: {
+export default class CreateRoomDialog extends React.Component {
+    static propTypes = {
         onFinished: PropTypes.func.isRequired,
         defaultPublic: PropTypes.bool,
-    },
+    };
 
-    getInitialState() {
+    constructor(props) {
+        super(props);
+
         const config = SdkConfig.get();
-        return {
+        this.state = {
             isPublic: this.props.defaultPublic || false,
             isEncrypted: privateShouldBeEncrypted(),
             name: "",
@@ -53,7 +54,7 @@ export default createReactClass({
             classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
             classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
         };
-    },
+    }
 
     _roomCreateOptions() {
         const opts = {};
@@ -82,22 +83,29 @@ export default createReactClass({
         }
 
         return opts;
-    },
+    }
 
     componentDidMount() {
+        this._detailsRef.addEventListener("toggle", this.onDetailsToggled);
+        // move focus to first field when showing dialog
         this._nameFieldRef.focus();
+        // TCHAP SEE
         this.setUpRoomOptions(this.state.roomOption);
-    },
+    }
 
-    _onKeyDown: function(event) {
+    componentWillUnmount() {
+        this._detailsRef.removeEventListener("toggle", this.onDetailsToggled);
+    }
+
+    _onKeyDown = event => {
         if (event.key === Key.ENTER) {
             this.onOk();
             event.preventDefault();
             event.stopPropagation();
         }
-    },
+    };
 
-    onOk: async function() {
+    onOk = async () => {
         const activeElement = document.activeElement;
         if (activeElement) {
             activeElement.blur();
@@ -123,60 +131,60 @@ export default createReactClass({
                 field.validate({ allowEmpty: false, focused: true });
             }
         }
-    },
+    };
 
-    onCancel: function() {
+    onCancel = () => {
         this.props.onFinished(false);
-    },
+    };
 
-    onNameChange(ev) {
+    onNameChange = ev => {
         this.setState({name: ev.target.value});
-    },
+    };
 
-    onTopicChange(ev) {
+    onTopicChange = ev => {
         this.setState({topic: ev.target.value});
-    },
+    };
 
-    onPublicChange(isPublic) {
+    onPublicChange = isPublic => {
         this.setState({
             isPublic,
             externAllowedSwitchDisabled: isPublic,
             externAllowed: false,
             noFederate: isPublic
         });
-    },
+    };
 
-    onDetailsToggled(ev) {
+    onDetailsToggled = ev => {
         this.setState({detailsOpen: ev.target.open});
-    },
+    };
 
-    onNoFederateChange(noFederate) {
+    onNoFederateChange = noFederate => {
         this.setState({noFederate});
-    },
+    };
 
-    onExternAllowedSwitchChange(ev) {
+    onExternAllowedSwitchChange = ev => {
         this.setState({
             externAllowed: ev
         });
-    },
+    }
 
-    collectDetailsRef(ref) {
+    collectDetailsRef = ref => {
         this._detailsRef = ref;
-    },
+    };
 
-    async onNameValidate(fieldState) {
-        const result = await this._validateRoomName(fieldState);
+    onNameValidate = async fieldState => {
+        const result = await CreateRoomDialog._validateRoomName(fieldState);
         this.setState({nameIsValid: result.valid});
         return result;
-    },
+    };
 
-    onRoomOptionChange(ev) {
+    onRoomOptionChange = ev => {
         ev.preventDefault();
         const selected = ev.target.getAttribute("aria-name")
         this.setUpRoomOptions(selected);
-    },
+    }
 
-    setUpRoomOptions(selected) {
+    setUpRoomOptions = selected => {
         switch (selected) {
             case "private": {
                 this.setState({
@@ -215,9 +223,9 @@ export default createReactClass({
                 break;
             }
         }
-    },
+    }
 
-    _validateRoomName: withValidation({
+    static _validateRoomName = withValidation({
         rules: [
             {
                 key: "required",
@@ -225,9 +233,9 @@ export default createReactClass({
                 invalid: () => _t("Please enter a name for the room"),
             },
         ],
-    }),
+    });
 
-    render: function() {
+    render() {
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
         const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
         const Field = sdk.getComponent('views.elements.Field');
@@ -286,5 +294,5 @@ export default createReactClass({
                     onCancel={this.onCancel} />
             </BaseDialog>
         );
-    },
-});
+    }
+}

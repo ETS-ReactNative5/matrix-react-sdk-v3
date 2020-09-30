@@ -111,6 +111,7 @@ export default class InteractiveAuthComponent extends React.Component {
             requestEmailToken: this._requestEmailToken,
         });
 
+        // Disable interval
         /*this._intervalId = null;
         if (this.props.poll) {
             this._intervalId = setInterval(() => {

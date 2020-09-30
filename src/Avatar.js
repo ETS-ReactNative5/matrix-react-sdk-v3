@@ -82,7 +82,7 @@ function urlForColor(color) {
 const colorToDataURLCache = new Map();
 
 export function defaultAvatarUrlForString(s) {
-    const defaultColors = ['#8b8999'];
+    const defaultColors = ['#8B8999'];
     let total = 0;
     for (let i = 0; i < s.length; ++i) {
         total += s.charCodeAt(i);

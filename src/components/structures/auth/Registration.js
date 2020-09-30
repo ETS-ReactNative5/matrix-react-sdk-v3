@@ -19,15 +19,17 @@ limitations under the License.
 
 import Matrix from 'matrix-js-sdk';
 import React from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import * as sdk from '../../../index';
 import { _t, _td } from '../../../languageHandler';
 import { messageForResourceLimitError } from '../../../utils/ErrorUtils';
+import * as ServerType from '../../views/auth/ServerTypeSelector';
 import classNames from "classnames";
 import * as Lifecycle from '../../../Lifecycle';
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import AuthPage from "../../views/auth/AuthPage";
+import Login from "../../../Login";
+import dis from "../../../dispatcher/dispatcher";
 import Tchap from "../../../tchap/Tchap";
 import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
@@ -38,10 +40,8 @@ const PHASE_REGISTRATION = 1;
 // Enable phases for registration
 const PHASES_ENABLED = true;
 
-export default createReactClass({
-    displayName: 'Registration',
-
-    propTypes: {
+export default class Registration extends React.Component {
+    static propTypes = {
         // Called when the user has logged in. Params:
         // - object with userId, deviceId, homeserverUrl, identityServerUrl, accessToken
         // - The user's password, if available and applicable (may be cached in memory
@@ -58,10 +58,13 @@ export default createReactClass({
         // registration shouldn't know or care how login is done.
         onLoginClick: PropTypes.func.isRequired,
         defaultDeviceDisplayName: PropTypes.string,
-    },
+    };
 
-    getInitialState: function() {
-        return {
+    constructor(props) {
+        super(props);
+
+        const serverType = ServerType.getTypeFromServerConfig(this.props.serverConfig);
+        this.state = {
             busy: false,
             errorText: null,
             // We remember the values entered by the user because
@@ -109,21 +112,22 @@ export default createReactClass({
             differentLoggedInUserId: null,
             hsUrl: null,
         };
-    },
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
         this._unmounted = false;
         this._replaceClient();
-    },
+    }
 
     // TODO: [REACT-WARNING] Replace with appropriate lifecycle event
+    // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(newProps) {
         this.setState({
             phase: PHASE_REGISTRATION,
         });
-    },
+    }
 
-    _replaceClient: async function(hsUrl) {
+    async _replaceClient(hsUrl) {
         this.setState({
             errorText: null,
             serverDeadError: null,
@@ -181,9 +185,9 @@ export default createReactClass({
                 showGenericError(e);
             }
         }
-    },
+    }
 
-    onFormSubmit: function(formVals) {
+    onFormSubmit = formVals => {
         Tchap.discoverPlatform(formVals.email).then(hs => {
             TchapStrongPassword.validatePassword(hs, formVals.password).then(isPasswdValid => {
                 if (!isPasswdValid) {
@@ -216,9 +220,9 @@ export default createReactClass({
                 busy: false,
             });
         });
-    },
+    };
 
-    _requestEmailToken: function(emailAddress, clientSecret, sendAttempt, sessionId) {
+    _requestEmailToken = (emailAddress, clientSecret, sendAttempt, sessionId) => {
         return this.state.matrixClient.requestRegisterEmailToken(
             emailAddress,
             clientSecret,
@@ -230,9 +234,9 @@ export default createReactClass({
                 session_id: sessionId,
             }),
         );
-    },
+    }
 
-    _onUIAuthFinished: async function(success, response, extra) {
+    _onUIAuthFinished = async (success, response, extra) => {
         if (!success) {
             let msg = response.message || response.toString();
             // can we give a better error message?
@@ -299,7 +303,7 @@ export default createReactClass({
         }
 
         if (response.access_token) {
-            const cli = await this.props.onLoggedIn({
+            await this.props.onLoggedIn({
                 userId: response.user_id,
                 deviceId: response.device_id,
                 homeserverUrl: this.state.matrixClient.getHomeserverUrl(),
@@ -307,7 +311,7 @@ export default createReactClass({
                 accessToken: response.access_token,
             }, this.state.formVals.password);
 
-            this._setupPushers(cli);
+            this._setupPushers();
             // we're still busy until we get unmounted: don't show the registration form again
             newState.busy = true;
         } else {
@@ -316,12 +320,13 @@ export default createReactClass({
         }
 
         this.setState(newState);
-    },
+    };
 
-    _setupPushers: function(matrixClient) {
+    _setupPushers() {
         if (!this.props.brand) {
             return Promise.resolve();
         }
+        const matrixClient = MatrixClientPeg.get();
         return matrixClient.getPushers().then((resp)=>{
             const pushers = resp.pushers;
             for (let i = 0; i < pushers.length; ++i) {
@@ -338,15 +343,15 @@ export default createReactClass({
         }, (error) => {
             console.error("Couldn't get pushers: " + error);
         });
-    },
+    }
 
-    onLoginClick: function(ev) {
+    onLoginClick = ev => {
         ev.preventDefault();
         ev.stopPropagation();
         this.props.onLoginClick();
-    },
+    };
 
-    onGoToFormClicked(ev) {
+    onGoToFormClicked = ev => {
         ev.preventDefault();
         ev.stopPropagation();
         this._replaceClient();
@@ -355,9 +360,10 @@ export default createReactClass({
             doingUIAuth: false,
             phase: PHASE_REGISTRATION,
         });
-    },
+    };
 
-    _makeRegisterRequest: async function(auth) {
+
+    _makeRegisterRequest = auth => {
         if (this.state.formVals.email) {
             return Tchap.discoverPlatform(this.state.formVals.email).then(hs => {
                 if (hs !== this.state.matrixClient.baseUrl) {
@@ -381,18 +387,18 @@ export default createReactClass({
             if (auth) registerParams.auth = auth;
             return this.state.matrixClient.registerRequest(registerParams);
         }
-    },
+    };
 
-    _getUIAuthInputs: function() {
+    _getUIAuthInputs() {
         return {
             emailAddress: this.state.formVals.email,
         };
-    },
+    }
 
     // Links to the login page shown after registration is completed are routed through this
     // which checks the user hasn't already logged in somewhere else (perhaps we should do
     // this more generally?)
-    _onLoginClickWithCheck: async function(ev) {
+    _onLoginClickWithCheck = async ev => {
         ev.preventDefault();
 
         const sessionLoaded = await Lifecycle.loadSession({ignoreGuest: true});
@@ -400,7 +406,7 @@ export default createReactClass({
             // ok fine, there's still no session: really go to the login page
             this.props.onLoginClick();
         }
-    },
+    };
 
     renderRegisterComponent() {
         if (PHASES_ENABLED && this.state.phase !== PHASE_REGISTRATION) {
@@ -441,9 +447,9 @@ export default createReactClass({
                 serverRequiresIdServer={false}
             />;
         }
-    },
+    }
 
-    render: function() {
+    render() {
         const AuthHeader = sdk.getComponent('auth.AuthHeader');
         const AuthBody = sdk.getComponent("auth.AuthBody");
         const AccessibleButton = sdk.getComponent('elements.AccessibleButton');
@@ -538,5 +544,5 @@ export default createReactClass({
                 </AuthBody>
             </AuthPage>
         );
-    },
-});
+    }
+}

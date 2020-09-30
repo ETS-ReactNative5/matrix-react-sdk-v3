@@ -18,7 +18,6 @@ limitations under the License.
 import SettingsStore from "../../../settings/SettingsStore";
 import React from 'react';
 import PropTypes from 'prop-types';
-import createReactClass from 'create-react-class';
 import * as sdk from "../../../index";
 import dis from "../../../dispatcher/dispatcher";
 import { _t } from '../../../languageHandler';
@@ -26,33 +25,31 @@ import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import {Action} from "../../../dispatcher/actions";
 import Tchap from "../../../tchap/Tchap";
 
-export default createReactClass({
-    displayName: 'MemberTile',
-
-    propTypes: {
+export default class MemberTile extends React.Component {
+    static propTypes = {
         member: PropTypes.any.isRequired, // RoomMember
         showPresence: PropTypes.bool,
-    },
+    };
 
-    getDefaultProps: function() {
-        return {
-            showPresence: true,
-        };
-    },
+    static defaultProps = {
+        showPresence: true,
+    };
 
-    getInitialState: function() {
-        return {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             statusMessage: this.getStatusMessage(),
             isRoomEncrypted: false,
             e2eStatus: null,
             userExpired: false,
         };
-    },
+    }
 
     componentDidMount() {
         const cli = MatrixClientPeg.get();
 
-        if (SettingsStore.isFeatureEnabled("feature_custom_status")) {
+        if (SettingsStore.getValue("feature_custom_status")) {
             const { user } = this.props.member;
             if (user) {
                 user.on("User._unstable_statusMessage", this._onStatusMessageCommitted);
@@ -74,7 +71,7 @@ export default createReactClass({
                 cli.on("RoomState.events", this.onRoomStateEvents);
             }
         }
-    },
+    }
 
     componentWillUnmount() {
         const cli = MatrixClientPeg.get();
@@ -92,9 +89,9 @@ export default createReactClass({
             cli.removeListener("userTrustStatusChanged", this.onUserTrustStatusChanged);
             cli.removeListener("deviceVerificationChanged", this.onDeviceVerificationChanged);
         }
-    },
+    }
 
-    onRoomStateEvents: function(ev) {
+    onRoomStateEvents = ev => {
         if (ev.getType() !== "m.room.encryption") return;
         const { roomId } = this.props.member;
         if (ev.getRoomId() !== roomId) return;
@@ -106,19 +103,19 @@ export default createReactClass({
             isRoomEncrypted: true,
         });
         this.updateE2EStatus();
-    },
+    };
 
-    onUserTrustStatusChanged: function(userId, trustStatus) {
+    onUserTrustStatusChanged = (userId, trustStatus) => {
         if (userId !== this.props.member.userId) return;
         this.updateE2EStatus();
-    },
+    };
 
-    onDeviceVerificationChanged: function(userId, deviceId, deviceInfo) {
+    onDeviceVerificationChanged = (userId, deviceId, deviceInfo) => {
         if (userId !== this.props.member.userId) return;
         this.updateE2EStatus();
-    },
+    };
 
-    updateE2EStatus: async function() {
+    async updateE2EStatus() {
         const cli = MatrixClientPeg.get();
         const { userId } = this.props.member;
         const isMe = userId === cli.getUserId();
@@ -144,7 +141,7 @@ export default createReactClass({
         this.setState({
             e2eStatus: anyDeviceUnverified ? "warning" : "verified",
         });
-    },
+    }
 
     getStatusMessage() {
         const { user } = this.props.member;
@@ -152,16 +149,16 @@ export default createReactClass({
             return "";
         }
         return user._unstable_statusMessage;
-    },
+    }
 
-    _onStatusMessageCommitted() {
+    _onStatusMessageCommitted = () => {
         // The `User` object has observed a status message change.
         this.setState({
             statusMessage: this.getStatusMessage(),
         });
-    },
+    };
 
-    shouldComponentUpdate: function(nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
         if (
             this.member_last_modified_time === undefined ||
             this.member_last_modified_time < nextProps.member.getLastModifiedTime()
@@ -182,27 +179,27 @@ export default createReactClass({
             return true;
         }
         return false;
-    },
+    }
 
-    onClick: function(e) {
+    onClick = e => {
         dis.dispatch({
             action: Action.ViewUser,
             member: this.props.member,
         });
-    },
+    };
 
-    _getDisplayName: function() {
+    _getDisplayName() {
         return this.props.member.name;
-    },
+    }
 
-    getPowerLabel: function() {
+    getPowerLabel() {
         return _t("%(userName)s (power %(powerLevelNumber)s)", {
             userName: this.props.member.rawDisplayName,
             powerLevelNumber: this.props.member.powerLevel,
         });
-    },
+    }
 
-    _getExpired: function() {
+    _getExpired() {
         Tchap.getUserExpiredInfo(this.props.member.userId).then(data => {
             if (data === true) {
                 this.setState({
@@ -210,9 +207,9 @@ export default createReactClass({
                 });
             }
         });
-    },
+    }
 
-    render: function() {
+    render() {
         const MemberAvatar = sdk.getComponent('avatars.MemberAvatar');
         const EntityTile = sdk.getComponent('rooms.EntityTile');
 
@@ -222,7 +219,7 @@ export default createReactClass({
         this._getExpired();
 
         let statusMessage = null;
-        if (member.user && SettingsStore.isFeatureEnabled("feature_custom_status")) {
+        if (member.user && SettingsStore.getValue("feature_custom_status")) {
             statusMessage = this.state.statusMessage;
         }
 
@@ -274,5 +271,5 @@ export default createReactClass({
                 onClick={this.onClick}
             />
         );
-    },
-});
+    }
+}

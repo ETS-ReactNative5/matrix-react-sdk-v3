@@ -22,12 +22,12 @@ import { _t } from '../languageHandler';
  * e.g: 999, 9.9K, 99K, 0.9M, 9.9M, 99M, 0.9B, 9.9B
  */
 export function formatCount(count: number): string {
-   if (count < 1000) return count.toString();
-   if (count < 10000) return (count / 1000).toFixed(1) + "K";
-   if (count < 100000) return (count / 1000).toFixed(0) + "K";
-   if (count < 10000000) return (count / 1000000).toFixed(1) + "M";
-   if (count < 100000000) return (count / 1000000).toFixed(0) + "M";
-   return (count / 1000000000).toFixed(1) + "B"; // 10B is enough for anyone, right? :S
+    if (count < 1000) return count.toString();
+    if (count < 10000) return (count / 1000).toFixed(1) + "K";
+    if (count < 100000) return (count / 1000).toFixed(0) + "K";
+    if (count < 10000000) return (count / 1000000).toFixed(1) + "M";
+    if (count < 100000000) return (count / 1000000).toFixed(0) + "M";
+    return (count / 1000000000).toFixed(1) + "B"; // 10B is enough for anyone, right? :S
 }
 
 /**
@@ -36,7 +36,7 @@ export function formatCount(count: number): string {
  */
 export function formatCountLong(count: number): string {
     const formatter = new Intl.NumberFormat();
-    return formatter.format(count)
+    return formatter.format(count);
 }
 
 /**
@@ -118,15 +118,4 @@ export function formatCommaSeparatedList(items: string[], itemLimit?: number): s
         const lastItem = items.pop();
         return _t("%(items)s and %(lastItem)s", { items: items.join(', '), lastItem: lastItem });
     }
-}
-
-/**
- * Formats a number into a 'minimal' badge count (9, 98, 99+).
- * @param count The number to convert
- * @returns The badge count, stringified.
- */
-export function formatMinimalBadgeCount(count: number): string {
-    // we specifically go from "98" to "99+"
-    if (count < 99) return count.toString();
-    return "99+";
 }

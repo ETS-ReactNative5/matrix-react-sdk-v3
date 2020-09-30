@@ -20,7 +20,8 @@ import Modal from '../../../Modal';
 import * as sdk from '../../../index';
 import dis from '../../../dispatcher/dispatcher';
 import { _t } from '../../../languageHandler';
-import {MatrixClientPeg} from '../../../MatrixClientPeg';
+import { MatrixClientPeg } from '../../../MatrixClientPeg';
+import RestoreKeyBackupDialog from './security/RestoreKeyBackupDialog';
 import SdkConfig from "../../../SdkConfig";
 
 export default class LogoutDialog extends React.Component {
@@ -35,6 +36,21 @@ export default class LogoutDialog extends React.Component {
         this._onFinished = this._onFinished.bind(this);
         this._onSetRecoveryMethodClick = this._onSetRecoveryMethodClick.bind(this);
         this._onLogoutConfirm = this._onLogoutConfirm.bind(this);
+
+        // TCHAP SEE
+        const cli = MatrixClientPeg.get();
+        const shouldLoadBackupStatus = cli.isCryptoEnabled() && !cli.getKeyBackupEnabled();
+
+        this.state = {
+            shouldLoadBackupStatus: shouldLoadBackupStatus,
+            loading: shouldLoadBackupStatus,
+            backupInfo: null,
+            error: null,
+        };
+
+        if (shouldLoadBackupStatus) {
+            this._loadBackupStatus();
+        }
     }
 
     async _loadBackupStatus() {
@@ -60,7 +76,7 @@ export default class LogoutDialog extends React.Component {
 
     _onExportE2eKeysClicked() {
         Modal.createTrackedDialogAsync('Export E2E Keys', '',
-            import('../../../async-components/views/dialogs/ExportE2eKeysDialog'),
+            import('../../../async-components/views/dialogs/security/ExportE2eKeysDialog'),
             {
                 matrixClient: MatrixClientPeg.get(),
                 onFinished: this._onFinished,
@@ -85,14 +101,13 @@ export default class LogoutDialog extends React.Component {
             // A key backup exists for this account, but the creating device is not
             // verified, so restore the backup which will give us the keys from it and
             // allow us to trust it (ie. upload keys to it)
-            const RestoreKeyBackupDialog = sdk.getComponent('dialogs.keybackup.RestoreKeyBackupDialog');
             Modal.createTrackedDialog(
                 'Restore Backup', '', RestoreKeyBackupDialog, null, null,
                 /* priority = */ false, /* static = */ true,
             );
         } else {
             Modal.createTrackedDialogAsync("Key Backup", "Key Backup",
-                import("../../../async-components/views/dialogs/keybackup/CreateKeyBackupDialog"),
+                import("../../../async-components/views/dialogs/security/CreateKeyBackupDialog"),
                 null, null, /* priority = */ false, /* static = */ true,
             );
         }

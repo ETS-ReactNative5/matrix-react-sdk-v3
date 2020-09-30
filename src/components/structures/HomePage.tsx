@@ -39,11 +39,23 @@ const HomePage = () => {
 
     let logoUrl = "themes/tchap/img/logos/tchap-logo.svg";
 
+    const AccessibleButton = sdk.getComponent("elements.AccessibleButton");
     return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
         <div className="mx_HomePage_default_wrapper">
-            <img src={logoUrl} alt="Tchap" />
-            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand || "Tchap" }) }</h1>
+            <img src={logoUrl} alt={config.brand || "Element"} />
+            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand || "Element" }) }</h1>
             <h4>{ _t("State instant messaging") }</h4>
+            <div className="mx_HomePage_default_buttons">
+                <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
+                    { _t("Send a Direct Message") }
+                </AccessibleButton>
+                <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
+                    { _t("Explore Public Rooms") }
+                </AccessibleButton>
+                <AccessibleButton onClick={onClickNewRoom} className="mx_HomePage_button_createGroup">
+                    { _t("Create a Group Chat") }
+                </AccessibleButton>
+            </div>
         </div>
     </AutoHideScrollbar>;
 };

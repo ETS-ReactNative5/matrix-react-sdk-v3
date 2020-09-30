@@ -17,35 +17,31 @@ limitations under the License.
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import createReactClass from 'create-react-class';
 import MFileBody from './MFileBody';
 import ContentScanner  from '../../../tchap/utils/ContentScanner';
 import { _t } from '../../../languageHandler';
 import SettingsStore from "../../../settings/SettingsStore";
+import InlineSpinner from '../elements/InlineSpinner';
 
-export default createReactClass({
-    displayName: 'MVideoBody',
-
-    propTypes: {
+export default class MVideoBody extends React.Component {
+    static propTypes = {
         /* the MatrixEvent to show */
         mxEvent: PropTypes.object.isRequired,
 
         /* called when the video has loaded */
         onHeightChanged: PropTypes.func.isRequired,
-    },
+    };
 
-    getInitialState: function() {
-        return {
-            decryptedUrl: null,
-            decryptedThumbnailUrl: null,
-            decryptedBlob: null,
-            error: null,
-            contentUrl: null,
-            isClean: null,
-        };
-    },
+    state = {
+        decryptedUrl: null,
+        decryptedThumbnailUrl: null,
+        decryptedBlob: null,
+        error: null,
+        contentUrl: null,
+        isClean: null,
+    };
 
-    thumbScale: function(fullWidth, fullHeight, thumbWidth, thumbHeight) {
+    thumbScale(fullWidth, fullHeight, thumbWidth, thumbHeight) {
         if (!fullWidth || !fullHeight) {
             // Cannot calculate thumbnail height for image: missing w/h in metadata. We can't even
             // log this because it's spammy
@@ -64,18 +60,18 @@ export default createReactClass({
             // height is the dominant dimension so scaling will be fixed on that
             return heightMulti;
         }
-    },
+    }
 
-    _getContentUrl: function() {
+    _getContentUrl() {
         const content = this.props.mxEvent.getContent();
         if (content.file !== undefined) {
             return this.state.decryptedUrl;
         } else {
             return this.state.contentUrl;
         }
-    },
+    }
 
-    _getThumbUrl: function() {
+    _getThumbUrl() {
         const content = this.props.mxEvent.getContent();
         if (content.file !== undefined) {
             return this.state.decryptedThumbnailUrl;
@@ -84,9 +80,9 @@ export default createReactClass({
         } else {
             return null;
         }
-    },
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
         const content = this.props.mxEvent.getContent();
         if (content.file !== undefined && this.state.decryptedUrl === null) {
             ContentScanner.scanContent(content).then(result => {
@@ -141,18 +137,18 @@ export default createReactClass({
                 }
             });
         }
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         if (this.state.decryptedUrl) {
             URL.revokeObjectURL(this.state.decryptedUrl);
         }
         if (this.state.decryptedThumbnailUrl) {
             URL.revokeObjectURL(this.state.decryptedThumbnailUrl);
         }
-    },
+    }
 
-    render: function() {
+    render() {
         const content = this.props.mxEvent.getContent();
 
         if (this.state.error !== null) {
@@ -171,7 +167,7 @@ export default createReactClass({
             return (
                 <span className="mx_MVideoBody">
                     <div className="mx_MImageBody_thumbnail mx_MImageBody_thumbnail_spinner">
-                        <img src={require("../../../../res/img/spinner.gif")} alt={content.body} width="16" height="16" />
+                        <InlineSpinner />
                     </div>
                 </span>
             );
@@ -205,5 +201,5 @@ export default createReactClass({
                 <MFileBody {...this.props} decryptedBlob={this.state.decryptedBlob} />
             </span>
         );
-    },
-});
+    }
+}

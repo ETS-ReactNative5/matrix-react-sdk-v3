@@ -19,7 +19,7 @@ import React from 'react';
 import {Key} from '../../../Keyboard';
 import classnames from 'classnames';
 
-export type ButtonEvent = React.MouseEvent<Element> | React.KeyboardEvent<Element>
+export type ButtonEvent = React.MouseEvent<Element> | React.KeyboardEvent<Element>;
 
 /**
  * children: React's magic prop. Represents all children given to the element.
@@ -40,7 +40,7 @@ interface IProps extends React.InputHTMLAttributes<Element> {
     disabled?: boolean;
     className?: string;
     onClick?(e?: ButtonEvent): void;
-};
+}
 
 interface IAccessibleButtonProps extends React.InputHTMLAttributes<Element> {
     ref?: React.Ref<Element>;
@@ -64,7 +64,6 @@ export default function AccessibleButton({
     className,
     ...restProps
 }: IProps) {
-
     const newProps: IAccessibleButtonProps = restProps;
     if (!disabled) {
         newProps.onClick = onClick;
@@ -119,7 +118,7 @@ export default function AccessibleButton({
 AccessibleButton.defaultProps = {
     element: 'div',
     role: 'button',
-    tabIndex: "0",
+    tabIndex: 0,
 };
 
 AccessibleButton.displayName = "AccessibleButton";

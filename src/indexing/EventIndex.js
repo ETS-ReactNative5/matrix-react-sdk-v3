@@ -18,8 +18,9 @@ import PlatformPeg from "../PlatformPeg";
 import {MatrixClientPeg} from "../MatrixClientPeg";
 import {EventTimeline, RoomMember} from 'matrix-js-sdk';
 import {sleep} from "../utils/promise";
-import SettingsStore, {SettingLevel} from "../settings/SettingsStore";
+import SettingsStore from "../settings/SettingsStore";
 import {EventEmitter} from "events";
+import {SettingLevel} from "../settings/SettingLevel";
 
 /*
  * Event indexing class that wraps the platform specific event indexing.
@@ -42,9 +43,6 @@ export default class EventIndex extends EventEmitter {
     async init() {
         const indexManager = PlatformPeg.get().getEventIndexingManager();
 
-        await indexManager.initEventIndex();
-        console.log("EventIndex: Successfully initialized the event index");
-
         this.crawlerCheckpoints = await indexManager.loadCheckpoints();
         console.log("EventIndex: Loaded checkpoints", this.crawlerCheckpoints);
 
@@ -62,6 +60,7 @@ export default class EventIndex extends EventEmitter {
         client.on('Event.decrypted', this.onEventDecrypted);
         client.on('Room.timelineReset', this.onTimelineReset);
         client.on('Room.redaction', this.onRedaction);
+        client.on('RoomState.events', this.onRoomStateEvent);
     }
 
     /**
@@ -76,6 +75,7 @@ export default class EventIndex extends EventEmitter {
         client.removeListener('Event.decrypted', this.onEventDecrypted);
         client.removeListener('Room.timelineReset', this.onTimelineReset);
         client.removeListener('Room.redaction', this.onRedaction);
+        client.removeListener('RoomState.events', this.onRoomStateEvent);
     }
 
     /**
@@ -145,7 +145,7 @@ export default class EventIndex extends EventEmitter {
         const indexManager = PlatformPeg.get().getEventIndexingManager();
 
         if (prevState === "PREPARED" && state === "SYNCING") {
-            // If our indexer is empty we're most likely running Riot the
+            // If our indexer is empty we're most likely running Element the
             // first time with indexing support or running it with an
             // initial sync. Add checkpoints to crawl our encrypted rooms.
             const eventIndexWasEmpty = await indexManager.isEventIndexEmpty();
@@ -194,6 +194,15 @@ export default class EventIndex extends EventEmitter {
         }
     }
 
+    onRoomStateEvent = async (ev, state) => {
+        if (!MatrixClientPeg.get().isRoomEncrypted(state.roomId)) return;
+
+        if (ev.getType() === "m.room.encryption" && !await this.isRoomIndexed(state.roomId)) {
+            console.log("EventIndex: Adding a checkpoint for a newly encrypted room", state.roomId);
+            this.addRoomCheckpoint(state.roomId, true);
+        }
+    }
+
     /*
      * The Event.decrypted listener.
      *
@@ -234,26 +243,12 @@ export default class EventIndex extends EventEmitter {
      */
     onTimelineReset = async (room, timelineSet, resetAllTimelines) => {
         if (room === null) return;
-
-        const indexManager = PlatformPeg.get().getEventIndexingManager();
         if (!MatrixClientPeg.get().isRoomEncrypted(room.roomId)) return;
 
-        const timeline = room.getLiveTimeline();
-        const token = timeline.getPaginationToken("b");
+        console.log("EventIndex: Adding a checkpoint because of a limited timeline",
+            room.roomId);
 
-        const backwardsCheckpoint = {
-            roomId: room.roomId,
-            token: token,
-            fullCrawl: false,
-            direction: "b",
-        };
-
-        console.log("EventIndex: Added checkpoint because of a limited timeline",
-            backwardsCheckpoint);
-
-        await indexManager.addCrawlerCheckpoint(backwardsCheckpoint);
-
-        this.crawlerCheckpoints.push(backwardsCheckpoint);
+        this.addRoomCheckpoint(room.roomId, false);
     }
 
     /**
@@ -334,7 +329,7 @@ export default class EventIndex extends EventEmitter {
             avatar_url: ev.sender.getMxcAvatarUrl(),
         };
 
-        indexManager.addEventToIndex(e, profile);
+        await indexManager.addEventToIndex(e, profile);
     }
 
     /**
@@ -343,6 +338,51 @@ export default class EventIndex extends EventEmitter {
      */
     emitNewCheckpoint() {
         this.emit("changedCheckpoint", this.currentRoom());
+    }
+
+    async addEventsFromLiveTimeline(timeline) {
+        const events = timeline.getEvents();
+
+        for (let i = 0; i < events.length; i++) {
+            const ev = events[i];
+            await this.addLiveEventToIndex(ev);
+        }
+    }
+
+    async addRoomCheckpoint(roomId, fullCrawl = false) {
+        const indexManager = PlatformPeg.get().getEventIndexingManager();
+        const client = MatrixClientPeg.get();
+        const room = client.getRoom(roomId);
+
+        if (!room) return;
+
+        const timeline = room.getLiveTimeline();
+        const token = timeline.getPaginationToken("b");
+
+        if (!token) {
+            // The room doesn't contain any tokens, meaning the live timeline
+            // contains all the events, add those to the index.
+            await this.addEventsFromLiveTimeline(timeline);
+            return;
+        }
+
+        const checkpoint = {
+            roomId: room.roomId,
+            token: token,
+            fullCrawl: fullCrawl,
+            direction: "b",
+        };
+
+        console.log("EventIndex: Adding checkpoint", checkpoint);
+
+        try {
+            await indexManager.addCrawlerCheckpoint(checkpoint);
+        } catch (e) {
+            console.log("EventIndex: Error adding new checkpoint for room",
+                        room.roomId, checkpoint, e);
+        }
+
+        this.crawlerCheckpoints.push(checkpoint);
     }
 
     /**
@@ -831,6 +871,20 @@ export default class EventIndex extends EventEmitter {
     async getStats() {
         const indexManager = PlatformPeg.get().getEventIndexingManager();
         return indexManager.getStats();
+    }
+
+    /**
+     * Check if the room with the given id is already indexed.
+     *
+     * @param {string} roomId The ID of the room which we want to check if it
+     * has been already indexed.
+     *
+     * @return {Promise<boolean>} Returns true if the index contains events for
+     * the given room, false otherwise.
+     */
+    async isRoomIndexed(roomId) {
+        const indexManager = PlatformPeg.get().getEventIndexingManager();
+        return indexManager.isRoomIndexed(roomId);
     }
 
     /**

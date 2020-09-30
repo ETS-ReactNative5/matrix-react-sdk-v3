@@ -31,17 +31,17 @@ import {verificationMethods} from 'matrix-js-sdk/src/crypto';
 import MatrixClientBackedSettingsHandler from "./settings/handlers/MatrixClientBackedSettingsHandler";
 import * as StorageManager from './utils/StorageManager';
 import IdentityAuthClient from './IdentityAuthClient';
-import { crossSigningCallbacks } from './CrossSigningManager';
+import { crossSigningCallbacks } from './SecurityManager';
 import {SHOW_QR_CODE_METHOD} from "matrix-js-sdk/src/crypto/verification/QRCode";
 
 export interface IMatrixClientCreds {
-    homeserverUrl: string,
-    identityServerUrl: string,
-    userId: string,
-    deviceId: string,
-    accessToken: string,
-    guest: boolean,
-    pickleKey?: string,
+    homeserverUrl: string;
+    identityServerUrl: string;
+    userId: string;
+    deviceId: string;
+    accessToken: string;
+    guest: boolean;
+    pickleKey?: string;
 }
 
 // TODO: Move this to the js-sdk
@@ -256,7 +256,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
             deviceId: creds.deviceId,
             pickleKey: creds.pickleKey,
             timelineSupport: true,
-            forceTURN: !SettingsStore.getValue('webRtcAllowPeerToPeer', false),
+            forceTURN: !SettingsStore.getValue('webRtcAllowPeerToPeer'),
             fallbackICEServerAllowed: !!SettingsStore.getValue('fallbackICEServerAllowed'),
             verificationMethods: [
                 verificationMethods.SAS,
