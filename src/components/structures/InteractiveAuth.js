@@ -17,19 +17,17 @@ limitations under the License.
 
 import {InteractiveAuth} from "matrix-js-sdk";
 import React, {createRef} from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
 import getEntryComponentForLoginType from '../views/auth/InteractiveAuthEntryComponents';
 
 import * as sdk from '../../index';
+import {_t} from "../../languageHandler";
 
 export const ERROR_USER_CANCELLED = new Error("User cancelled auth session");
 
-export default createReactClass({
-    displayName: 'InteractiveAuth',
-
-    propTypes: {
+export default class InteractiveAuthComponent extends React.Component {
+    static propTypes = {
         // matrix client to use for UI auth requests
         matrixClient: PropTypes.object.isRequired,
 
@@ -86,20 +84,19 @@ export default createReactClass({
         // continueText and continueKind are passed straight through to the AuthEntryComponent.
         continueText: PropTypes.string,
         continueKind: PropTypes.string,
-    },
+    };
 
-    getInitialState: function() {
-        return {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             authStage: null,
             busy: false,
             errorText: null,
             stageErrorText: null,
             submitButtonEnabled: false,
         };
-    },
 
-    // TODO: [REACT-WARNING] Replace component with real class, use constructor for refs
-    UNSAFE_componentWillMount: function() {
         this._unmounted = false;
         this._authLogic = new InteractiveAuth({
             authData: this.props.authData,
@@ -114,6 +111,19 @@ export default createReactClass({
             requestEmailToken: this._requestEmailToken,
         });
 
+        /*this._intervalId = null;
+        if (this.props.poll) {
+            this._intervalId = setInterval(() => {
+                this._authLogic.poll();
+            }, 2000);
+        }*/
+
+        this._authLogic.poll();
+        this._stageComponent = createRef();
+    }
+
+    // TODO: [REACT-WARNING] Replace component with real class, use constructor for refs
+    UNSAFE_componentWillMount() { // eslint-disable-line camelcase
         this._authLogic.attemptAuth().then((result) => {
             const extra = {
                 emailSid: this._authLogic.getEmailSid(),
@@ -121,7 +131,12 @@ export default createReactClass({
             };
             this.props.onAuthFinished(true, result, extra);
         }).catch((error) => {
-            this.props.onAuthFinished(false, error);
+            let err = error;
+            if (error.errcode && error.errcode === "M_THREEPID_DENIED") {
+                err = _t(error.message);
+            }
+
+            this.props.onAuthFinished(false, err);
             console.error("Error during user-interactive auth:", error);
             if (this._unmounted) {
                 return;
@@ -132,19 +147,17 @@ export default createReactClass({
                 errorText: msg,
             });
         });
+    }
 
-        // The poll method is triggered here only once in order to finalize the registration session configuration.
-        // As the finalization of the registration is done using a server-side rendered page, we do not use the timer polling.
-        this._authLogic.poll();
-
-        this._stageComponent = createRef();
-    },
-
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         this._unmounted = true;
-    },
 
-    _requestEmailToken: async function(...args) {
+        if (this._intervalId !== null) {
+            clearInterval(this._intervalId);
+        }
+    }
+
+    _requestEmailToken = async (...args) => {
         this.setState({
             busy: true,
         });
@@ -155,15 +168,15 @@ export default createReactClass({
                 busy: false,
             });
         }
-    },
+    };
 
-    tryContinue: function() {
+    tryContinue = () => {
         if (this._stageComponent.current && this._stageComponent.current.tryContinue) {
             this._stageComponent.current.tryContinue();
         }
-    },
+    };
 
-    _authStateUpdated: function(stageType, stageState) {
+    _authStateUpdated = (stageType, stageState) => {
         const oldStage = this.state.authStage;
         this.setState({
             busy: false,
@@ -173,16 +186,16 @@ export default createReactClass({
         }, () => {
             if (oldStage != stageType) this._setFocus();
         });
-    },
+    };
 
-    _requestCallback: function(auth) {
+    _requestCallback = (auth) => {
         // This wrapper just exists because the js-sdk passes a second
         // 'busy' param for backwards compat. This throws the tests off
         // so discard it here.
         return this.props.makeRequest(auth);
-    },
+    };
 
-    _onBusyChanged: function(busy) {
+    _onBusyChanged = (busy) => {
         // if we've started doing stuff, reset the error messages
         if (busy) {
             this.setState({
@@ -196,30 +209,30 @@ export default createReactClass({
         // the UI layer, so we ignore this signal and show a spinner until
         // there's a new screen to show the user. This is implemented by setting
         // `busy: false` in `_authStateUpdated`.
-        // See also https://github.com/vector-im/riot-web/issues/12546
-    },
+        // See also https://github.com/vector-im/element-web/issues/12546
+    };
 
-    _setFocus: function() {
+    _setFocus() {
         if (this._stageComponent.current && this._stageComponent.current.focus) {
             this._stageComponent.current.focus();
         }
-    },
+    }
 
-    _submitAuthDict: function(authData) {
+    _submitAuthDict = authData => {
         this._authLogic.submitAuthDict(authData);
-    },
+    };
 
-    _onPhaseChange: function(newPhase) {
+    _onPhaseChange = newPhase => {
         if (this.props.onStagePhaseChange) {
             this.props.onStagePhaseChange(this.state.authStage, newPhase || 0);
         }
-    },
+    };
 
-    _onStageCancel: function() {
+    _onStageCancel = () => {
         this.props.onAuthFinished(false, ERROR_USER_CANCELLED);
-    },
+    };
 
-    _renderCurrentStage: function() {
+    _renderCurrentStage() {
         const stage = this.state.authStage;
         if (!stage) {
             if (this.state.busy) {
@@ -253,16 +266,17 @@ export default createReactClass({
                 onCancel={this._onStageCancel}
             />
         );
-    },
+    }
 
-    _onAuthStageFailed: function(e) {
+    _onAuthStageFailed = e => {
         this.props.onAuthFinished(false, e);
-    },
-    _setEmailSid: function(sid) {
-        this._authLogic.setEmailSid(sid);
-    },
+    };
 
-    render: function() {
+    _setEmailSid = sid => {
+        this._authLogic.setEmailSid(sid);
+    };
+
+    render() {
         let error = null;
         if (this.state.errorText) {
             error = (
@@ -280,5 +294,5 @@ export default createReactClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}

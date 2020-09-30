@@ -395,10 +395,17 @@
     background-image: url('$(res)/img/cccccc.png');
     background-position: center;
     -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    padding: 2px;
     margin-left: 4px;
-    margin-right: 4px;
+    margin-right: -4px;
+    padding: 2px 8px 2px 2px;
+}
+
+@-moz-document url-prefix() {
+    .mx_RoomTile_avatar_unrestricted {
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        margin-right: 4px;
+        padding: 2px;
+    }
 }
 
 .mx_RoomTile_avatar {

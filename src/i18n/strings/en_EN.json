@@ -2377,5 +2377,6 @@
     "Encryption key request": "Encryption key request",
     "Ignore request": "Ignore request",
     "Your unverified device '%(name)s' is requesting encryption keys.": "Your unverified device '%(name)s' is requesting encryption keys.",
-    "Your last three login attempts have failed. Please try again in 30 minutes.": "Your last three login attempts have failed. Please try again in 30 minutes."
+    "Your last three login attempts have failed. Please try again in 30 minutes.": "Your last three login attempts have failed. Please try again in 30 minutes.",
+    "Your email is not authorized to register on this server": "Your email is not authorized to register on this server"
 }

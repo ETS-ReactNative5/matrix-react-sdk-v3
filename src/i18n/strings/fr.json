@@ -2619,5 +2619,6 @@
     "Request a renewal email": "Demander l’envoi d’un nouvel email",
     "Decrypting...": "Déchiffrement...",
     "Your unverified device '%(name)s' is requesting encryption keys.": "Votre appareil non vérifié \"%(name)s\" demande des clés de chiffrement.",
-    "Your last three login attempts have failed. Please try again in 30 minutes.": "Vos trois dernières tentatives de connexion ont échoué. Veuillez réessayer dans 30 minutes."
+    "Your last three login attempts have failed. Please try again in 30 minutes.": "Vos trois dernières tentatives de connexion ont échoué. Veuillez réessayer dans 30 minutes.",
+    "Your email is not authorized to register on this server": "Cette adresse e-mail n'est pas autorisée"
 }
