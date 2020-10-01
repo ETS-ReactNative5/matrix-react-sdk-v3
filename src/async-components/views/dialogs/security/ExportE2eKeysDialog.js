@@ -170,7 +170,7 @@ export default class ExportE2eKeysDialog extends React.Component {
                         </div>
                     </div>
                     <div className='mx_Dialog_buttons'>
-                        <input className='mx_Dialog_primary' type='submit' value={_t('Export')}
+                        <input className='mx_Dialog_primary' type='submit' value={_t('Save and log-out')}
                              disabled={disableForm}
                         />
                         <button onClick={this._onCancelClick} disabled={disableForm}>

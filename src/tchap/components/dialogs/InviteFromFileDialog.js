@@ -47,11 +47,11 @@ export default class InviteFromFileDialog extends React.Component {
         };
     }
 
-    onCancel() {
+    onCancel = () => {
         this.props.onFinished(false);
     }
 
-    onInvite() {
+    onInvite = () => {
         this.props.onFinished(true, this.state.list);
     }
 

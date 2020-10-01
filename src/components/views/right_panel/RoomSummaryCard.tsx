@@ -193,19 +193,12 @@ const useMemberCount = (room: Room) => {
 };
 
 const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
-    const cli = useContext(MatrixClientContext);
-
     const onShareRoomClick = () => {
         Modal.createTrackedDialog('share room dialog', '', ShareDialog, {
             target: room,
         });
     };
 
-    const isRoomEncrypted = useIsEncrypted(cli, room);
-    const roomContext = useContext(RoomContext);
-    const e2eStatus = roomContext.e2eStatus;
-
-    const alias = room.getCanonicalAlias() || room.getAltAliases()[0] || "";
     const header = <React.Fragment>
         <div className="mx_RoomSummaryCard_avatar" role="presentation">
             <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />

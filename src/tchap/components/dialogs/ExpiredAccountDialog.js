@@ -13,38 +13,39 @@ limitations under the License.
 */
 
 import React from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import sdk from '../../../index';
 import { _t } from '../../../languageHandler';
 import Tchap from '../../Tchap'
+import {privateShouldBeEncrypted} from "../../../createRoom";
 
-export default createReactClass({
-	displayName: 'ExpiredAccountDialog',
-	propTypes: {
+export default class ExpiredAccountDialog extends React.Component {
+	static propTypes = {
 		button: PropTypes.string,
 		focus: PropTypes.bool,
 		onFinished: PropTypes.func.isRequired,
-	},
+	}
 
-	getInitialState: function() {
-		return {
-			description: _t('The validity period of your account has expired. An email has been sent to you in order to renew it. Once you’ve followed the link it contains, click below.'),
+	constructor(props) {
+		super(props);
+		this.state = {
+			description: _t('The validity period of your account has expired. An email has been sent to you in ' +
+				'order to renew it. Once you’ve followed the link it contains, click below.'),
 		};
-	},
+	}
 
-	onOk: function() {
+	onOk = () => {
 		this.props.onFinished(true);
-	},
+	}
 
-	onResendEmail: function() {
+	onResendEmail() {
 		this.setState({
 			description: _t('An email has been sent to you. Once you’ve followed the link it contains, click below.'),
 		});
 		Tchap.requestNewExpiredAccountEmail();
-	},
+	}
 
-	render: function() {
+	render() {
 		const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
 		const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
 
@@ -74,5 +75,5 @@ export default createReactClass({
 				</DialogButtons>
 			</BaseDialog>
 		);
-	},
-});
+	}
+}

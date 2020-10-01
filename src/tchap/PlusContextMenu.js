@@ -1,37 +1,35 @@
 import React from 'react';
 import AccessibleButton from "../components/views/elements/AccessibleButton";
-import createReactClass from "create-react-class";
 import dis from "../dispatcher/dispatcher";
 import {_t} from "../languageHandler";
 
-const PlusContextMenu = createReactClass({
-	displayName: 'PlusContextMenu',
-
-	getInitialState: function() {
-		return {
+export default class PlusContextMenu extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
 			visible: 'hidden',
 			x: 0,
 			y: 0,
 			opacity: 0,
 		};
-	},
+	}
 
-	componentDidMount: function() {
+	componentDidMount() {
 		document.addEventListener('click', this.handleClickOutside, true);
-	},
+	}
 
-	componentWillUnmount: function() {
+	componentWillUnmount() {
 		document.removeEventListener('click', this.handleClickOutside, true);
-	},
+	}
 
-	handleClickOutside: function() {
+	handleClickOutside() {
 		this.setState({
 			visible: 'hidden',
 			opacity: 0,
 		})
-	},
+	}
 
-	_onPlusClicked: function(e) {
+	_onPlusClicked(e) {
 		e.preventDefault();
 		this.setState({
 			visible: 'visible',
@@ -39,21 +37,21 @@ const PlusContextMenu = createReactClass({
 			x: e.clientX + 'px',
 			y: (e.clientY - 104) + 'px',
 		})
-	},
+	}
 
-	onAddRoom: function() {
+	onAddRoom() {
 		dis.dispatch({action: 'view_create_room'});
-	},
+	}
 
-	onStartChat: function() {
+	onStartChat() {
 		dis.dispatch({action: 'view_create_chat'});
-	},
+	}
 
-	onExplore: function() {
+	onExplore() {
 		dis.dispatch({action: 'view_room_directory'});
-	},
+	}
 
-	_generateSubMenu: function() {
+	_generateSubMenu() {
 		return (
 			<div className="tc_PlusContextMenu_sub">
 				<div className="tc_PlusContextMenu_sub_item" onClick={this.onStartChat}>
@@ -72,9 +70,9 @@ const PlusContextMenu = createReactClass({
 				</div>
 			</div>
 		);
-	},
+	}
 
-	render: function() {
+	render() {
 		const styles = {
 				position: 'absolute',
 				left: this.state.x,
@@ -92,6 +90,5 @@ const PlusContextMenu = createReactClass({
 			</div>
 		</div>
 	}
-});
+}
 
-export default PlusContextMenu;

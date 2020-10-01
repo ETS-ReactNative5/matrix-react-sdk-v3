@@ -2506,5 +2506,21 @@
     "Error: This is not a matrix content": "Erreur : type de contenu inconnu",
     "Error: Cannot fetch the file": "Erreur : impossible de récupérer le fichier",
     "Error: Unable to join the MCS server": "Erreur : MCS injoignable",
-    "Manage the names of and sign out of your sessions below.": "Gérez les noms et déconnectez-vous de vos sessions ci-dessous."
+    "Manage the names of and sign out of your sessions below.": "Gérez les noms et déconnectez-vous de vos sessions ci-dessous.",
+    "%(count)s people|other": "%(count)s personnes",
+    "%(count)s people|one": "%(count)s personne",
+    "Show files": "Fichiers",
+    "Room settings": "Paramètres du salon",
+    "About": "À propos",
+    "This version of %(brand)s does not support viewing some encrypted files": "Cette version de %(brand)s ne supporte pas l'affichage des fichiers chiffrés",
+    "This version of %(brand)s does not support searching encrypted messages": "Cette version de %(brand)s ne supporte pas la recherche dans les messages chiffrés",
+    "No files visible in this room": "Pas de fichiers visible dans ce salon",
+    "Attach files from chat or just drag and drop them anywhere in a room.": "Joignez des fichiers depuis le chat ou faites-les simplement glisser n'importe où dans la conversation.",
+    "Group call modified by %(senderName)s": "Appel de groupe modifié par %(senderName)s",
+    "Group call started by %(senderName)s": "Appel de groupe lancé par %(senderName)s",
+    "Group call ended by %(senderName)s": "Appel de groupe arrêté par %(senderName)s",
+    "You’re all caught up": "Vous êtes à jour !",
+    "You have no visible notifications in this room.": "Vous n'avez pas de notifications dans ce salon.",
+    "Room Info": "Informations du salon",
+    "Save and log-out": "Enregistrer et se déconnecter"
 }

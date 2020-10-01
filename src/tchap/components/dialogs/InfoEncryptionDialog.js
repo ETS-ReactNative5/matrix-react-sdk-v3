@@ -24,11 +24,14 @@ import SdkConfig from "../../../SdkConfig";
 
 export default class InfoEncryptionDialog extends React.Component {
     static propTypes = {
-        onFinished: PropTypes.func,
-        type: PropTypes.string
+        onFinished: PropTypes.func.isRequired,
     }
 
-    onFinished() {
+    constructor(props) {
+        super(props);
+    }
+
+    onFinished = () => {
         if (window.localStorage) {
             window.localStorage.setItem("tc_validate_encryption_informations", "done");
         }

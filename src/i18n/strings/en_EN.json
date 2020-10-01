@@ -2473,5 +2473,6 @@
     "Error: This is not a matrix content": "Error: This is not a matrix content",
     "Error: Cannot fetch the file": "Error: Cannot fetch the file",
     "Error: Unable to join the MCS server": "Error: Unable to join the MCS server",
-    "Manage the names of and sign out of your sessions below.": "Manage the names of and sign out of your sessions below."
+    "Manage the names of and sign out of your sessions below.": "Manage the names of and sign out of your sessions below.",
+    "Save and log-out": "Save and log-out"
 }

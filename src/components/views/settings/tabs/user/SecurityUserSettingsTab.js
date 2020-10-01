@@ -220,15 +220,6 @@ export default class SecurityUserSettingsTab extends React.Component {
             );
         }
 
-        let noSendUnverifiedSetting;
-        if (SettingsStore.isEnabled("blacklistUnverifiedDevices")) {
-            noSendUnverifiedSetting = <SettingsFlag
-                name='blacklistUnverifiedDevices'
-                level={SettingLevel.DEVICE}
-                onChange={this._updateBlacklistDevicesFlag}
-            />;
-        }
-
         return (
             <div className='mx_SettingsTab_section'>
                 <span className='mx_SettingsTab_subheading'>{_t("Cryptography")}</span>
@@ -243,7 +234,6 @@ export default class SecurityUserSettingsTab extends React.Component {
                     </li>
                 </ul>
                 {importExportButtons}
-                {noSendUnverifiedSetting}
             </div>
         );
     }
