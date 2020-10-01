@@ -2469,5 +2469,8 @@
     "Ignore request": "Ignore request",
     "Your unverified device '%(name)s' is requesting encryption keys.": "Your unverified device '%(name)s' is requesting encryption keys.",
     "Your last three login attempts have failed. Please try again in 30 minutes.": "Your last three login attempts have failed. Please try again in 30 minutes.",
-    "Your email is not authorized to register on this server": "Your email is not authorized to register on this server"
+    "Your email is not authorized to register on this server": "Your email is not authorized to register on this server",
+    "Error: This is not a matrix content": "Error: This is not a matrix content",
+    "Error: Cannot fetch the file": "Error: Cannot fetch the file",
+    "Error: Unable to join the MCS server": "Error: Unable to join the MCS server"
 }
