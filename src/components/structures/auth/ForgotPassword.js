@@ -39,8 +39,6 @@ const PHASE_DONE = 4;
 
 export default class ForgotPassword extends React.Component {
     static propTypes = {
-        serverConfig: PropTypes.instanceOf(ValidatedServerConfig).isRequired,
-        onServerConfigChange: PropTypes.func.isRequired,
         onLoginClick: PropTypes.func,
         onComplete: PropTypes.func.isRequired,
     };
@@ -64,13 +62,6 @@ export default class ForgotPassword extends React.Component {
 
     componentDidMount() {
         this.reset = null;
-    }
-
-    // TODO: [REACT-WARNING] Replace with appropriate lifecycle event
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillReceiveProps(newProps) {
-        if (newProps.serverConfig.hsUrl === this.props.serverConfig.hsUrl &&
-            newProps.serverConfig.isUrl === this.props.serverConfig.isUrl) return;
     }
 
     submitPasswordReset(email, password) {
@@ -107,9 +98,6 @@ export default class ForgotPassword extends React.Component {
 
     onSubmitForm = async ev => {
         ev.preventDefault();
-
-        // refresh the server errors, just in case the server came back online
-        await this._checkServerLiveliness(this.props.serverConfig);
 
         if (!this.state.email) {
             this.showErrorDialog(_t('The email address linked to your account must be entered.'));

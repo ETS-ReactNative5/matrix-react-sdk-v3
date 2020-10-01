@@ -143,13 +143,13 @@ export default class RoomStatusBar extends React.Component {
         });
     };
 
-    _onReinviteClick: function() {
+    _onReinviteClick() {
         const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
         inviteMultipleToRoom(this.props.room.roomId, [dmUserId]).then().catch(err => {
             console.error("Failed to invite user to the room")
             console.error(err)
         });
-    },
+    }
 
     // Check whether current size is greater than 0, if yes call props.onVisible
     _checkSize() {
@@ -267,74 +267,6 @@ export default class RoomStatusBar extends React.Component {
                     <a className="mx_RoomStatusBar_resend_link" key="cancel" onClick={this._onCancelAllClick}>{ sub }</a>,
             },
         );
-        const hasUDE = unsentMessages.some((m) => {
-            return m.error && m.error.name === "UnknownDeviceError";
-        });
-
-        if (hasUDE) {
-            // The dialog box asking about what to do if there is an unknown device
-            // in the room have been disabled for the moment.
-            // We consider "Send Anyway" as the default choice.
-            this._onSendWithoutVerifyingClick();
-        } else {
-            let consentError = null;
-            let resourceLimitError = null;
-            for (const m of unsentMessages) {
-                if (m.error && m.error.errcode === 'M_CONSENT_NOT_GIVEN') {
-                    consentError = m.error;
-                    break;
-                } else if (m.error && m.error.errcode === 'M_RESOURCE_LIMIT_EXCEEDED') {
-                    resourceLimitError = m.error;
-                    break;
-                }
-            }
-            if (consentError) {
-                title = _t(
-                    "You can't send any messages until you review and agree to " +
-                    "<consentLink>our terms and conditions</consentLink>.",
-                    {},
-                    {
-                        'consentLink': (sub) =>
-                            <a href={consentError.data && consentError.data.consent_uri} target="_blank">
-                                { sub }
-                            </a>,
-                    },
-                );
-            } else if (resourceLimitError) {
-                title = messageForResourceLimitError(
-                    resourceLimitError.data.limit_type,
-                    resourceLimitError.data.admin_contact, {
-                    'monthly_active_user': _td(
-                        "Your message wasn't sent because this homeserver has hit its Monthly Active User Limit. " +
-                        "Please <a>contact your service administrator</a> to continue using the service.",
-                    ),
-                    '': _td(
-                        "Your message wasn't sent because this homeserver has exceeded a resource limit. " +
-                        "Please <a>contact your service administrator</a> to continue using the service.",
-                    ),
-                });
-            } else if (
-                unsentMessages.length === 1 &&
-                unsentMessages[0].error &&
-                unsentMessages[0].error.data &&
-                unsentMessages[0].error.data.error
-            ) {
-                title = messageForSendError(unsentMessages[0].error.data) || unsentMessages[0].error.data.error;
-            } else {
-                title = _t('%(count)s of your messages have not been sent.', { count: unsentMessages.length });
-            }
-            content = _t("%(count)s <resendText>Resend all</resendText> or <cancelText>cancel all</cancelText> now. " +
-               "You can also select individual messages to resend or cancel.",
-                { count: unsentMessages.length },
-                {
-                    'resendText': (sub) =>
-                        <a className="mx_RoomStatusBar_resend_link" key="resend" onClick={this._onResendAllClick}>{ sub }</a>,
-                    'cancelText': (sub) =>
-                        <a className="mx_RoomStatusBar_resend_link" key="cancel" onClick={this._onCancelAllClick}>{ sub }</a>,
-                },
-            );
-        }
-
         return <div className="mx_RoomStatusBar_connectionLostBar">
             <img src={require("../../../res/img/feather-customised/warning-triangle.svg")} width="24" height="24" title={_t("Warning")} alt="" />
             <div>

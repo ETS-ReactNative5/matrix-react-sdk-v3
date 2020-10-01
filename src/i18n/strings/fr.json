@@ -2402,7 +2402,7 @@
     "Cross-signing is ready for use, but secret storage is currently not being used to backup your keys.": "La signature croisée est prête à l'emploi, mais le coffre secret n'est pas actuellement utilisé pour sauvegarder vos clés.",
     "Master private key:": "Clé privée maîtresse :",
     "%(brand)s can't securely cache encrypted messages locally while running in a web browser. Use <desktopLink>%(brand)s Desktop</desktopLink> for encrypted messages to appear in search results.": "%(brand)s ne peut actuellement mettre en cache vos messages chiffrés localement de manière sécurisée via le navigateur Web. Utilisez <desktopLink>%(brand)s Desktop</desktopLink> pour que les messages chiffrés apparaissent dans vos résultats de recherche.",
-    "There are advanced notifications which are not shown here.": "Des notifications avancées ne sont pas affichées ici."
+    "There are advanced notifications which are not shown here.": "Des notifications avancées ne sont pas affichées ici.",
     "Enter your Recovery Key or enter a <a>Recovery Passphrase</a> to continue.": "Saisissez votre clé de récupération ou une <a>phrase secrète de récupération</a> pour continuer.",
     "Enter your Recovery Key to continue.": "Saisissez votre clé de récupération pour continuer.",
     "Upgrade your Recovery Key to store encryption keys & secrets with your account data. If you lose access to this login you'll need it to unlock your data.": "Mettez à niveau votre clé de récupération pour stocker vos clés et secrets de chiffrement avec les données de votre compte. Si vous n’avez plus accès à cette connexion, vous en aurez besoin pour déverrouiller vos données.",

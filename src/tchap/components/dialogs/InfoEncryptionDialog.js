@@ -17,27 +17,25 @@ limitations under the License.
 */
 
 import React from 'react';
-import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import * as sdk from '../../../index';
 import { _t } from '../../../languageHandler';
 import SdkConfig from "../../../SdkConfig";
 
-export default createReactClass({
-    displayName: 'InfoEncryptionDialog',
-    propTypes: {
+export default class InfoEncryptionDialog extends React.Component {
+    static propTypes = {
         onFinished: PropTypes.func,
         type: PropTypes.string
-    },
+    }
 
-    onFinished: function() {
+    onFinished() {
         if (window.localStorage) {
             window.localStorage.setItem("tc_validate_encryption_informations", "done");
         }
         this.props.onFinished();
-    },
+    }
 
-    render: function() {
+    render() {
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
         const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
 
@@ -100,5 +98,5 @@ export default createReactClass({
                 </DialogButtons>
             </BaseDialog>
         );
-    },
-});
+    }
+}

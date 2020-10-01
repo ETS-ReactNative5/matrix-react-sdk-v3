@@ -240,14 +240,6 @@ export default class UserMenu extends React.Component<IProps, IState> {
         this.setState({contextMenuPosition: null}); // also close the menu
     };
 
-    private onCommunityInviteClick = (ev: ButtonEvent) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        showCommunityInviteDialog(CommunityPrototypeStore.instance.getSelectedCommunityId());
-        this.setState({contextMenuPosition: null}); // also close the menu
-    };
-
     private renderContextMenu = (): React.ReactNode => {
         if (!this.state.contextMenuPosition) return null;
 
@@ -351,36 +343,13 @@ export default class UserMenu extends React.Component<IProps, IState> {
                     </span>
                 </div>
             );
-            let settingsOption;
-            let inviteOption;
-            if (CommunityPrototypeStore.instance.canInviteTo(communityId)) {
-                inviteOption = (
-                    <IconizedContextMenuOption
-                        iconClassName="mx_UserMenu_iconInvite"
-                        label={_t("Invite")}
-                        onClick={this.onCommunityInviteClick}
-                    />
-                );
-            }
-            if (CommunityPrototypeStore.instance.isAdminOf(communityId)) {
-                settingsOption = (
-                    <IconizedContextMenuOption
-                        iconClassName="mx_UserMenu_iconSettings"
-                        label={_t("Settings")}
-                        aria-label={_t("Community settings")}
-                        onClick={this.onCommunitySettingsClick}
-                    />
-                );
-            }
             primaryOptionList = (
                 <IconizedContextMenuOptionList>
-                    {settingsOption}
                     <IconizedContextMenuOption
                         iconClassName="mx_UserMenu_iconMembers"
                         label={_t("Members")}
                         onClick={this.onCommunityMembersClick}
                     />
-                    {inviteOption}
                 </IconizedContextMenuOptionList>
             );
             secondarySection = (

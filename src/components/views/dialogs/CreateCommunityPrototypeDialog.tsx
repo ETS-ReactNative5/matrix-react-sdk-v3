@@ -23,7 +23,6 @@ import AccessibleButton from "../elements/AccessibleButton";
 import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import InfoTooltip from "../elements/InfoTooltip";
 import dis from "../../../dispatcher/dispatcher";
-import {showCommunityRoomInviteDialog} from "../../../RoomInvite";
 import GroupStore from "../../../stores/GroupStore";
 
 interface IProps extends IDialogProps {
@@ -99,7 +98,7 @@ export default class CreateCommunityPrototypeDialog extends React.PureComponent<
                     action: 'view_room',
                     room_id: result.room_id,
                 });
-                showCommunityRoomInviteDialog(result.room_id, this.state.name);
+                //showCommunityRoomInviteDialog(result.room_id, this.state.name);
             } else {
                 dis.dispatch({
                     action: 'view_group',

@@ -70,6 +70,7 @@ interface ICreateOpts {
     preset?: Preset;
     is_direct?: boolean;
     power_level_content_override?: object;
+    access_rules?: string;
 }
 
 interface IOpts {
@@ -81,6 +82,7 @@ interface IOpts {
     inlineErrors?: boolean;
     andView?: boolean;
     associatedWithCommunity?: string;
+    access_rules?: string;
 }
 
 /**

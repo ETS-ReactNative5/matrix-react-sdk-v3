@@ -16,27 +16,25 @@ limitations under the License.
 */
 
 import React from 'react';
-import createReactClass from "create-react-class";
 import PropTypes from 'prop-types';
-import { _t, _td } from '../../../languageHandler';
+import { _t } from '../../../languageHandler';
 import * as sdk from '../../../index';
 import {MatrixClientPeg} from '../../../MatrixClientPeg';
 import Tchap from '../../Tchap';
 import * as Email from "../../../email";
 
-
-export default createReactClass({
-    displayName: "InviteFromFileDialog",
-
-    propTypes: {
+export default class InviteFromFileDialog extends React.Component {
+    static propTypes = {
         title: PropTypes.string.isRequired,
         roomId: PropTypes.string,
         button: PropTypes.string,
         onFinished: PropTypes.func.isRequired,
-    },
+    }
 
-    getInitialState: function() {
-        return {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             error: null,
             errorRestricted: false,
             list: [],
@@ -47,17 +45,17 @@ export default createReactClass({
             authorizedTypeTxt: ['text/plain'],
             authorizedTypeCsv: ['text/csv', 'text/x-csv', 'application/vnd.ms-excel', 'application/csv', 'application/x-csv']
         };
-    },
+    }
 
-    onCancel: function() {
+    onCancel() {
         this.props.onFinished(false);
-    },
+    }
 
-    onInvite: function() {
+    onInvite() {
         this.props.onFinished(true, this.state.list);
-    },
+    }
 
-    _handleFileRead: function() {
+    _handleFileRead() {
         const fileReader = this.state.fileReader;
         const fileType = this.state.fileType;
         const authorizedTypeTxt = this.state.authorizedTypeTxt;
@@ -140,9 +138,9 @@ export default createReactClass({
                 }
             }
         }
-    },
+    }
 
-    _parseFile: function(file) {
+    _parseFile(file) {
         const authorizedType = (this.state.authorizedTypeTxt).concat(this.state.authorizedTypeCsv);
         this.setState({
             error: null,
@@ -165,9 +163,9 @@ export default createReactClass({
             fileReader.onloadend = this._handleFileRead;
             fileReader.readAsText(file);
         }
-    },
+    }
 
-    render: function() {
+    render() {
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
         const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
 
@@ -226,5 +224,5 @@ export default createReactClass({
                 />
             </BaseDialog>
         );
-    },
-});
+    }
+}
