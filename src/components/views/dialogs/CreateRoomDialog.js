@@ -86,15 +86,12 @@ export default class CreateRoomDialog extends React.Component {
     }
 
     componentDidMount() {
-        this._detailsRef.addEventListener("toggle", this.onDetailsToggled);
-        // move focus to first field when showing dialog
         this._nameFieldRef.focus();
         // TCHAP SEE
         this.setUpRoomOptions(this.state.roomOption);
     }
 
     componentWillUnmount() {
-        this._detailsRef.removeEventListener("toggle", this.onDetailsToggled);
     }
 
     _onKeyDown = event => {

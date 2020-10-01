@@ -391,7 +391,7 @@
     "Delete widget": "Supprimer le widget",
     "Define the power level of a user": "Définir le rang d'un utilisateur",
     "Edit": "Modifier",
-    "Enable automatic language detection for syntax highlighting": "Activer la détection automatique de la langue pour la correction orthographique",
+    "Enable automatic language detection for syntax highlighting": "Activer la détection automatique du langage pour la coloration syntaxique",
     "To get started, please pick a username!": "Pour commencer, choisissez un nom d'utilisateur !",
     "Unable to create widget.": "Impossible de créer le widget.",
     "You are not in this room.": "Vous n'êtes pas dans ce salon.",
@@ -2505,5 +2505,6 @@
     "Your email is not authorized to register on this server": "Cette adresse e-mail n'est pas autorisée",
     "Error: This is not a matrix content": "Erreur : type de contenu inconnu",
     "Error: Cannot fetch the file": "Erreur : impossible de récupérer le fichier",
-    "Error: Unable to join the MCS server": "Erreur : MCS injoignable"
+    "Error: Unable to join the MCS server": "Erreur : MCS injoignable",
+    "Manage the names of and sign out of your sessions below.": "Gérez les noms et déconnectez-vous de vos sessions ci-dessous."
 }

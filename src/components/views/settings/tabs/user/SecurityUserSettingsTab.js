@@ -382,34 +382,20 @@ export default class SecurityUserSettingsTab extends React.Component {
 
         return (
             <div className="mx_SettingsTab mx_SecurityUserSettingsTab">
-                {warning}
+                <div className="mx_SettingsTab_heading">{_t("Encryption")}</div>
+                <div className="mx_SettingsTab_section">
+                    {this._renderCurrentDeviceInfo()}
+                </div>
                 <div className="mx_SettingsTab_heading">{_t("Where you’re logged in")}</div>
                 <div className="mx_SettingsTab_section">
                     <span>
-                        {_t(
-                            "Manage the names of and sign out of your sessions below or " +
-                            "<a>verify them in your User Profile</a>.", {},
-                            {
-                                a: sub => <AccessibleButton kind="link" onClick={this._onGoToUserProfileClick}>
-                                    {sub}
-                                </AccessibleButton>,
-                            },
-                        )}
+                        {_t("Manage the names of and sign out of your sessions below.")}
                     </span>
                     <div className='mx_SettingsTab_subsectionText'>
                         {_t("A session's public name is visible to people you communicate with")}
                         <DevicesPanel />
                     </div>
                 </div>
-                <div className="mx_SettingsTab_heading">{_t("Encryption")}</div>
-                <div className="mx_SettingsTab_section">
-                    {secureBackup}
-                    {eventIndex}
-                    {crossSigning}
-                    {this._renderCurrentDeviceInfo()}
-                </div>
-                { privacySection }
-                { advancedSection }
             </div>
         );
     }

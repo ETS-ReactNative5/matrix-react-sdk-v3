@@ -214,16 +214,6 @@ export default class VoiceUserSettingsTab extends React.Component {
                     {microphoneDropdown}
                     {webcamDropdown}
                     <SettingsFlag name='VideoView.flipVideoHorizontally' level={SettingLevel.ACCOUNT} />
-                    <SettingsFlag
-                        name='webRtcAllowPeerToPeer'
-                        level={SettingLevel.DEVICE}
-                        onChange={this._changeWebRtcMethod}
-                    />
-                    <SettingsFlag
-                        name='fallbackICEServerAllowed'
-                        level={SettingLevel.DEVICE}
-                        onChange={this._changeFallbackICEServerAllowed}
-                    />
                 </div>
             </div>
         );

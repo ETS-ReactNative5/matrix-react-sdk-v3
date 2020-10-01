@@ -230,7 +230,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     // TODO: Wire up appropriately to UI (FTUE notifications)
     "Notifications.alwaysShowBadgeCounts": {
         supportedLevels: LEVELS_ROOM_OR_ACCOUNT,
-        default: false,
+        default: true,
     },
     "useCompactLayout": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
@@ -347,7 +347,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "use_system_theme": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
-        default: true,
+        default: false,
         displayName: _td("Match system theme"),
     },
     "useSystemFont": {
@@ -519,7 +519,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "RoomList.orderByImportance": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td("Show rooms with unread notifications first"),
-        default: false,
+        default: true,
     },
     "breadcrumbs": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
@@ -630,7 +630,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.Widgets]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.Voip]: {
         supportedLevels: LEVELS_UI_FEATURE,
@@ -638,7 +638,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.Feedback]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.Registration]: {
         supportedLevels: LEVELS_UI_FEATURE,
@@ -662,7 +662,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.IdentityServer]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
         // Identity Server (Discovery) Settings make no sense if 3PIDs in general are hidden
         controller: new UIFeatureController(UIFeature.ThirdPartyID),
     },
@@ -672,13 +672,13 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.Flair]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
         // Disable Flair when Communities are disabled
         controller: new UIFeatureController(UIFeature.Communities),
     },
     [UIFeature.Communities]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.AdvancedSettings]: {
         supportedLevels: LEVELS_UI_FEATURE,
