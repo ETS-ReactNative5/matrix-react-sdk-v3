@@ -274,13 +274,15 @@ export default class RolesRoomSettingsTab extends React.Component {
             const mutedUsers = [];
 
             Object.keys(userLevels).forEach((user) => {
+                const userInfo = MatrixClientPeg.get().getUser(user)
+                const userName = userInfo.rawDisplayName ? userInfo.rawDisplayName : user;
                 const canChange = userLevels[user] < currentUserLevel && canChangeLevels;
                 if (userLevels[user] > defaultUserLevel) { // privileged
                     privilegedUsers.push(
                         <PowerSelector
                             value={userLevels[user]}
                             disabled={!canChange}
-                            label={user}
+                            label={userName}
                             key={user}
                             powerLevelKey={user} // Will be sent as the second parameter to `onChange`
                             onChange={this._onUserPowerLevelChanged}
@@ -291,7 +293,7 @@ export default class RolesRoomSettingsTab extends React.Component {
                         <PowerSelector
                             value={userLevels[user]}
                             disabled={!canChange}
-                            label={user}
+                            label={userName}
                             key={user}
                             powerLevelKey={user} // Will be sent as the second parameter to `onChange`
                             onChange={this._onUserPowerLevelChanged}

@@ -110,8 +110,9 @@
 }
 
 // Left Panel Main
-.mx_LeftPanel {
-    background-color: $accent-color;
+.mx_LeftPanel_roomListContainer {
+    background-color: $accent-color !important;
+    color: #f3f8fd;
 }
 
 .mx_LeftPanel_explore .mx_AccessibleButton {
@@ -191,6 +192,10 @@
     min-width: initial !important;
 }
 
+.mx_UserMenu_contextMenu_name {
+    width: 100% !important;
+}
+
 // Top Bar
 .mx_TopLeftMenuButton {
     background-color: $accent-color;
@@ -199,70 +204,19 @@
     padding: 10px 4px;
 }
 
-.mx_TopLeftMenu .mx_TopLeftMenu_section_withIcon {
-    font-size: 16px;
-    .mx_AccessibleButton::after {
-        background-color: $focus-bg-color;
-        width: 22px;
-        height: 22px;
-        top: 5px;
-        left: 13px;
+.mx_RoomSearch {
+    .mx_RoomSearch_input {
+        color: $primary-bg-color !important;
     }
-    .mx_TopLeftMenu_icon_settings::after {
-        mask-image: url('$(res)/img/tchap/feather-customised/settings.svg');
-        mask-size: 22px;
+    &.mx_RoomSearch_hasQuery {
+        border-color: $accent-color;
     }
-    .mx_TopLeftMenu_icon_signout::after {
-        mask-image: url('$(res)/img/tchap/feather-customised/sign-out.svg');
-        mask-size: 22px;
+    &.mx_RoomSearch_focused {
+        box-shadow: 0 0 4px 4px $accent-secondary;
+        border-color: transparent;
     }
-    .mx_AccessibleButton:hover {
-        background-color: $accent-secondary;
-    }
-}
-
-.mx_SearchBox > input[type="text"].mx_textinput_icon.mx_textinput_search {
-    background-image: url('$(res)/img/tchap/feather-customised/search-input.svg');
-}
-
-.mx_SearchBox {
-    flex: 1 1 0;
-    min-width: 0;
-    margin: 4px 9px 4px 9px !important;
-    &.mx_SearchBox_blurred:hover {
+    &.mx_RoomSearch_focused, &.mx_RoomSearch_hasQuery {
         background-color: $accent-bg-color;
-    }
-    &:not(.mx_SearchBox_blurred) {
-        background-color: $accent-bg-color;
-        input {
-            color: $focus-bg-color !important;
-        }
-        input::placeholder {
-            color: $focus-bg-color !important;
-        }
-    }
-    .mx_SearchBox_closeButton {
-        background-image: url('$(res)/img/tchap/icons-close.svg');
-    }
-}
-
-.mx_MemberList {
-    .mx_SearchBox {
-        &.mx_SearchBox_blurred:hover {
-            background-color: $secondary-accent-color;
-        }
-        &:not(.mx_SearchBox_blurred) {
-            background-color: $secondary-accent-color;
-            input {
-                color: $primary-fg-color !important;
-            }
-            input::placeholder {
-                color: $notice-secondary-color !important;
-            }
-        }
-        input[type="text"].mx_textinput_icon.mx_textinput_search {
-            background-image: url('$(res)/img/tchap/feather-customised/search-input_dark.svg');
-        }
     }
 }
 
@@ -428,10 +382,8 @@
 
 // Context Menus
 .mx_ContextualMenu_top {
-    background-color: $accent-bg-color;
-    color: $focus-bg-color;
-    -webkit-box-shadow: 4px 4px 4px 0 $accent-bg-color;
-    box-shadow: 4px 4px 4px 0 $accent-bg-color;
+    -webkit-box-shadow: 2px 2px 2px 0 #dddddd;
+    box-shadow: 2px 2px 2px 0 #dddddd;
 }
 
 .mx_ContextualMenu.mx_ContextualMenu_withChevron_left {

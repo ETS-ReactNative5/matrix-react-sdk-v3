@@ -104,8 +104,6 @@ export default class GeneralRoomSettingsTab extends React.Component {
     };
 
     render() {
-        const AliasSettings = sdk.getComponent("room_settings.AliasSettings");
-        const RelatedGroupSettings = sdk.getComponent("room_settings.RelatedGroupSettings");
         const UrlPreviewSettings = sdk.getComponent("room_settings.UrlPreviewSettings");
 
         const client = this.context;
@@ -136,18 +134,6 @@ export default class GeneralRoomSettingsTab extends React.Component {
             urlPreviewSettings = null;
         }
 
-        let flairSection;
-        if (SettingsStore.getValue(UIFeature.Flair)) {
-            flairSection = <>
-                <span className='mx_SettingsTab_subheading'>{_t("Flair")}</span>
-                <div className='mx_SettingsTab_section mx_SettingsTab_subsectionText'>
-                    <RelatedGroupSettings roomId={room.roomId}
-                                          canSetRelatedGroups={canChangeGroups}
-                                          relatedGroupsEvent={groupsEvent} />
-                </div>
-            </>;
-        }
-
         return (
             <div className="mx_SettingsTab mx_GeneralRoomSettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("General")}</div>
@@ -160,9 +146,7 @@ export default class GeneralRoomSettingsTab extends React.Component {
                 </div>
                 <div className="mx_SettingsTab_heading">{_t("Other")}</div>
                 { roomPublishChange }
-                { flairSection }
                 { urlPreviewSettings }
-
                 <span className='mx_SettingsTab_subheading'>{_t("Leave room")}</span>
                 <div className='mx_SettingsTab_section'>
                     <AccessibleButton kind='danger' onClick={this._onLeaveClick}>
