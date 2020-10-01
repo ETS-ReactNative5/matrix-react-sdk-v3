@@ -226,21 +226,10 @@ export default class RoomPreviewBar extends React.Component {
     }
 
     _roomName(atStart = false) {
-        // TCHAP SEE
-        /*if (this.props.room) {
+        if (this.props.room) {
             return this.props.room.name;
         } else if (this.props.roomAlias) {
             return this.props.roomAlias.split(':')[0]
-        } else if (atStart) {
-            return _t("This room");
-        } else {
-            return _t("this room");
-        }*/
-        let name = this.props.room ? this.props.room.name : this.props.roomAlias;
-        const profile = this._communityProfile();
-        if (profile.displayName) name = profile.displayName;
-        if (name) {
-            return name;
         } else if (atStart) {
             return _t("This room");
         } else {

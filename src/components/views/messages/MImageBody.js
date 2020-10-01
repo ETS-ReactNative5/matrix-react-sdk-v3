@@ -220,6 +220,11 @@ export default class MImageBody extends React.Component {
                                 decryptedThumbnailUrl: thumbnailUrl,
                                 decryptedBlob: decryptedBlob,
                             });
+                        }).catch(err => {
+                            this.setState({
+                                isClean: false,
+                                error: err.error,
+                            });
                         });
                     }).catch((err) => {
                         console.warn("Unable to decrypt attachment: ", err);
@@ -233,6 +238,11 @@ export default class MImageBody extends React.Component {
                         isClean: false,
                     });
                 }
+            }).catch(err => {
+                this.setState({
+                    isClean: false,
+                    error: err.error,
+                });
             });
         } else if (content.url !== undefined && this.state.contentUrl === null) {
             ContentScanner.scanContent(content).then(result => {
@@ -242,6 +252,11 @@ export default class MImageBody extends React.Component {
                         isClean: true,
                     })
                 }
+            }).catch(err => {
+                this.setState({
+                    isClean: false,
+                    error: err.error,
+                });
             });
         } else {
             this.setState({
@@ -414,8 +429,8 @@ export default class MImageBody extends React.Component {
         if (this.state.error !== null) {
             return (
                 <span className="mx_MImageBody">
-                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16"  alt="warning"/>
-                    { _t("Error decrypting image") }
+                    <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16"  alt="warning"/>
+                    { _t(this.state.error) }
                 </span>
             );
         }
@@ -435,7 +450,7 @@ export default class MImageBody extends React.Component {
         } else if (isClean === false) {
             return (
                 <span className="mx_MFileBody" ref="body">
-                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16"  alt="warning"/>
+                    <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16"  alt="warning"/>
                     { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
                 </span>
             );

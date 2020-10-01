@@ -338,7 +338,6 @@ export default class GeneralUserSettingsTab extends React.Component {
                 {this._renderProfileSection()}
                 {this._renderAccountSection()}
                 {this._renderLanguageSection()}
-                {this._renderIntegrationManagerSection() /* Has its own title */}
                 { accountManagementSection }
             </div>
         );

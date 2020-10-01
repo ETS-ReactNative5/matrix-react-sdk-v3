@@ -62,7 +62,7 @@ export default class ContentScanner {
                     return data;
                 }).catch(err => {
                     console.error(err);
-                    return this.generateError(false, 'Error: Unable to join the MCS server');
+                    throw this.generateError(false, 'Error: Unable to join the MCS server');
                 }));
         } else if (content.url !== undefined) {
             const fileUrl = content.url.split('//')[1];
@@ -75,10 +75,10 @@ export default class ContentScanner {
                     return data;
                 }).catch(err => {
                     console.error(err);
-                    return this.generateError(false, "Error: Cannot fetch the file");
+                    throw this.generateError(false, "Error: Cannot fetch the file");
                 }));
         } else {
-            return this.generateError(false, 'Error: This is not a matrix content');
+            throw this.generateError(false, 'Error: This is not a matrix content');
         }
     }
 
@@ -107,7 +107,7 @@ export default class ContentScanner {
             }
             return url;
         } else {
-            return this.generateError(false, 'Error: This is not a matrix content');
+            throw this.generateError(false, 'Error: This is not a matrix content');
         }
     }
 
@@ -125,7 +125,7 @@ export default class ContentScanner {
         } else if (content.file !== undefined) {
             file = content.file;
         } else {
-            return this.generateError(false, 'Error: This is not a matrix content');
+            throw this.generateError(false, 'Error: This is not a matrix content');
         }
 
         if (file) {
@@ -136,7 +136,7 @@ export default class ContentScanner {
                 return new Blob([], {type: 'application/octet-stream'});
             }
         } else {
-            return this.generateError(false, 'Error: This is not a matrix content');
+            throw this.generateError(false, 'Error: This is not a matrix content');
         }
     }
 }

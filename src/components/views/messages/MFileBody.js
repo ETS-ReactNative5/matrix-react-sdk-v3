@@ -330,7 +330,7 @@ export default class MFileBody extends React.Component {
                 } else {
                     return (
                         <span className="mx_MFileBody" ref="body">
-                            <img src={require("../../../../res/img/warning.svg")} width="16" height="16"  alt="warning"/>
+                            <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16"  alt="warning"/>
                             { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
                         </span>
                     );
@@ -452,7 +452,7 @@ export default class MFileBody extends React.Component {
             } else {
                 return (
                     <span className="mx_MFileBody" ref="body">
-                        <img src={require("../../../../res/img/warning.svg")} width="16" height="16" />
+                        <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16" />
                         { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
                     </span>
                 );

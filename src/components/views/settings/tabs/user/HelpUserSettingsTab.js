@@ -71,14 +71,6 @@ export default class HelpUserSettingsTab extends React.Component {
         Modal.createTrackedDialog('Bug Report Dialog', '', BugReportDialog, {});
     };
 
-    _onStartBotChat = (e) => {
-        this.props.closeSettingsFn();
-        createRoom({
-            dmUserId: SdkConfig.get().welcomeUserId,
-            andView: true,
-        });
-    };
-
     _showSpoiler = (event) => {
         const target = event.target;
         target.innerHTML = target.getAttribute('data-spoiler');
@@ -141,11 +133,12 @@ export default class HelpUserSettingsTab extends React.Component {
     }
 
     render() {
+        const brand = SdkConfig.get().brand;
         const baseUrl = SdkConfig.get().base_host_url;
         const faqLink = SdkConfig.get().generic_endpoints.faq;
-        let faqText = _t('For help with using Tchap, click <a>here</a>.', {}, {
+        let faqText = _t('For help with using %(brand)s, click <a>here</a>.', { brand }, {
             'a': (sub) =>
-                <a href={baseUrl + faqLink} rel="noreferrer noopener" target="_blank">{sub}</a>,
+                <a href={baseUrl + faqLink} rel="noreferrer nofollow noopener" target="_blank">{sub}</a>,
         });
 
         const appVersion = this.state.appVersion || 'unknown';

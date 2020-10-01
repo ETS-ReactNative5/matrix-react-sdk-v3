@@ -116,7 +116,7 @@ export default class MAudioBody extends React.Component {
         } else if (isClean === false) {
             return (
                 <span className="mx_MFileBody" ref="body">
-                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16" />
+                    <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16" />
                     { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
                 </span>
             );
@@ -125,7 +125,7 @@ export default class MAudioBody extends React.Component {
         if (this.state.error !== null) {
             return (
                 <span className="mx_MAudioBody">
-                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16" />
+                    <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16" />
                     { _t("Error decrypting audio") }
                 </span>
             );

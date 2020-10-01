@@ -160,7 +160,7 @@ export default class RoomHeader extends React.Component {
     }
 
     render() {
-        const RoomAvatar = sdk.getComponent("avatars.RoomAvatar");
+        //const RoomAvatar = sdk.getComponent("avatars.RoomAvatar");
 
         let searchStatus = null;
         let cancelButton = null;
@@ -218,14 +218,14 @@ export default class RoomHeader extends React.Component {
         let avatarSize = 44;
         let memberCount = null;
         let mainAvatarClasses = "mx_RoomHeader_avatar";
-        if (!dmUserId) {
+/*        if (!dmUserId) {
             mainAvatarClasses += " mx_RoomHeader_avatar_room";
             if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
                 avatarSize = 40;
                 mainAvatarClasses += " mx_RoomHeader_avatar_unrestricted"
             }
             memberCount = (<div className="tc_RoomHeader_memberCount">{ `${this.props.room.getJoinedMemberCount()} ${_t("Members")}` }</div>);
-        }
+        }*/
 
         let roomAvatar;
         if (this.props.room) {

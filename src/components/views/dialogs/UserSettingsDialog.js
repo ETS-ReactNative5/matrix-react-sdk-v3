@@ -81,6 +81,12 @@ export default class UserSettingsDialog extends React.Component {
             "mx_UserSettingsDialog_settingsIcon",
             <GeneralUserSettingsTab closeSettingsFn={this.props.onFinished} />,
         ));
+        tabs.push(new Tab(
+            USER_APPEARANCE_TAB,
+            _td("Appearance"),
+            "mx_UserSettingsDialog_appearanceIcon",
+            <AppearanceUserSettingsTab />,
+        ));
         if (SettingsStore.getValue(UIFeature.Flair)) {
             tabs.push(new Tab(
                 USER_FLAIR_TAB,
@@ -117,7 +123,7 @@ export default class UserSettingsDialog extends React.Component {
             "mx_UserSettingsDialog_securityIcon",
             <SecurityUserSettingsTab closeSettingsFn={this.props.onFinished} />,
         ));
-        if (SdkConfig.get()['showLabsSettings'] || SettingsStore.getLabsFeatures().length > 0) {
+        if (SdkConfig.get()['showLabsSettings']) {
             tabs.push(new Tab(
                 USER_LABS_TAB,
                 _td("Labs"),
