@@ -52,6 +52,7 @@ import IconizedContextMenu, {
 } from "../context_menus/IconizedContextMenu";
 import { CommunityPrototypeStore, IRoomProfile } from "../../../stores/CommunityPrototypeStore";
 import { UPDATE_EVENT } from "../../../stores/AsyncStore";
+import DMRoomMap from "../../../utils/DMRoomMap";
 
 interface IProps {
     room: Room;
@@ -407,12 +408,19 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
             </IconizedContextMenu>;
         } else if (this.state.generalMenuPosition) {
             const roomTags = RoomListStore.instance.getTagsForRoom(this.props.room);
-
+            const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
+            const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(this.props.room.roomId));
             const isFavorite = roomTags.includes(DefaultTagID.Favourite);
             const favouriteLabel = isFavorite ? _t("Favourited") : _t("Favourite");
 
-            const isLowPriority = roomTags.includes(DefaultTagID.LowPriority);
-            const lowPriorityLabel = _t("Low Priority");
+            let multiRoomOpts = null;
+            if (!isDMRoom) {
+                multiRoomOpts = (<IconizedContextMenuOption
+                    onClick={this.onOpenRoomSettings}
+                    label={_t("Settings")}
+                    iconClassName="mx_RoomTile_iconSettings"
+                />);
+            }
 
             contextMenu = <IconizedContextMenu
                 {...contextMenuBelow(this.state.generalMenuPosition)}
@@ -427,18 +435,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                         label={favouriteLabel}
                         iconClassName="mx_RoomTile_iconStar"
                     />
-                    <IconizedContextMenuCheckbox
-                        onClick={(e) => this.onTagRoom(e, DefaultTagID.LowPriority)}
-                        active={isLowPriority}
-                        label={lowPriorityLabel}
-                        iconClassName="mx_RoomTile_iconArrowDown"
-                    />
-
-                    <IconizedContextMenuOption
-                        onClick={this.onOpenRoomSettings}
-                        label={_t("Settings")}
-                        iconClassName="mx_RoomTile_iconSettings"
-                    />
+                    { multiRoomOpts }
                 </IconizedContextMenuOptionList>
                 <IconizedContextMenuOptionList red>
                     <IconizedContextMenuOption

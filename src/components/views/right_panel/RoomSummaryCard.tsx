@@ -40,9 +40,8 @@ import TextWithTooltip from "../elements/TextWithTooltip";
 import BaseAvatar from "../avatars/BaseAvatar";
 import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
 import WidgetStore, {IApp} from "../../../stores/WidgetStore";
-import { E2EStatus } from "../../../utils/ShieldUtils";
-import RoomContext from "../../../contexts/RoomContext";
-import {UIFeature} from "../../../settings/UIFeature";
+import {MatrixClientPeg} from "../../../MatrixClientPeg";
+import DMRoomMap from "../../../utils/DMRoomMap";
 
 interface IProps {
     room: Room;
@@ -199,6 +198,23 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
         });
     };
 
+    const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
+    const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
+
+    let multiRoomOpts = null;
+    if (!isDMRoom) {
+        multiRoomOpts = (
+            <>
+                <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
+                    {_t("Share room")}
+                </Button>
+                <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
+                    {_t("Room settings")}
+                </Button>
+            </>
+        );
+    }
+
     const header = <React.Fragment>
         <div className="mx_RoomSummaryCard_avatar" role="presentation">
             <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
@@ -217,12 +233,7 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
             <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
                 {_t("Show files")}
             </Button>
-            <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
-                {_t("Share room")}
-            </Button>
-            <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
-                {_t("Room settings")}
-            </Button>
+            { multiRoomOpts }
         </Group>
     </BaseCard>;
 };
