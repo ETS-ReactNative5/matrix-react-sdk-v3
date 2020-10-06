@@ -16,7 +16,7 @@ limitations under the License.
 
 import { TagID } from "./models";
 
-const TILE_HEIGHT_PX = 44;
+const TILE_HEIGHT_PX = 48;
 
 interface ISerializedListLayout {
     numTiles: number;

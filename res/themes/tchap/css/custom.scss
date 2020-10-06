@@ -1,7 +1,4 @@
-.mx_BaseAvatar_initial {
-    z-index: 1;
-}
-
+// Room Directory
 .tc_RoomDirectory_roomPreview {
     padding: 7px 4px 7px 4px !important;
 }
@@ -14,42 +11,8 @@
     width: 93px;
 }
 
-.mx_EntityTile_name_expired {
-    color: $primary-fg-color;
-    opacity: 0.25;
-}
 
-.mx_EntityTile_unavailable .mx_EntityTile_avatar,
-.mx_EntityTile_unavailable .mx_EntityTile_name,
-.mx_EntityTile_offline_beenactive .mx_EntityTile_avatar,
-.mx_EntityTile_offline_beenactive .mx_EntityTile_name,
-.mx_EntityTile_online_beenactive .mx_EntityTile_avatar,
-.mx_EntityTile_online_beenactive .mx_EntityTile_name,
-.mx_EntityTile_offline_neveractive .mx_EntityTile_avatar,
-.mx_EntityTile_offline_neveractive .mx_EntityTile_name {
-    opacity: 0.9;
-}
-
-.mx_InviteDialog_warningText {
-    margin-right: 45px;
-    color: $room-type-restricted;
-    font-size: 14px;
-}
-
-.tc_PasswordHelper {
-    position: relative;
-    top: 7px;
-    left: 5px;
-}
-
-.mx_cryptoEvent {
-    &.mx_cryptoEvent_icon::after {
-        background-image: url("$(res)/img/tchap/e2e/padlock-encrypted_normal.svg");
-        width: 12px;
-        height: 16px;
-    }
-}
-
+// Access Rules Big Event
 .mx_accessRulesEvent {
     display: grid;
     grid-template-columns: 24px minmax(0, 1fr) min-content;
@@ -80,96 +43,339 @@
     }
 }
 
-.mx_TopLeftMenuButton_chevron {
-    margin: 0 7px 0 0;
-    min-width: 10px;
-}
 
-.mx_FormButton {
-    &.mx_AccessibleButton_kind_primary {
-        color: $primary-bg-color;
-        background-color: $accent-bg-color;
-    }
-}
-
-.mx_VerificationShowSas {
-    .mx_Dialog_buttons {
-        button.mx_VerificationShowSas_matchButton {
-            color: $primary-bg-color;
-        }
-    }
+// Password Helper "?"
+.tc_PasswordHelper {
+    position: relative;
+    top: 7px;
+    left: 5px;
 }
 
 
-//==================== Design V3 ====================//
-
-// MCS
+// MCS Warning Icon Position
 .tc_MCS_error {
     margin-bottom: -2px;
     margin-right: 8px;
 }
 
-// Left Panel Main
+
+// Encryption Informations (post-login & pre-logout dialogs)
+.tc_ThreeColumn_block {
+    margin-top: 30px;
+    margin-bottom: -40px;
+}
+
+.tc_ThreeColumn_block_image {
+    width: 100px;
+    height: 100px;
+    display: inline-flex;
+}
+
+.tc_ThreeColumn_block_image img {
+    margin: 0 auto;
+}
+
+.tc_ThreeColumn_block_content {
+    padding: 0 30px 0 30px;
+    margin-bottom: 10px;
+}
+
+.tc_ThreeColumn_block_content p {
+    margin-bottom: 20px;
+}
+
+.tc_ThreeColumn_block_bordered {
+    width: calc(33% - 1px);
+    border-right: 1px solid $input-darker-fg-color;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    display: inline-flex;
+}
+
+.tc_ThreeColumn_block_last {
+    width: calc(33% - 1px);
+    position: relative;
+    text-align: center;
+    display: inline-flex;
+}
+
+.tc_ThreeColumn_block_separator {
+    position: absolute;
+    right: 0;
+    top: 38%;
+    margin-right: -10px;
+    background: white;
+    color: $input-darker-fg-color;
+}
+
+
+// Link Sharing "?"
+.tc_LinkSharing_Helper {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+
+// Room Creation UI
+.tc_CreateRoomDialog_RoomOption > div {
+    background-color: $secondary-accent-color;
+    border-radius: 6px;
+    margin: 8px 0 8px 0;
+    padding: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.tc_CreateRoomDialog_RoomOption_private {
+    border: 0 solid $room-type-restricted;
+    color: $room-type-restricted;
+    &::before {
+        width: 12px;
+        height: 16px;
+        content: "";
+        display: inline-block;
+        vertical-align: sub;
+        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-private.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-right: 4px;
+    }
+}
+
+.tc_CreateRoomDialog_RoomOption_external {
+    border: 0 solid $room-type-unrestricted;
+    color: $room-type-unrestricted;
+    &::before {
+        width: 12px;
+        height: 16px;
+        content: "";
+        display: inline-block;
+        vertical-align: sub;
+        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-external.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-right: 4px;
+    }
+}
+
+.tc_CreateRoomDialog_RoomOption_public {
+    border: 0 solid $room-type-forum;
+    color: $room-type-forum;
+    &::before {
+        width: 12px;
+        height: 14px;
+        content: "";
+        display: inline-block;
+        vertical-align: sub;
+        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-public.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-right: 4px;
+    }
+}
+
+.tc_CreateRoomDialog_RoomOption_descr {
+    color: grey;
+    font-weight: normal;
+    font-size: 12px;
+    padding: 0 4px;
+}
+
+.tc_CreateRoomDialog_RoomOption_suboption {
+    display: none;
+    color: grey;
+    font-weight: normal;
+    font-size: 12px;
+    padding: 10px 4px 0 4px;
+}
+
+.tc_CreateRoomDialog_RoomOption_selected {
+    border-width: 2px;
+    .tc_CreateRoomDialog_RoomOption_suboption {
+        display: block;
+    }
+}
+
+
+// Left Panel
+.mx_RoomSearch.mx_RoomSearch_focused > input,
+.mx_RoomSearch.mx_RoomSearch_hasQuery > input {
+    color: $secondary-fg-color !important;
+}
+
+.mx_RoomSearch.mx_RoomSearch_focused, .mx_RoomSearch.mx_RoomSearch_hasQuery {
+    background-color: $accent-bg-color;
+    -webkit-box-shadow: 0 0 4px 4px $accent-secondary;
+    box-shadow: 0 0 4px 4px $accent-secondary;
+    border-color: $secondary-fg-color;
+}
+
+.mx_RoomSublist_resizeBox {
+    &:hover, &.mx_RoomSublist_hasMenuOpen {
+        .mx_RoomSublist_resizerHandle {
+            opacity: 0.8;
+            background-color: $secondary-fg-color;
+        }
+    }
+}
+
+.mx_RoomSublist .mx_RoomSublist_resizeBox .mx_RoomSublist_resizerHandle {
+    &:hover,
+    &:focus {
+        background-color: $secondary-fg-color;
+    }
+}
+
+
+// Left Panel > Room List
 .mx_LeftPanel_roomListContainer {
     background-color: $accent-color !important;
     color: #f3f8fd;
 }
 
-.mx_LeftPanel_explore .mx_AccessibleButton {
-    color: $focus-bg-color;
-    &::before {
-        mask: url('$(res)/img/tchap/explore.svg');
-        background-color: $focus-bg-color;
+.mx_RoomTile {
+    &.mx_RoomTile_selected {
+        background-color: $accent-secondary;
     }
-    &:hover {
+    &:hover,
+    &:focus-within,
+    &.mx_RoomTile_hasMenuOpen {
         background-color: $accent-bg-color;
+        .tc_RoomTile_roomType {
+            display: none;
+        }
+    }
+    .mx_RoomTile_menuButton::before {
+        mask-image: url('$(res)/img/tchap/roomlist/context-menu.svg');
+    }
+    .mx_RoomTile_menuButton,
+    .mx_RoomTile_notificationsButton {
+        &::before {
+            background: $secondary-fg-color;
+        }
     }
 }
 
-.mx_LeftPanel_exploreAndFilterRow input::placeholder {
-    color: $focus-bg-color !important;
+.mx_RoomTile_iconBell::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications.svg');
+}
+.mx_RoomTile_iconBellDot::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications-default.svg');
+}
+.mx_RoomTile_iconBellCrossed::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications-off.svg');
+}
+.mx_RoomTile_iconBellMentions::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications-dm.svg');
 }
 
-.mx_LeftPanel_exploreAndFilterRow {
-    border-bottom: 1px solid $accent-secondary;
-}
 
-.tc_LeftPanel_Bottom {
-    display: flex;
-    height: 80px;
-    border-top: 1px solid $accent-secondary;
-}
-
-.tc_LeftPanel_Bottom_links {
+// Left Panel > Room List > Room Type Word
+.tc_RoomTile_roomType {
     position: relative;
-    width: 100%;
-    height: 20px;
-    margin: 30px -55px 0 20px;
-    overflow: hidden;
-    text-align: right;
-    color: $focus-bg-color;
-    & a {
-        color: $focus-bg-color;
-        text-decoration: none;
-    }
+    right: 0;
+    padding: 7px 10px 0 8px;
+    font-size: 12px;
+}
+.tc_Room_roomType_direct {
+    color: $room-type-direct;
+}
+.tc_Room_roomType_restricted {
+    color: $room-type-restricted;
+}
+.tc_Room_roomType_unrestricted {
+    color: $room-type-unrestricted;
+}
+.tc_Room_roomType_forum {
+    color: $room-type-forum;
 }
 
+
+// Left Panel > Room List > Room Type Avatar
+.mx_DecoratedRoomAvatar .mx_BaseAvatar .mx_BaseAvatar_initial {
+    z-index: 1;
+}
+
+.tc_RoomTile_avatar_hexa {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    z-index: 1;
+}
+
+.tc_RoomTile_avatar_hexa img {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+
+.tc_RoomTile_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    padding: 2px;
+}
+
+
+// Left Panel > Room List > Room Type Icon
+// SEE DecoratedRoomAvatar
+
+
+
+// Left Panel > Bottom Logo & Links
 .tc_LeftPanel_Bottom_logo {
     position: relative;
-    margin: 21px 10px 0 20px;
+    display: inline-block;
+    margin: 12px 16px 6px 20px;
     & img {
-        height: 40px;
+        height: 44px;
     }
 }
 
 .tc_LeftPanel_Bottom_logo_collapsed {
     position: relative;
-    margin: 0 0 2px 7px;
+    display: inline-block;
+    margin: 12px 16px 6px 20px;
     & img {
-        height: 29px;
+        height: 20px;
     }
 }
 
+.tc_LeftPanel_Bottom_links {
+    display: inline-block;
+    position: absolute;
+    padding-top: 26px;
+    a {
+        text-decoration: none;
+        color: $secondary-fg-color;
+    }
+}
+
+
+// Right Panel > Room Summary Card
+.tc_RoomSummaryCard_avatar_hexa_unrestricted {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    .mx_BaseAvatar {
+        background-image: url('$(res)/img/cccccc.png');
+        background-position: center;
+        padding: 2px;
+    }
+}
+
+.tc_RoomSummaryCard_avatar_hexa_unrestricted img,
+.tc_RoomSummaryCard_avatar_hexa img{
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+
+.tc_RoomSummaryCard_avatar_hexa {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/*
 .tc_LeftPanel_Button_cross {
     margin-right: 19px;
     margin-top: -76px;
@@ -196,32 +402,9 @@
     width: 100% !important;
 }
 
-// Top Bar
-.mx_TopLeftMenuButton {
-    background-color: $accent-color;
-    color: $primary-bg-color;
-    border-bottom: none;
-    padding: 10px 4px;
-}
-
-.mx_RoomSearch {
-    .mx_RoomSearch_input {
-        color: $primary-bg-color !important;
-    }
-    &.mx_RoomSearch_hasQuery {
-        border-color: $accent-color;
-    }
-    &.mx_RoomSearch_focused {
-        box-shadow: 0 0 4px 4px $accent-secondary;
-        border-color: transparent;
-    }
-    &.mx_RoomSearch_focused, &.mx_RoomSearch_hasQuery {
-        background-color: $accent-bg-color;
-    }
-}
 
 // Room List / SubList
-.mx_RoomSubList_label > span {
+/*.mx_RoomSubList_label > span {
     color: $focus-bg-color;
     font-weight: bold;
     font-size: 14px;
@@ -250,10 +433,18 @@
 .mx_RoomSubList_labelContainer {
     padding-top: 10px;
     border-radius: 4px;
-}
+}*/
+
+
+
+
+
+
+
+
 
 // Room Tile
-.mx_RoomTile {
+/*.mx_RoomTile {
     min-height: 60px;
     margin-top: -1px;
     &:focus {
@@ -378,10 +569,20 @@
     top: 12px;
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
-}
+}*/
+
+
+
+
+
+
+
+
+
+
 
 // Context Menus
-.mx_ContextualMenu_top {
+/*.mx_ContextualMenu_top {
     -webkit-box-shadow: 2px 2px 2px 0 #dddddd;
     box-shadow: 2px 2px 2px 0 #dddddd;
 }
@@ -405,10 +606,19 @@
 
 .mx_RoomTileContextMenu_separator {
     border-color: $accent-secondary;
-}
+}*/
+
+
+
+
+
+
+
+
+
 
 // Room Header
-.mx_RoomHeader_wrapper {
+/*.mx_RoomHeader_wrapper {
     height: 72px;
 }
 
@@ -489,41 +699,19 @@
     }
 }
 
-.tc_Room_roomType_direct {
-    color: $room-type-direct;
-}
-.tc_Room_roomType_restricted {
-    color: $room-type-restricted;
-}
-.tc_Room_roomType_unrestricted {
-    color: $room-type-unrestricted;
-}
-.tc_Room_roomType_forum {
-    color: $room-type-forum;
-}
+*/
 
-// Message Composer
-.mx_RoomStatusBar_isAlone {
-    height: 50px;
-    line-height: 20px;
-    opacity: 0.8;
-}
 
-.tc_RoomStatusBar_reinvite {
-    font-size: inherit;
-    padding: 0 15px;
-    margin-top: 13px;
-}
 
-.mx_ResizeHandle.mx_ResizeHandle_horizontal > div {
-    width: 0;
-}
 
-.mx_EventTile_avatar > .mx_BaseAvatar > .mx_BaseAvatar_initial {
-    z-index: 0;
-}
 
-.tc_PlusContextMenu {
+
+
+
+
+
+
+/*.tc_PlusContextMenu {
     height: 104px;
     color: $focus-bg-color;
     background-color: $accent-bg-color;
@@ -569,160 +757,5 @@
         mask-image: url('$(res)/img/tchap/feather-customised/check.svg');
         background-color: $primary-bg-color;
     }
-}
+}*/
 
-.mx_BasicMessageComposer_input {
-    &:focus {
-        border-color: $notice-secondary-color !important;
-    }
-}
-
-// Event Tile
-.mx_EventTile:hover.mx_EventTile_verified .mx_EventTile_line {
-    border-left: $accent-color 5px solid;
-}
-
-.mx_EventTile:hover.mx_EventTile_unverified .mx_EventTile_line {
-    border-left: $accent-color 5px solid;
-}
-
-.mx_EventTile:hover.mx_EventTile_unknown .mx_EventTile_line {
-    border-left: $accent-color 5px solid;
-}
-
-// Link Sharing UI
-.tc_LinkSharing_Helper {
-    position: relative;
-    top: 5px;
-    left: 5px;
-}
-
-// Room Creation UI
-.tc_CreateRoomDialog_RoomOption > div {
-    background-color: $secondary-accent-color;
-    border-radius: 6px;
-    margin: 8px 0 8px 0;
-    padding: 4px;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.tc_CreateRoomDialog_RoomOption_private {
-    border: 0 solid $room-type-restricted;
-    color: $room-type-restricted;
-    &::before {
-        width: 12px;
-        height: 16px;
-        content: "";
-        display: inline-block;
-        vertical-align: sub;
-        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-private.svg");
-        background-repeat: no-repeat;
-        background-size: 100%;
-        margin-right: 4px;
-    }
-}
-
-.tc_CreateRoomDialog_RoomOption_external {
-    border: 0 solid $room-type-unrestricted;
-    color: $room-type-unrestricted;
-    &::before {
-        width: 12px;
-        height: 16px;
-        content: "";
-        display: inline-block;
-        vertical-align: sub;
-        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-external.svg");
-        background-repeat: no-repeat;
-        background-size: 100%;
-        margin-right: 4px;
-    }
-}
-
-.tc_CreateRoomDialog_RoomOption_public {
-    border: 0 solid $room-type-forum;
-    color: $room-type-forum;
-    &::before {
-        width: 12px;
-        height: 14px;
-        content: "";
-        display: inline-block;
-        vertical-align: sub;
-        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-public.svg");
-        background-repeat: no-repeat;
-        background-size: 100%;
-        margin-right: 4px;
-    }
-}
-
-.tc_CreateRoomDialog_RoomOption_descr {
-    color: grey;
-    font-weight: normal;
-    font-size: 12px;
-    padding: 0 4px;
-}
-
-.tc_CreateRoomDialog_RoomOption_suboption {
-    display: none;
-    color: grey;
-    font-weight: normal;
-    font-size: 12px;
-    padding: 10px 4px 0 4px;
-}
-
-.tc_CreateRoomDialog_RoomOption_selected {
-    border-width: 2px;
-    .tc_CreateRoomDialog_RoomOption_suboption {
-        display: block;
-    }
-}
-
-// Encryption Informations (post-login pre-logout dialogs)
-.tc_ThreeColumn_block {
-    margin-top: 30px;
-    margin-bottom: -40px;
-}
-
-.tc_ThreeColumn_block_image {
-    width: 100px;
-    height: 100px;
-    display: inline-flex;
-}
-
-.tc_ThreeColumn_block_image img {
-    margin: 0 auto;
-}
-
-.tc_ThreeColumn_block_content {
-    padding: 0 30px 0 30px;
-    margin-bottom: 10px;
-}
-
-.tc_ThreeColumn_block_content p {
-    margin-bottom: 20px;
-}
-
-.tc_ThreeColumn_block_bordered {
-    width: calc(33% - 1px);
-    border-right: 1px solid $input-darker-fg-color;
-    height: 100%;
-    position: relative;
-    text-align: center;
-    display: inline-flex;
-}
-
-.tc_ThreeColumn_block_last {
-    width: calc(33% - 1px);
-    position: relative;
-    text-align: center;
-    display: inline-flex;
-}
-
-.tc_ThreeColumn_block_separator {
-    position: absolute;
-    right: 0;
-    top: 38%;
-    margin-right: -10px;
-    background: white;
-    color: $input-darker-fg-color;
-}

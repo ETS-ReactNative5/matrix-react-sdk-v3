@@ -53,6 +53,8 @@ import IconizedContextMenu, {
 import { CommunityPrototypeStore, IRoomProfile } from "../../../stores/CommunityPrototypeStore";
 import { UPDATE_EVENT } from "../../../stores/AsyncStore";
 import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from "../../../tchap/Tchap";
+import TextWithTooltip from "../elements/TextWithTooltip";
 
 interface IProps {
     room: Room;
@@ -460,6 +462,37 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         );
     }
 
+    private renderRoomTypeElement(): React.ReactElement{
+        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        let classes = "tc_RoomTile_roomType";
+        let translation = "";
+        if (dmUserId) {
+            classes += " tc_Room_roomType_direct";
+            translation = _t("Direct");
+        } else if (Tchap.isRoomForum(this.props.room.roomId)) {
+            classes += " tc_Room_roomType_forum";
+            translation = _t("Forum");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
+            classes += " tc_Room_roomType_restricted";
+            translation = _t("Private");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
+            classes += " tc_Room_roomType_unrestricted";
+            translation = _t("External");
+        } else {
+            translation = '\u00A0';
+        }
+        if (!this.props.isMinimized) {
+            return (
+                <React.Fragment>
+                    <div className={classes}>{translation}</div>
+                </React.Fragment>
+            );
+        } else {
+            return null;
+        }
+
+    }
+
     public render(): React.ReactElement {
         const classes = classNames({
             'mx_RoomTile': true,
@@ -574,6 +607,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                             {roomAvatar}
                             {nameContainer}
                             {badge}
+                            {this.renderRoomTypeElement()}
                             {this.renderGeneralMenu()}
                             {this.renderNotificationsMenu(isActive)}
                         </Button>

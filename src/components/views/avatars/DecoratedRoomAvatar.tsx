@@ -30,6 +30,7 @@ import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import {_t} from "../../../languageHandler";
 import TextWithTooltip from "../elements/TextWithTooltip";
 import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from '../../../tchap/Tchap';
 
 interface IProps {
     room: Room;
@@ -189,15 +190,24 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
             />;
         }
 
+        let roomType;
+        roomType = Tchap.getAccessRules(this.props.room.roomId);
+        let avatarSize = this.props.avatarSize;
+        if (roomType === "unrestricted") {
+            avatarSize -= 4;
+        }
+
         const classes = classNames("mx_DecoratedRoomAvatar", {
             mx_DecoratedRoomAvatar_cutout: icon,
+            tc_RoomTile_avatar_hexa: roomType !== "direct",
+            tc_RoomTile_avatar_unrestricted: roomType === "unrestricted",
         });
 
         return <div className={classes}>
             <RoomAvatar
                 room={this.props.room}
-                width={this.props.avatarSize}
-                height={this.props.avatarSize}
+                width={avatarSize}
+                height={avatarSize}
                 oobData={this.props.oobData}
                 viewAvatarOnClick={this.props.viewAvatarOnClick}
             />

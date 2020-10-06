@@ -42,6 +42,7 @@ import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
 import WidgetStore, {IApp} from "../../../stores/WidgetStore";
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from "../../../tchap/Tchap";
 
 interface IProps {
     room: Room;
@@ -201,8 +202,11 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
     const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
     const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
 
+    let roomCardAvatarClasses = "mx_RoomSummaryCard_avatar";
     let multiRoomOpts = null;
     if (!isDMRoom) {
+        roomCardAvatarClasses += Tchap.getAccessRules(room.roomId) === "unrestricted" ?
+            " tc_RoomSummaryCard_avatar_hexa_unrestricted" : " tc_RoomSummaryCard_avatar_hexa";
         multiRoomOpts = (
             <>
                 <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
@@ -216,7 +220,7 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
     }
 
     const header = <React.Fragment>
-        <div className="mx_RoomSummaryCard_avatar" role="presentation">
+        <div className={roomCardAvatarClasses} role="presentation">
             <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
         </div>
 
