@@ -25,7 +25,6 @@ import AccessibleButton from '../elements/AccessibleButton';
 import MatrixClientContext from "../../../contexts/MatrixClientContext";
 import {useEventEmitter} from "../../../hooks/useEventEmitter";
 import {toPx} from "../../../utils/units";
-import Tchap from "../../../tchap/Tchap";
 
 interface IProps {
     name: string; // The name (first initial used as default)
@@ -108,7 +107,7 @@ const BaseAvatar = (props: IProps) => {
     const [imageUrl, onError] = useImageUrl({url, urls});
 
     let roomAvatarClasses = "mx_BaseAvatar_initial";
-    if (idName.startsWith("!")) roomAvatarClasses += " tc_RoomTile_avatar_hexa";
+    if (idName && idName.startsWith("!")) roomAvatarClasses += " tc_RoomTile_avatar_hexa";
 
     if (!imageUrl && defaultToInitialLetter) {
         const initialLetter = AvatarLogic.getInitialLetter(name);

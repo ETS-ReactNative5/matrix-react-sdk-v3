@@ -382,12 +382,6 @@ export default class AppearanceUserSettingsTab extends React.Component<IProps, I
                 useCheckbox={true}
                 onChange={(checked) => this.setState({useIRCLayout: checked})}
             />
-            <SettingsFlag
-                name="useSystemFont"
-                level={SettingLevel.DEVICE}
-                useCheckbox={true}
-                onChange={(checked) => this.setState({useSystemFont: checked})}
-            />
         </div>;
     }
 

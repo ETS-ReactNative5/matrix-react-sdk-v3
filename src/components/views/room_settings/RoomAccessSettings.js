@@ -131,6 +131,7 @@ export default class RoomAccessSettings extends React.Component {
                 link_sharing: joinRules === "public",
                 joinRules,
             });
+            MatrixClientPeg.get().emit("RoomState.joinRules", joinRules);
         }).catch((err) => {
             console.error(err);
             this.setState({

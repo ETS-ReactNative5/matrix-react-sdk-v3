@@ -184,14 +184,6 @@ export default class PreferencesUserSettingsTab extends React.Component {
                     <span className="mx_SettingsTab_subheading">{_t("Timeline")}</span>
                     {this._renderGroup(PreferencesUserSettingsTab.TIMELINE_SETTINGS)}
                 </div>
-
-                <div className="mx_SettingsTab_section">
-                    <span className="mx_SettingsTab_subheading">{_t("General")}</span>
-                    {this._renderGroup(PreferencesUserSettingsTab.GENERAL_SETTINGS)}
-                    {minimizeToTrayOption}
-                    {autoHideMenuOption}
-                    {autoLaunchOption}
-                </div>
             </div>
         );
     }

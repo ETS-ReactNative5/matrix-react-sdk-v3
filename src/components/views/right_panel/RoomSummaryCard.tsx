@@ -58,6 +58,13 @@ interface IButtonProps {
     onClick(): void;
 }
 
+enum Icon {
+    // Note: the names here are used in CSS class names
+    None = "NONE", // ... except this one
+    Encrypted = "ENCRYPTED",
+    Forum = "FORUM",
+}
+
 const Button: React.FC<IButtonProps> = ({ children, className, onClick }) => {
     return <AccessibleButton
         className={classNames("mx_BaseCard_Button mx_RoomSummaryCard_Button", className)}
@@ -81,6 +88,15 @@ export const useWidgets = (room: Room) => {
 
     return apps;
 };
+
+const tooltipText = (variant: Icon) => {
+    switch (variant) {
+        case Icon.Forum:
+            return _t("Forum room");
+        case Icon.Encrypted:
+            return _t("Encrypted room");
+    }
+}
 
 const AppsSection: React.FC<IAppsSectionProps> = ({ room }) => {
     const cli = useContext(MatrixClientContext);
@@ -199,19 +215,50 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
         });
     };
 
+    const [joinRules, setJoinRules] = useState(Tchap.getJoinRules(room.roomId));
+    const [accessRules, setAccessRules] = useState(Tchap.getAccessRules(room.roomId));
+    const [isForumRoom, setForumRoom] = useState(Tchap.isRoomForum(room.roomId));
+
+    let icon;
+    if (isForumRoom) {
+        icon = Icon.Forum
+    } else {
+        icon = Icon.Encrypted
+    }
+    let roomIcon: React.ReactNode;
+    if (icon !== Icon.None) {
+        roomIcon  = (
+            <TextWithTooltip
+                tooltip={tooltipText(icon)}
+                class={`tc_DecoratedRoomSummaryCard_icon tc_DecoratedRoomSummaryCard_icon_${icon.toLowerCase()}`}
+            />
+        );
+    }
+
     const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
     const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
 
     let roomCardAvatarClasses = "mx_RoomSummaryCard_avatar";
     let multiRoomOpts = null;
     if (!isDMRoom) {
-        roomCardAvatarClasses += Tchap.getAccessRules(room.roomId) === "unrestricted" ?
+        // Set-up avatar custom properties.
+        roomCardAvatarClasses += accessRules === "unrestricted" ?
             " tc_RoomSummaryCard_avatar_hexa_unrestricted" : " tc_RoomSummaryCard_avatar_hexa";
-        multiRoomOpts = (
-            <>
+
+        // Show share button only if a room is a forum or if the join_rules is public.
+        let shareRoom = null;
+        if (isForumRoom || joinRules === "public") {
+            shareRoom = (
                 <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
                     {_t("Share room")}
                 </Button>
+            );
+        }
+
+        // Show room seting only if is not a direct room.
+        multiRoomOpts = (
+            <>
+                { shareRoom }
                 <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
                     {_t("Room settings")}
                 </Button>
@@ -220,6 +267,7 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
     }
 
     const header = <React.Fragment>
+        { roomIcon }
         <div className={roomCardAvatarClasses} role="presentation">
             <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
         </div>

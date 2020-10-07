@@ -70,6 +70,23 @@ interface IState {
     notificationsMenuPosition: PartialDOMRect;
     generalMenuPosition: PartialDOMRect;
     messagePreview?: string;
+    icon: Icon;
+}
+
+enum Icon {
+    // Note: the names here are used in CSS class names
+    None = "NONE", // ... except this one
+    Encrypted = "ENCRYPTED",
+    Forum = "FORUM",
+}
+
+const tooltipText = (variant: Icon) => {
+    switch (variant) {
+        case Icon.Forum:
+            return _t("Forum room");
+        case Icon.Encrypted:
+            return _t("Encrypted room");
+    }
 }
 
 const messagePreviewId = (roomId: string) => `mx_RoomTile_messagePreview_${roomId}`;
@@ -98,6 +115,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
 
             // generatePreview() will return nothing if the user has previews disabled
             messagePreview: this.generatePreview(),
+            icon: Icon.None,
         };
 
         ActiveRoomObserver.addListener(this.props.room.roomId, this.onActiveRoomUpdate);
@@ -134,6 +152,14 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
     }
 
     public componentDidMount() {
+        let icon;
+        if (Tchap.isRoomForum(this.props.room.roomId)) {
+            icon = Icon.Forum
+        } else {
+            icon = Icon.Encrypted
+        }
+        this.setState({icon})
+
         // when we're first rendered (or our sublist is expanded) make sure we are visible if we're active
         if (this.state.selected) {
             this.scrollIntoView();
@@ -518,6 +544,16 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
             oobData={({avatarUrl: roomProfile.avatarMxc})}
         />;
 
+        let roomIcon: React.ReactNode;
+        if (this.state.icon !== Icon.None) {
+            roomIcon  = (
+                <TextWithTooltip
+                    tooltip={tooltipText(this.state.icon)}
+                    class={`mx_DecoratedRoomAvatar_icon mx_DecoratedRoomAvatar_icon_${this.state.icon.toLowerCase()}`}
+                />
+            );
+        }
+
         let badge: React.ReactNode;
         if (!this.props.isMinimized) {
             // aria-hidden because we summarise the unread count/highlight status in a manual aria-label below
@@ -605,6 +641,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                             aria-describedby={ariaDescribedBy}
                         >
                             {roomAvatar}
+                            {roomIcon}
                             {nameContainer}
                             {badge}
                             {this.renderRoomTypeElement()}
