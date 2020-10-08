@@ -47,6 +47,7 @@ import Tchap from "../../../tchap/Tchap";
 interface IProps {
     room: Room;
     onClose(): void;
+    joinRules: string;
 }
 
 interface IAppsSectionProps {
@@ -56,6 +57,11 @@ interface IAppsSectionProps {
 interface IButtonProps {
     className: string;
     onClick(): void;
+}
+
+interface IState {
+    joinRules?: string;
+    memberCount?: number;
 }
 
 enum Icon {
@@ -200,94 +206,106 @@ const onRoomSettingsClick = () => {
     defaultDispatcher.dispatch({ action: "open_room_settings" });
 };
 
-const useMemberCount = (room: Room) => {
-    const [count, setCount] = useState(room.getJoinedMembers().length);
-    useEventEmitter(room.currentState, "RoomState.members", () => {
-        setCount(room.getJoinedMembers().length);
-    });
-    return count;
-};
 
-const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
-    const onShareRoomClick = () => {
-        Modal.createTrackedDialog('share room dialog', '', ShareDialog, {
-            target: room,
+export default class RoomSummaryCard extends React.PureComponent<IProps> {
+    constructor(props: IProps) {
+        super(props);
+        this.state = {
+            joinRules: props.joinRules,
+            room: props.room,
+        }
+    }
+
+    public componentDidMount() {
+        this.setState({
+            roomMemberCount: this.state.room.getJoinedMembers().length
         });
-    };
-
-    const [joinRules, setJoinRules] = useState(Tchap.getJoinRules(room.roomId));
-    const [accessRules, setAccessRules] = useState(Tchap.getAccessRules(room.roomId));
-    const [isForumRoom, setForumRoom] = useState(Tchap.isRoomForum(room.roomId));
-
-    let icon;
-    if (isForumRoom) {
-        icon = Icon.Forum
-    } else {
-        icon = Icon.Encrypted
-    }
-    let roomIcon: React.ReactNode;
-    if (icon !== Icon.None) {
-        roomIcon  = (
-            <TextWithTooltip
-                tooltip={tooltipText(icon)}
-                class={`tc_DecoratedRoomSummaryCard_icon tc_DecoratedRoomSummaryCard_icon_${icon.toLowerCase()}`}
-            />
-        );
+        MatrixClientPeg.get().on('RoomState.joinRules', data => {
+            this.setState({
+                joinRules: data,
+            })
+        });
     }
 
-    const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
-    const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
+    private onShareRoomClick = () => {
+        Modal.createTrackedDialog('share room dialog', '', ShareDialog, {
+            target: this.state.room,
+        });
+    }
 
-    let roomCardAvatarClasses = "mx_RoomSummaryCard_avatar";
-    let multiRoomOpts = null;
-    if (!isDMRoom) {
-        // Set-up avatar custom properties.
-        roomCardAvatarClasses += accessRules === "unrestricted" ?
-            " tc_RoomSummaryCard_avatar_hexa_unrestricted" : " tc_RoomSummaryCard_avatar_hexa";
+    public render() {
+        const room = this.state.room;
+        const isForumRoom = Tchap.isRoomForum(this.props.room.roomId);
+        const accessRules = Tchap.getAccessRules(this.props.room.roomId);
 
-        // Show share button only if a room is a forum or if the join_rules is public.
-        let shareRoom = null;
-        if (isForumRoom || joinRules === "public") {
-            shareRoom = (
-                <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
-                    {_t("Share room")}
-                </Button>
+        let icon;
+        if (isForumRoom) {
+            icon = Icon.Forum
+        } else {
+            icon = Icon.Encrypted
+        }
+        let roomIcon: React.ReactNode;
+        if (icon !== Icon.None) {
+            roomIcon  = (
+                <TextWithTooltip
+                    tooltip={tooltipText(icon)}
+                    class={`tc_DecoratedRoomSummaryCard_icon tc_DecoratedRoomSummaryCard_icon_${icon.toLowerCase()}`}
+                />
             );
         }
 
-        // Show room seting only if is not a direct room.
-        multiRoomOpts = (
-            <>
-                { shareRoom }
-                <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
-                    {_t("Room settings")}
+        const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
+        const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
+
+        let roomCardAvatarClasses = "mx_RoomSummaryCard_avatar";
+        let multiRoomOpts = null;
+        if (!isDMRoom) {
+            // Set-up avatar custom properties.
+            roomCardAvatarClasses += accessRules === "unrestricted" ?
+                " tc_RoomSummaryCard_avatar_hexa_unrestricted" : " tc_RoomSummaryCard_avatar_hexa";
+
+            // Show share button only if a room is a forum or if the join_rules is public.
+            let shareRoom = null;
+            if (isForumRoom || this.state.joinRules === "public") {
+                shareRoom = (
+                    <Button className="mx_RoomSummaryCard_icon_share" onClick={this.onShareRoomClick}>
+                        {_t("Share room")}
+                    </Button>
+                );
+            }
+
+            // Show room seting only if is not a direct room.
+            multiRoomOpts = (
+                <>
+                    { shareRoom }
+                    <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
+                        {_t("Room settings")}
+                    </Button>
+                </>
+            );
+        }
+
+        const header = <React.Fragment>
+            { roomIcon }
+            <div className={roomCardAvatarClasses} role="presentation">
+                <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
+            </div>
+
+            <h2 title={room.name}>{ room.name }</h2>
+        </React.Fragment>;
+
+        const memberCount = this.state.roomMemberCount;
+
+        return <BaseCard header={header} className="mx_RoomSummaryCard" onClose={this.props.onClose}>
+            <Group title={_t("About")} className="mx_RoomSummaryCard_aboutGroup">
+                <Button className="mx_RoomSummaryCard_icon_people" onClick={onRoomMembersClick}>
+                    {_t("%(count)s people", { count: memberCount })}
                 </Button>
-            </>
-        );
+                <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
+                    {_t("Show files")}
+                </Button>
+                { multiRoomOpts }
+            </Group>
+        </BaseCard>;
     }
-
-    const header = <React.Fragment>
-        { roomIcon }
-        <div className={roomCardAvatarClasses} role="presentation">
-            <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
-        </div>
-
-        <h2 title={room.name}>{ room.name }</h2>
-    </React.Fragment>;
-
-    const memberCount = useMemberCount(room);
-
-    return <BaseCard header={header} className="mx_RoomSummaryCard" onClose={onClose}>
-        <Group title={_t("About")} className="mx_RoomSummaryCard_aboutGroup">
-            <Button className="mx_RoomSummaryCard_icon_people" onClick={onRoomMembersClick}>
-                {_t("%(count)s people", { count: memberCount })}
-            </Button>
-            <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
-                {_t("Show files")}
-            </Button>
-            { multiRoomOpts }
-        </Group>
-    </BaseCard>;
-};
-
-export default RoomSummaryCard;
+}

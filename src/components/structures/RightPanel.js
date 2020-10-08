@@ -35,6 +35,7 @@ import {Action} from "../../dispatcher/actions";
 import RoomSummaryCard from "../views/right_panel/RoomSummaryCard";
 import WidgetCard from "../views/right_panel/WidgetCard";
 import defaultDispatcher from "../../dispatcher/dispatcher";
+import Tchap from "../../tchap/Tchap";
 
 export default class RightPanel extends React.Component {
     static get propTypes() {
@@ -293,7 +294,7 @@ export default class RightPanel extends React.Component {
                 break;
 
             case RightPanelPhases.RoomSummary:
-                panel = <RoomSummaryCard room={this.props.room} onClose={this.onClose} />;
+                panel = <RoomSummaryCard room={this.props.room} joinRules={Tchap.getJoinRules(this.props.room.roomId)} onClose={this.onClose} />;
                 break;
 
             case RightPanelPhases.Widget:
