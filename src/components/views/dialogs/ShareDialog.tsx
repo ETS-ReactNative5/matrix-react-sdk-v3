@@ -63,6 +63,7 @@ export default class ShareDialog extends React.PureComponent<IProps, IState> {
             PropTypes.instanceOf(RoomMember),
             PropTypes.instanceOf(MatrixEvent),
         ]).isRequired,
+        isExtShared: PropTypes.bool,
     };
 
     protected closeCopiedTooltip: () => void;
@@ -184,28 +185,41 @@ export default class ShareDialog extends React.PureComponent<IProps, IState> {
 
         let qrSocialSection;
         if (showQrCode || showSocials) {
-            qrSocialSection = <>
-                <hr />
-                <div className="mx_ShareDialog_split">
-                    { showQrCode && <div className="mx_ShareDialog_qrcode_container">
-                        <QRCode data={matrixToUrl} width={256} />
-                    </div> }
-                    { showSocials && <div className="mx_ShareDialog_social_container">
-                        { socials.map((social) => (
-                            <a
-                                rel="noreferrer noopener"
-                                target="_blank"
-                                key={social.name}
-                                title={social.name}
-                                href={social.url(encodedUrl)}
-                                className="mx_ShareDialog_social_icon"
-                            >
-                                <img src={social.img} alt={social.name} height={64} width={64} />
-                            </a>
-                        )) }
-                    </div> }
+            qrSocialSection = (<>
+                <br />
+                <details>
+                    <summary>{_t("Share")}</summary>
+                        <div className="mx_ShareDialog_split">
+                            { showQrCode && <div className="mx_ShareDialog_qrcode_container">
+                                <QRCode data={matrixToUrl} width={256} />
+                            </div> }
+                            { showSocials && <div className="mx_ShareDialog_social_container">
+                                { socials.map((social) => (
+                                    <a
+                                        rel="noreferrer noopener"
+                                        target="_blank"
+                                        key={social.name}
+                                        title={social.name}
+                                        href={social.url(encodedUrl)}
+                                        className="mx_ShareDialog_social_icon"
+                                    >
+                                        <img src={social.img} alt={social.name} height={64} width={64} />
+                                    </a>
+                                )) }
+                            </div> }
+                        </div>
+                </details>
+            </>);
+        }
+
+        let warningSharingExtUI;
+        if (this.props.isExtShared) {
+            warningSharingExtUI = (
+                <div className="tc_ExternSharing_warning">
+                    <img src={require("../../../../res/img/tchap/warning.svg")} width="16" height="16"  alt="warning" />
+                    <span>{ _t("An invitation is still required for externs, although link access is enabled.") }</span>
                 </div>
-            </>;
+            );
         }
 
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
@@ -215,6 +229,7 @@ export default class ShareDialog extends React.PureComponent<IProps, IState> {
             contentId='mx_Dialog_content'
             onFinished={this.props.onFinished}
         >
+            { warningSharingExtUI }
             <div className="mx_ShareDialog_content">
                 <div className="mx_ShareDialog_matrixto">
                     <a

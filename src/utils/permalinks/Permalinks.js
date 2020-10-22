@@ -126,11 +126,19 @@ export class RoomPermalinkCreator {
     }
 
     forEvent(eventId) {
-        return getPermalinkConstructor().forEvent(this._roomId, eventId, this._serverCandidates);
+        let alias = this._roomId;
+        if (this._room && this._room.getCanonicalAlias()) {
+            alias = this._room.getCanonicalAlias();
+        }
+        return getPermalinkConstructor().forEvent(alias, eventId, this._serverCandidates);
     }
 
     forRoom() {
-        return getPermalinkConstructor().forRoom(this._roomId, this._serverCandidates);
+        let alias = this._roomId;
+        if (this._room && this._room.getCanonicalAlias()) {
+            alias = this._room.getCanonicalAlias();
+        }
+        return getPermalinkConstructor().forRoom(alias, this._serverCandidates);
     }
 
     onRoomState(event) {
@@ -320,7 +328,7 @@ export function tryTransformPermalinkToLocalHref(permalink: string): string {
         return permalink;
     }
 
-    const m = permalink.match(matrixLinkify.VECTOR_URL_PATTERN);
+    const m = permalink.match(matrixLinkify.TCHAP_URL_PATTERN);
     if (m) {
         return m[1];
     }
@@ -354,7 +362,7 @@ export function getPrimaryPermalinkEntity(permalink: string): string {
 
         // If not a permalink, try the vector patterns.
         if (!permalinkParts) {
-            const m = permalink.match(matrixLinkify.VECTOR_URL_PATTERN);
+            const m = permalink.match(matrixLinkify.TCHAP_URL_PATTERN);
             if (m) {
                 // A bit of a hack, but it gets the job done
                 const handler = new RiotPermalinkConstructor("http://localhost");

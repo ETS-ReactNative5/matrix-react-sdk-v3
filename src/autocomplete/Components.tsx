@@ -54,8 +54,10 @@ export const PillCompletion = forwardRef<IPillCompletionProps, any>((props, ref)
     const {title, subtitle, description, className, children, ...restProps} = props;
     let descr = null;
     if (description.startsWith("#")) {
-        descr = <span className="mx_Autocomplete_Completion_description">{ Tchap.computeDomainFromRoomId(description) }</span>;
+        descr = <span className="mx_Autocomplete_Completion_description">[{Tchap.computeDomainFromRoomId(description)}]</span>;
     }
+    let sub = subtitle ? (<span className="mx_Autocomplete_Completion_subtitle">{ subtitle }</span>) : null;
+
     return (
         <div {...restProps}
             className={classNames('mx_Autocomplete_Completion_pill', className)}
@@ -64,7 +66,7 @@ export const PillCompletion = forwardRef<IPillCompletionProps, any>((props, ref)
         >
             { children }
             <span className="mx_Autocomplete_Completion_title">{ title }</span>
-            <span className="mx_Autocomplete_Completion_subtitle">{ subtitle }</span>
+            { sub }
             { descr }
         </div>
     );

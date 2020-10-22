@@ -968,11 +968,6 @@ export default class InviteDialog extends React.PureComponent {
         this.props.onFinished();
     };
 
-    _onCommunityInviteClick = (e) => {
-        this.props.onFinished();
-        showCommunityInviteDialog(CommunityPrototypeStore.instance.getSelectedCommunityId());
-    };
-
     _renderSection(kind: "recents"|"suggestions") {
         let sourceMembers = kind === 'recents' ? this.state.recents : this.state.suggestions;
         let showNum = kind === 'recents' ? this.state.numRecentsShown : this.state.numSuggestionsShown;
@@ -1041,6 +1036,12 @@ export default class InviteDialog extends React.PureComponent {
         if (this.props.kind !== KIND_DM) {
             if (Tchap.getAccessRules(this.props.roomId) === 'restricted') {
                 sourceMembers = sourceMembers.filter(m => !Tchap.isUserExtern(m.userId));
+            }
+            const room = MatrixClientPeg.get().getRoom(this.props.roomId);
+            const createEvent = room.currentState.getStateEvents('m.room.create', '');
+            if (createEvent && createEvent.getContent()['m.federate'] === false) {
+                const mydomain = MatrixClientPeg.get().getDomain();
+                sourceMembers = sourceMembers.filter(m => mydomain === Tchap.getLongDomainFromId(m.userId))
             }
         }
         if (sourceMembers.length < 1) return null;

@@ -14,23 +14,25 @@ limitations under the License.
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import sdk from '../../../index';
 import { _t } from '../../../languageHandler';
 import Tchap from '../../Tchap'
-import {privateShouldBeEncrypted} from "../../../createRoom";
+import BaseDialog from "../../../components/views/dialogs/BaseDialog";
+import DialogButtons from "../../../components/views/elements/DialogButtons";
 
 export default class ExpiredAccountDialog extends React.Component {
 	static propTypes = {
 		button: PropTypes.string,
 		focus: PropTypes.bool,
+		newEmailRequested: PropTypes.bool.isRequired,
 		onFinished: PropTypes.func.isRequired,
+		onRequestNewEmail: PropTypes.func.isRequired,
 	}
 
 	constructor(props) {
 		super(props);
+		this.onResendEmail = this.onResendEmail.bind(this);
 		this.state = {
-			description: _t('The validity period of your account has expired. An email has been sent to you in ' +
-				'order to renew it. Once you’ve followed the link it contains, click below.'),
+			newEmailRequested: this.props.newEmailRequested,
 		};
 	}
 
@@ -40,14 +42,17 @@ export default class ExpiredAccountDialog extends React.Component {
 
 	onResendEmail() {
 		this.setState({
-			description: _t('An email has been sent to you. Once you’ve followed the link it contains, click below.'),
-		});
-		Tchap.requestNewExpiredAccountEmail();
+			newEmailRequested: true,
+		})
+		this.props.onRequestNewEmail();
 	}
 
 	render() {
-		const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
-		const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
+		let description = _t('The validity period of your account has expired. An email has been sent to you in ' +
+			'order to renew it. Once you’ve followed the link it contains, click below.');
+		if (this.state.newEmailRequested) {
+			description = _t('An email has been sent to you. Once you’ve followed the link it contains, click below.');
+		}
 
 		return (
 			<BaseDialog className="mx_QuestionDialog" onFinished={this.props.onFinished}
@@ -57,7 +62,7 @@ export default class ExpiredAccountDialog extends React.Component {
 			>
 				<div className="mx_Dialog_content" id='mx_Dialog_content'>
 					<div>
-						<p> { this.state.description }
+						<p> { description }
 						</p>
 					</div>
 				</div>

@@ -200,7 +200,7 @@ export default class MemberTile extends React.Component {
     }
 
     _getExpired() {
-        Tchap.getUserExpiredInfo(this.props.member.userId).then(data => {
+        Tchap.isUserExpired(this.props.member.userId).then(data => {
             if (data === true) {
                 this.setState({
                     userExpired: data,

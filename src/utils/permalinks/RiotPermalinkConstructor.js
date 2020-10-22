@@ -27,7 +27,7 @@ export default class RiotPermalinkConstructor extends PermalinkConstructor {
         this._riotUrl = riotUrl;
 
         if (!this._riotUrl.startsWith("http:") && !this._riotUrl.startsWith("https:")) {
-            throw new Error("Riot prefix URL does not appear to be an HTTP(S) URL");
+            throw new Error("Tchap prefix URL does not appear to be an HTTP(S) URL");
         }
     }
 

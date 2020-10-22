@@ -2523,5 +2523,7 @@
     "You’re all caught up": "Vous êtes à jour !",
     "You have no visible notifications in this room.": "Vous n'avez pas de notifications dans ce salon.",
     "Room Info": "Informations du salon",
-    "Save and log-out": "Enregistrer et se déconnecter"
+    "Save and log-out": "Enregistrer et se déconnecter",
+    "An invitation is still required for externs, although link access is enabled.": "Une invitation est nécessaire pour les externes, bien que l'accès par lien soit activé.",
+    "Your account's validity period has expired. Awaiting renewal validation...": "La durée de validité de votre compte a expiré. En attente de validation du renouvellement..."
 }

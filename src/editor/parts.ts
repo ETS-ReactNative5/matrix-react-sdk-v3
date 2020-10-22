@@ -511,16 +511,20 @@ export class PartCreator {
     }
 
     roomPill(alias: string, roomId?: string) {
+        let a = alias;
         let room;
-        if (roomId || alias[0] !== "#") {
-            room = this.client.getRoom(roomId || alias);
+        if (roomId || a[0] !== "#") {
+            room = this.client.getRoom(roomId || a);
         } else {
             room = this.client.getRooms().find((r) => {
-                return r.getCanonicalAlias() === alias ||
-                       r.getAltAliases().includes(alias);
+                return r.getCanonicalAlias() === a ||
+                       r.getAltAliases().includes(a);
             });
         }
-        return new RoomPillPart(alias, room);
+        if (room && room.name) {
+            a = `${room.name} [${Tchap.computeDomainFromRoomId(room.roomId)}]`;
+        }
+        return new RoomPillPart(a, room);
     }
 
     atRoomPill(text: string) {

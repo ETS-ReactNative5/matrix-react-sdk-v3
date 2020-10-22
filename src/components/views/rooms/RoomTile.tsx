@@ -492,10 +492,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
         let classes = "tc_RoomTile_roomType";
         let translation = "";
-        if (dmUserId) {
-            classes += " tc_Room_roomType_direct";
-            translation = _t("Direct");
-        } else if (Tchap.isRoomForum(this.props.room.roomId)) {
+        if (Tchap.isRoomForum(this.props.room.roomId)) {
             classes += " tc_Room_roomType_forum";
             translation = _t("Forum");
         } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
@@ -535,6 +532,15 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         let name = roomProfile.displayName || this.props.room.name;
         if (typeof name !== 'string') name = '';
         name = name.replace(":", ":\u200b"); // add a zero-width space to allow linewrapping after the colon
+
+        // Rename "Empty room was(...)" by left user name (for direct room)
+        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        if (dmUserId) {
+            const oldMember = this.props.room.getMembersWithMembership('leave')
+            if (name.startsWith("Empty room (was ") && oldMember.length > 0) {
+                name = oldMember[0].rawDisplayName;
+            }
+        }
 
         const roomAvatar = <DecoratedRoomAvatar
             room={this.props.room}

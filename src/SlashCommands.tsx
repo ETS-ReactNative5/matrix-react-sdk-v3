@@ -225,6 +225,16 @@ export const Commands = [
         },
         category: CommandCategories.advanced,
     }),
+    new Command({
+        command: 'devtools',
+        description: _td('Opens the Developer Tools dialog'),
+        runFn: function(roomId) {
+            const DevtoolsDialog = sdk.getComponent('dialogs.DevtoolsDialog');
+            Modal.createDialog(DevtoolsDialog, {roomId});
+            return success();
+        },
+        category: CommandCategories.advanced,
+    }),
     // Command definitions for autocompletion ONLY:
     // /me is special because its not handled by SlashCommands.js and is instead done inside the Composer classes
     new Command({

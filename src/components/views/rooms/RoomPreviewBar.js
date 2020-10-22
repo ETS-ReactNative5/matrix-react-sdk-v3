@@ -446,10 +446,7 @@ export default class RoomPreviewBar extends React.Component {
             }
             case MessageCase.Invite: {
                 const RoomAvatar = sdk.getComponent("views.avatars.RoomAvatar");
-                const oobData = Object.assign({}, this.props.oobData, {
-                    avatarUrl: this._communityProfile().avatarMxc,
-                });
-                const avatar = <RoomAvatar room={this.props.room} oobData={oobData} />;
+                const avatar = <RoomAvatar room={this.props.room} />;
 
                 const inviteMember = this._getInviteMember();
                 let inviterElement;
@@ -457,7 +454,7 @@ export default class RoomPreviewBar extends React.Component {
                     inviterElement = <span>
                         <span className="mx_RoomPreviewBar_inviter">
                             {inviteMember.rawDisplayName}
-                        </span> ({inviteMember.userId})
+                        </span>
                     </span>;
                 } else {
                     inviterElement = (<span className="mx_RoomPreviewBar_inviter">{this.props.inviterName}</span>);

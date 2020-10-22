@@ -31,6 +31,15 @@ export default class Tchap {
     }
 
     /**
+     * Return a long domain uri from a room_id.
+     * @param {string} id The room_id to analyse.
+     * @returns {string} The extracted domain name.
+     */
+    static getLongDomainFromId(id) {
+        return (id.split(':').filter(Boolean).reverse()[0]);
+    }
+
+    /**
      * Return a HS from a given email.
      * @param {string} email
      * @returns {Promise}
@@ -82,14 +91,13 @@ export default class Tchap {
     /**
      *
      * @param userId
-     * @returns {Promise<T>}
+     * @returns {Promise<*>}
      */
-    static getUserExpiredInfo(userId) {
+    static isUserExpired(userId) {
         const infoUrl = TchapApi.expiredInfoUrl;
         const homeserverUrl = MatrixClientPeg.get().getHomeserverUrl();
         const accessToken = MatrixClientPeg.get().getAccessToken();
         const url = `${homeserverUrl}${infoUrl}${userId}/info`;
-
         const options = {
             method: 'GET',
             headers: {
@@ -100,7 +108,7 @@ export default class Tchap {
         return fetch(url, options).then(res => {
             return res.json();
         }).then(data => {
-            return data.expired;
+            return data;
         });
     }
 

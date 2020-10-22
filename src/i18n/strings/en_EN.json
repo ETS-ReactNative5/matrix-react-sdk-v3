@@ -2475,5 +2475,7 @@
     "Error: Cannot fetch the file": "Error: Cannot fetch the file",
     "Error: Unable to join the MCS server": "Error: Unable to join the MCS server",
     "Manage the names of and sign out of your sessions below.": "Manage the names of and sign out of your sessions below.",
-    "Save and log-out": "Save and log-out"
+    "Save and log-out": "Save and log-out",
+    "An invitation is still required for externs, although link access is enabled.": "An invitation is still required for externs, although link access is enabled.",
+    "Your account's validity period has expired. Awaiting renewal validation...": "Your account's validity period has expired. Awaiting renewal validation..."
 }

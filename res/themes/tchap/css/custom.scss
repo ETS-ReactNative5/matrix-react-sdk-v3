@@ -118,7 +118,29 @@
 }
 
 
-// Link Sharing "?"
+// Room Settings > Access Settings
+.tc_ShareDialog {
+    border-color: #e7e7e7 !important;
+}
+
+.mx_ShareDialog_matrixto {
+    margin-top: 10px;
+}
+
+.tc_ExternSharing_warning {
+    font-size: 14px;
+    color: #747474;
+    margin-bottom: 6px;
+    img {
+        position: relative;
+    }
+    span {
+        margin-left: 8px;
+    }
+}
+
+
+// Room Settings > Link Sharing "?"
 .tc_LinkSharing_Helper {
     position: relative;
     top: 5px;
@@ -505,6 +527,19 @@
     background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-white.svg');
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
+}
+
+// Message composer (& bottom bar)
+.tc_RoomStatusBar_reinvite {
+    display: inline;
+    padding: 4px 8px;
+    margin: auto 4px;
+}
+
+.mx_BasicMessageComposer_input {
+    &:focus {
+        border-color: $accent-secondary !important;
+    }
 }
 
 /*

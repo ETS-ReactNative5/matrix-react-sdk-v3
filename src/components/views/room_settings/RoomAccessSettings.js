@@ -23,7 +23,16 @@ import Tchap from "../../../tchap/Tchap";
 import LabelledToggleSwitch from "../elements/LabelledToggleSwitch";
 import Modal from '../../../Modal';
 import * as ContextualMenu from "../../structures/ContextMenu";
-import {RoomPermalinkCreator} from '../../../utils/permalinks/Permalinks';
+import {RoomPermalinkCreator, makeGroupPermalink, makeUserPermalink} from "../../../utils/permalinks/Permalinks";
+import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
+import {copyPlaintext} from "../../../utils/strings";
+import * as ContextMenu from "../../structures/ContextMenu";
+import {toRightOf} from "../../structures/ContextMenu";
+import {Room} from "matrix-js-sdk/src/models/room";
+import {User} from "matrix-js-sdk/src/models/user";
+import {Group} from "matrix-js-sdk/src/models/group";
+import {RoomMember} from "matrix-js-sdk/src/models/room-member";
+import {MatrixEvent} from "matrix-js-sdk/src/models/event";
 
 // TODO: Merge with ProfileSettings?
 export default class RoomAccessSettings extends React.Component {
@@ -55,7 +64,7 @@ export default class RoomAccessSettings extends React.Component {
             accessRules: Tchap.getAccessRules(props.roomId),
             joinRules: Tchap.getJoinRules(props.roomId),
             isForumRoom: Tchap.isRoomForum(props.roomId),
-            link_sharing,
+            linkSharing: link_sharing,
             link: link,
         };
     }
@@ -128,14 +137,14 @@ export default class RoomAccessSettings extends React.Component {
         const self = this;
         client.sendStateEvent(room.roomId, "m.room.join_rules", { join_rule: joinRules }, "").then(() => {
             self.setState({
-                link_sharing: joinRules === "public",
+                linkSharing: joinRules === "public",
                 joinRules,
             });
             MatrixClientPeg.get().emit("RoomState.joinRules", joinRules);
         }).catch((err) => {
             console.error(err);
             this.setState({
-                link_sharing: false,
+                linkSharing: false,
             });
             if (err.errcode === "M_FORBIDDEN" && this.state.accessRules === "unrestricted") {
                 const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
@@ -249,53 +258,62 @@ export default class RoomAccessSettings extends React.Component {
         if (!this.state.isForumRoom) {
             accessRule = (
                 <LabelledToggleSwitch value={this.state.accessRules === "unrestricted"}
-                                      onChange={ this._onExternAllowedSwitchChange }
-                                      label={ _t('Allow the externals to join this room') }
-                                      disabled={ this.state.accessRules === "unrestricted"  || !isCurrentUserAdmin} />
+                    onChange={ this._onExternAllowedSwitchChange }
+                    label={ _t('Allow the externals to join this room') }
+                    disabled={ this.state.accessRules === "unrestricted"  || !isCurrentUserAdmin} />
             );
         }
 
-        let linkSharingUI = null;
-        if (!this.state.isForumRoom) {
-            let linkUrlField = null;
-            if (this.state.link_sharing) {
-                linkUrlField = (
-                    <div className="mx_ShareDialog_matrixto tc_ShareDialog">
-                        <a ref="link"
-                            href={this.state.link}
-                            onClick={this._onLinkClick}
-                            className="mx_ShareDialog_matrixto_link"
-                        >
-                            { this.state.link }
-                        </a>
-                        <a href={this.state.link} className="mx_ShareDialog_matrixto_copy" onClick={this._onCopyClick}>
-                            { _t('COPY') }
-                            <div>&nbsp;</div>
-                        </a>
-                    </div>
-                );
-            }
-
-            let linkSharingSwitchLabel = (
-                <div>
-                    { _t("Activate link access to this room") }
-                    <img className="tc_LinkSharing_Helper" src={require('../../../../res/img/tchap/question_mark.svg')}
-                        width={20} height={20}
-                        title={ _t("Users can join this room with the following link:") }
-                        alt={ _t("Room information") } />
-                </div>
-            );
-
-            linkSharingUI = (
-                <div>
-                    <LabelledToggleSwitch value={this.state.link_sharing}
-                        onChange={ this._onLinkSharingSwitchChange }
-                        label={ linkSharingSwitchLabel }
-                        disabled={!isCurrentUserAdmin}/>
-                    { linkUrlField }
+        let warningSharingExtern = null;
+        if (this.state.accessRules === "unrestricted" && this.state.joinRules === "public") {
+            warningSharingExtern = (
+                <div className="tc_ExternSharing_warning">
+                    <img src={require("../../../../res/img/tchap/warning.svg")} width="16" height="16"  alt="warning" />
+                    <span>{ _t("An invitation is still required for externs, although link access is enabled.") }</span>
                 </div>
             );
         }
+
+        let linkUrlField = null;
+        if (this.state.linkSharing) {
+            linkUrlField = (
+                <div className="mx_ShareDialog_matrixto tc_ShareDialog">
+                    <a ref="link"
+                        href={this.state.link}
+                        onClick={this._onLinkClick}
+                        className="mx_ShareDialog_matrixto_link"
+                    >
+                        { this.state.link }
+                    </a>
+                    <AccessibleTooltipButton
+                        title={_t("Copy")}
+                        onClick={this._onCopyClick}
+                        className="mx_ShareDialog_matrixto_copy"
+                    />
+                </div>
+            );
+        }
+
+        let linkSharingSwitchLabel = (
+            <div>
+                { _t("Activate link access to this room") }
+                <img className="tc_LinkSharing_Helper" src={require('../../../../res/img/tchap/question_mark.svg')}
+                    width={20} height={20}
+                    title={ _t("Users can join this room with the following link:") }
+                    alt={ _t("Room information") } />
+            </div>
+        );
+
+        const linkSharingUI = (
+            <div>
+                <LabelledToggleSwitch value={this.state.linkSharing}
+                    onChange={ this._onLinkSharingSwitchChange }
+                    label={ linkSharingSwitchLabel }
+                    disabled={!isCurrentUserAdmin || this.state.isForumRoom}/>
+                { warningSharingExtern }
+                { linkUrlField }
+            </div>
+        );
 
         return (
             <div>

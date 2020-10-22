@@ -229,7 +229,7 @@ class Pill extends React.Component {
                     const member = this.state.member;
                     if (member) {
                         userId = member.userId;
-                        member.rawDisplayName = member.rawDisplayName || '';
+                        member.rawDisplayName = member ? member.rawDisplayName : '';
                         linkText = member.rawDisplayName;
                         if (this.props.shouldShowPillAvatar) {
                             avatar = <MemberAvatar member={member} width={16} height={16} aria-hidden="true" />;

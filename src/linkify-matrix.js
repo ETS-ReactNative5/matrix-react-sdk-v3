@@ -185,15 +185,14 @@ const escapeRegExp = function(string) {
 
 // Recognise URLs from both our local vector and official vector as vector.
 // anyone else really should be using matrix.to.
-matrixLinkify.VECTOR_URL_PATTERN = "^(?:https?://)?(?:"
+
+
+matrixLinkify.TCHAP_URL_PATTERN = "^(?:https?://)?(?:"
     + escapeRegExp(window.location.host + window.location.pathname) + "|"
-    + "(?:www\\.)?(?:riot|vector)\\.im/(?:app|beta|staging|develop)/"
-    + ")(#.*)";
+    + "(?:www\\.)?tchap\\.gouv\\.fr/"
+    + ")(#/(?:user|room)/(([#@!+]).*))";
 
 matrixLinkify.MATRIXTO_URL_PATTERN = "^(?:https?://)?(?:www\\.)?matrix\\.to/#/(([#@!+]).*)";
-matrixLinkify.MATRIXTO_MD_LINK_PATTERN =
-    '\\[([^\\]]*)\\]\\((?:https?://)?(?:www\\.)?matrix\\.to/#/([#@!+][^\\)]*)\\)';
-matrixLinkify.MATRIXTO_BASE_URL= baseUrl;
 
 matrixLinkify.options = {
     events: function(href, type) {
@@ -253,7 +252,7 @@ matrixLinkify.options = {
     target: function(href, type) {
         if (type === 'url') {
             const transformed = tryTransformPermalinkToLocalHref(href);
-            if (transformed !== href || href.match(matrixLinkify.VECTOR_URL_PATTERN)) {
+            if (transformed !== href || href.match(matrixLinkify.TCHAP_URL_PATTERN)) {
                 return null;
             } else {
                 return '_blank';

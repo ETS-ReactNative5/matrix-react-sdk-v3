@@ -81,6 +81,8 @@ import CreateCommunityPrototypeDialog from "../views/dialogs/CreateCommunityProt
 import ThreepidInviteStore, { IThreepidInvite, IThreepidInviteWireFormat } from "../../stores/ThreepidInviteStore";
 import {UIFeature} from "../../settings/UIFeature";
 import { CommunityPrototypeStore } from "../../stores/CommunityPrototypeStore";
+import Tchap from "../../tchap/Tchap";
+import ExpiredAccountDialog from "../../tchap/components/dialogs/ExpiredAccountDialog";
 
 /** constants for MatrixChat.state.view */
 export enum Views {
@@ -1310,6 +1312,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         this.firstSyncPromise = defer();
         const cli = MatrixClientPeg.get();
         let expiredAccount = false;
+        let newEmailRequested = false;
 
         // Allow the JS SDK to reap timeline events. This reduces the amount of
         // memory consumed as the JS SDK stores multiple distinct copies of room
@@ -1334,6 +1337,20 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         });
 
         cli.on('sync', (state, prevState, data) => {
+            Tchap.isUserExpired(cli.getUserId()).then(ei => {
+                if (ei.errcode) {
+                    Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
+                        newEmailRequested: newEmailRequested,
+                        onRequestNewEmail: () => {
+                            newEmailRequested = true;
+                            Tchap.requestNewExpiredAccountEmail();
+                        },
+                        onFinished: () => {
+                            newEmailRequested = false;
+                        },
+                    });
+                }
+            });
             // LifecycleStore and others cannot directly subscribe to matrix client for
             // events because flux only allows store state changes during flux dispatches.
             // So dispatch directly from here. Ideally we'd use a SyncStateStore that
@@ -1342,19 +1359,6 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             dis.dispatch({action: 'sync_state', prevState, state});
 
             if (!expiredAccount) {
-                if (data.error && data.error.errcode === "ORG_MATRIX_EXPIRED_ACCOUNT") {
-                    expiredAccount = true;
-                    MatrixClientPeg.get().stopClient();
-                    MatrixClientPeg.get().store.deleteAllData().done();
-                    const ExpiredAccountDialog = sdk.getComponent("dialogs.ExpiredAccountDialog");
-                    Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
-                        onFinished: () => {
-                            expiredAccount = false;
-                            MatrixClientPeg.start();
-                        },
-                    });
-                }
-
                 if (state === "ERROR" || state === "RECONNECTING") {
                     if (data.error instanceof InvalidStoreError) {
                         Lifecycle.handleInvalidStoreError(data.error);

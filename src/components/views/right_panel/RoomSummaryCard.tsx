@@ -61,7 +61,8 @@ interface IButtonProps {
 
 interface IState {
     joinRules?: string;
-    memberCount?: number;
+    roomMemberCount?: number;
+    room?: Room;
 }
 
 enum Icon {
@@ -207,7 +208,7 @@ const onRoomSettingsClick = () => {
 };
 
 
-export default class RoomSummaryCard extends React.PureComponent<IProps> {
+export default class RoomSummaryCard extends React.PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -228,8 +229,11 @@ export default class RoomSummaryCard extends React.PureComponent<IProps> {
     }
 
     private onShareRoomClick = () => {
+        const isRoomForum = Tchap.isRoomForum(this.props.room.roomId);
+        const accessRules = Tchap.getAccessRules(this.props.room.roomId);
         Modal.createTrackedDialog('share room dialog', '', ShareDialog, {
             target: this.state.room,
+            isExtShared: accessRules === "unrestricted" && this.state.joinRules === "public" && !isRoomForum,
         });
     }
 

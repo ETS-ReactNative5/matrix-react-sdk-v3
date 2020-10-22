@@ -96,7 +96,6 @@ export default class RoomDirectory extends React.Component {
                 ),
             });
         });
-        this.refreshRoomList();
     }
 
     componentDidMount() {
@@ -527,9 +526,13 @@ export default class RoomDirectory extends React.Component {
             content = <Loader />;
         } else {
             const publicRooms = this.state.publicRooms;
+/*            console.error("publicRooms")
+            console.error(publicRooms)*/
             publicRooms.sort((a, b) => {
                 return b.num_joined_members - a.num_joined_members;
             });
+            /*console.error("publicRooms")
+            console.error(publicRooms)*/
             const rows = (publicRooms || []).map(room => this.getRow(room));
             // we still show the scrollpanel, at least for now, because
             // otherwise we don't fetch more because we don't get a fill
@@ -610,10 +613,7 @@ export default class RoomDirectory extends React.Component {
                 }},
             );
 
-        const title = this.state.selectedCommunityId
-            ? _t("Explore rooms in %(communityName)s", {
-                communityName: this.state.communityName || this.state.selectedCommunityId,
-            }) : _t("Explore rooms");
+        const title = _t("Explore rooms");
         return (
             <BaseDialog
                 className={'mx_RoomDirectory_dialog'}
