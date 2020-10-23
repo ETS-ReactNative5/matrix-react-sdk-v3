@@ -46,6 +46,7 @@ import { verifyUser, legacyVerifyUser, verifyDevice } from '../../../verificatio
 import {Action} from "../../../dispatcher/actions";
 import {useIsEncrypted} from "../../../hooks/useIsEncrypted";
 import BaseCard from "./BaseCard";
+import Tchap from "../../../tchap/Tchap";
 
 const _disambiguateDevices = (devices) => {
     const names = Object.create(null);
@@ -384,7 +385,7 @@ const UserOptionsSection = ({member, isIgnored, canInvite, devices}) => {
     }
 
     let directMessageButton;
-    if (!isMe) {
+    if (!isMe && !Tchap.isCurrentUserExtern()) {
         directMessageButton = (
             <AccessibleButton onClick={() => openDMForUser(cli, member.userId)} className="mx_UserInfo_field">
                 { _t('Direct message') }
@@ -945,6 +946,8 @@ function useRoomPermissions(cli, room, user) {
 
 const PowerLevelSection = ({user, room, roomPermissions, powerLevels}) => {
     const [isEditing, setEditing] = useState(false);
+    console.error("roomPermissions")
+    console.error(roomPermissions)
     if (isEditing) {
         return (<PowerLevelEditor
             user={user} room={room} roomPermissions={roomPermissions}
@@ -953,7 +956,9 @@ const PowerLevelSection = ({user, room, roomPermissions, powerLevels}) => {
         const IconButton = sdk.getComponent('elements.IconButton');
         const powerLevelUsersDefault = powerLevels.users_default || 0;
         const powerLevel = parseInt(user.powerLevel, 10);
-        const modifyButton = roomPermissions.canEdit ?
+        console.error("user")
+        console.error(user)
+        const modifyButton = roomPermissions.canEdit && !Tchap.isUserExtern(user.userId) ?
             (<IconButton icon="edit" onClick={() => setEditing(true)} />) : null;
         const role = textualPowerLevel(powerLevel, powerLevelUsersDefault);
         const label = _t("<strong>%(role)s</strong> in %(roomName)s",

@@ -529,6 +529,17 @@
     transform: scaleX(-1);
 }
 
+
+// Right Panel > User Details Card
+.mx_UserInfo_roleDescription .mx_IconButton {
+    background-color: rgba(22, 45, 88, 0.2);
+}
+
+.mx_UserInfo_profileField .mx_IconButton.mx_IconButton_icon_check {
+    background-color: rgba(22, 45, 88, 0.2);
+}
+
+
 // Message composer (& bottom bar)
 .tc_RoomStatusBar_reinvite {
     display: inline;

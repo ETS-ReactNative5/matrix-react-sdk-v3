@@ -29,6 +29,7 @@ import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
 import BaseCard from "../right_panel/BaseCard";
 import {RightPanelPhases} from "../../../stores/RightPanelStorePhases";
 import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from "../../../tchap/Tchap";
 
 const INITIAL_LOAD_NUM_MEMBERS = 30;
 const INITIAL_LOAD_NUM_INVITED = 5;
@@ -468,6 +469,10 @@ export default class MemberList extends React.Component {
                 if (content && content.invite > me.powerLevel) {
                     canInvite = false;
                 }
+            }
+
+            if (Tchap.isCurrentUserExtern()) {
+                canInvite = false;
             }
 
             let inviteButtonText = _t("Invite to this room");

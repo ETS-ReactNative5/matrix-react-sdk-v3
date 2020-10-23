@@ -1126,7 +1126,7 @@
     "Add room": "Add room",
     "Create new room": "Create new room",
     "Explore community rooms": "Explore community rooms",
-    "Explore public rooms": "Explore public rooms",
+    "Explore forums": "Explore forums",
     "Low priority": "Low priority",
     "System Alerts": "System Alerts",
     "Historical": "Historical",
@@ -1171,7 +1171,7 @@
     "%(roomName)s does not exist.": "%(roomName)s does not exist.",
     "This room doesn't exist. Are you sure you're at the right place?": "This room doesn't exist. Are you sure you're at the right place?",
     "%(roomName)s is not accessible at this time.": "%(roomName)s is not accessible at this time.",
-    "Try again later, or ask a room admin to check if you have access.": "Try again later, or ask a room admin to check if you have access.",
+    "Try again later, or ask a room admin to check if you can have access.": "Try again later, or ask a room admin to check if you can have access.",
     "%(errcode)s was returned while trying to access the room. If you think you're seeing this message in error, please <issueLink>submit a bug report</issueLink>.": "%(errcode)s was returned while trying to access the room. If you think you're seeing this message in error, please <issueLink>submit a bug report</issueLink>.",
     "Appearance": "Appearance",
     "Show rooms with unread messages first": "Show rooms with unread messages first",
@@ -2059,7 +2059,7 @@
     "Welcome to %(appName)s": "Welcome to %(appName)s",
     "State instant messaging": "State instant messaging",
     "Send a Direct Message": "Send a Direct Message",
-    "Explore Public Rooms": "Explore Public Rooms",
+    "Explore Forums": "Explore Forums",
     "Create a Group Chat": "Create a Group Chat",
     "Explore rooms": "Explore rooms",
     "Failed to reject invitation": "Failed to reject invitation",
@@ -2477,5 +2477,6 @@
     "Manage the names of and sign out of your sessions below.": "Manage the names of and sign out of your sessions below.",
     "Save and log-out": "Save and log-out",
     "An invitation is still required for externs, although link access is enabled.": "An invitation is still required for externs, although link access is enabled.",
-    "Your account's validity period has expired. Awaiting renewal validation...": "Your account's validity period has expired. Awaiting renewal validation..."
+    "Your account's validity period has expired. Awaiting renewal validation...": "Your account's validity period has expired. Awaiting renewal validation...",
+    "You are not allowed to join %(roomName)s": "You are not allowed to join %(roomName)s"
 }

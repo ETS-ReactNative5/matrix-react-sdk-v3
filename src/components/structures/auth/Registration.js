@@ -63,7 +63,6 @@ export default class Registration extends React.Component {
     constructor(props) {
         super(props);
 
-        const serverType = ServerType.getTypeFromServerConfig(this.props.serverConfig);
         this.state = {
             busy: false,
             errorText: null,

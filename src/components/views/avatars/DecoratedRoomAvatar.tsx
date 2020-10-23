@@ -131,6 +131,18 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
         if (newIcon !== this.state.icon) this.setState({icon: newIcon});
     };
 
+    private getRealRoomType(): string {
+        if (this.props.room.getMyMembership() === "invite") {
+            const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+            if (dmUserId) {
+                return "direct";
+            } else if (Tchap.isCurrentUserExtern()) {
+                return "unrestricted";
+            }
+        }
+        return Tchap.getAccessRules(this.props.room.roomId);
+    }
+
     private getPresenceIcon(): Icon {
         if (!this.dmUser) return Icon.None;
 
@@ -190,8 +202,7 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
             />;
         }
 
-        let roomType;
-        roomType = Tchap.getAccessRules(this.props.room.roomId);
+        const roomType = this.getRealRoomType();
         let avatarSize = this.props.avatarSize;
         if (roomType === "unrestricted") {
             avatarSize -= 4;

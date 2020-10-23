@@ -72,6 +72,7 @@ import TintableSvg from "../views/elements/TintableSvg";
 import type * as ConferenceHandler from '../../VectorConferenceHandler';
 import {XOR} from "../../@types/common";
 import { IThreepidInvite } from "../../stores/ThreepidInviteStore";
+import Tchap from "../../tchap/Tchap";
 
 const DEBUG = false;
 let debuglog = function(msg: string) {};
@@ -452,10 +453,15 @@ export default class RoomView extends React.Component<IProps, IState> {
                     // This won't necessarily be a MatrixError, but we duck-type
                     // here and say if it's got an 'errcode' key with the right value,
                     // it means we can't peek.
-                    if (err.errcode === "M_GUEST_ACCESS_FORBIDDEN" || err.errcode === 'M_FORBIDDEN') {
+                    if (err.errcode === "M_GUEST_ACCESS_FORBIDDEN") {
                         // This is fine: the room just isn't peekable (we assume).
                         this.setState({
                             peekLoading: false,
+                        });
+                    } else if (err.errcode === 'M_FORBIDDEN' && Tchap.isCurrentUserExtern()) {
+                        this.setState({
+                            peekLoading: false,
+                            roomLoadError: err,
                         });
                     } else {
                         throw err;

@@ -36,6 +36,7 @@ const MessageCase = Object.freeze({
     Rejecting: "Rejecting",
     Kicked: "Kicked",
     Banned: "Banned",
+    ExternNotInvited: "ExternNotInvited",
     OtherThreePIDError: "OtherThreePIDError",
     InvitedEmailNotFoundInAccount: "InvitedEmailNotFoundInAccount",
     InvitedEmailNoIdentityServer: "InvitedEmailNoIdentityServer",
@@ -156,6 +157,8 @@ export default class RoomPreviewBar extends React.Component {
             return MessageCase.NotLoggedIn;
         }
 
+        const isUserExtern = Tchap.isCurrentUserExtern();
+
         const myMember = this._getMyMember();
 
         if (myMember) {
@@ -170,6 +173,8 @@ export default class RoomPreviewBar extends React.Component {
             return MessageCase.Joining;
         } else if (this.props.rejecting) {
             return MessageCase.Rejecting;
+        } else if (isUserExtern && this.props.error) {
+            return MessageCase.ExternNotInvited;
         } else if (this.props.loading || this.state.busy) {
             return MessageCase.Loading;
         }
@@ -363,6 +368,11 @@ export default class RoomPreviewBar extends React.Component {
                 primaryActionHandler = this.props.onForgetClick;
                 break;
             }
+            case MessageCase.ExternNotInvited: {
+                title = _t("You are not allowed to join %(roomName)s", {roomName: this._roomName()});
+                subTitle = _t("Try again later, or ask a room admin to check if you can have access.");
+                break;
+            }
             case MessageCase.OtherThreePIDError: {
                 title = _t("Something went wrong with your invite to %(roomName)s",
                     {roomName: this._roomName()});
@@ -498,7 +508,7 @@ export default class RoomPreviewBar extends React.Component {
                         {roomName: this._roomName()});
                 } else {
                     title = _t("%(roomName)s can't be previewed. Do you want to join it?",
-                        {roomName: this._roomName(true)});
+                        {roomName: this._roomName()});
                 }
                 primaryActionLabel = _t("Join the discussion");
                 primaryActionHandler = this.props.onJoinClick;
@@ -510,18 +520,8 @@ export default class RoomPreviewBar extends React.Component {
                 break;
             }
             case MessageCase.OtherError: {
-                title = _t("%(roomName)s is not accessible at this time.", {roomName: this._roomName(true)});
-                subTitle = [
-                    _t("Try again later, or ask a room admin to check if you have access."),
-                    _t(
-                        "%(errcode)s was returned while trying to access the room. " +
-                        "If you think you're seeing this message in error, please " +
-                        "<issueLink>submit a bug report</issueLink>.",
-                        { errcode: this.props.error.errcode },
-                        { issueLink: label => <a href="https://github.com/vector-im/element-web/issues/new/choose"
-                            target="_blank" rel="noreferrer noopener">{ label }</a> },
-                    ),
-                ];
+                title = _t("You are not allowed to join %(roomName)s", {roomName: this._roomName()});
+                subTitle = _t("Try again later, or ask a room admin to check if you have access.");
                 break;
             }
         }

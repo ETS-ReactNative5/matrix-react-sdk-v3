@@ -69,9 +69,7 @@ const TAG_ORDER: TagID[] = [
 
     // -- Custom Tags Placeholder --
 
-    DefaultTagID.LowPriority,
     DefaultTagID.ServerNotice,
-    DefaultTagID.Archived,
 ];
 const CUSTOM_TAGS_BEFORE_TAG = DefaultTagID.LowPriority;
 const ALWAYS_VISIBLE_TAGS: TagID[] = [
@@ -132,7 +130,7 @@ const TAG_AESTHETICS: {
                 <IconizedContextMenuOption
                     label={CommunityPrototypeStore.instance.getSelectedCommunityId()
                         ? _t("Explore community rooms")
-                        : _t("Explore public rooms")}
+                        : _t("Explore forums")}
                     iconClassName="mx_RoomList_iconExplore"
                     onClick={(e) => {
                         e.preventDefault();
@@ -144,22 +142,10 @@ const TAG_AESTHETICS: {
             </IconizedContextMenuOptionList>;
         },
     },
-    [DefaultTagID.LowPriority]: {
-        sectionLabel: _td("Low priority"),
-        isInvite: false,
-        defaultHidden: false,
-    },
     [DefaultTagID.ServerNotice]: {
         sectionLabel: _td("System Alerts"),
         isInvite: false,
         defaultHidden: false,
-    },
-
-    // TODO: Replace with archived view: https://github.com/vector-im/element-web/issues/14038
-    [DefaultTagID.Archived]: {
-        sectionLabel: _td("Historical"),
-        isInvite: false,
-        defaultHidden: true,
     },
 };
 

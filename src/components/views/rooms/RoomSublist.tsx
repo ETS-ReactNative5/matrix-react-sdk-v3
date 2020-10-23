@@ -51,6 +51,7 @@ import { objectExcluding, objectHasDiff } from "../../../utils/objects";
 import TemporaryTile from "./TemporaryTile";
 import { ListNotificationState } from "../../../stores/notifications/ListNotificationState";
 import IconizedContextMenu from "../context_menus/IconizedContextMenu";
+import Tchap from "../../../tchap/Tchap";
 
 const SHOW_N_BUTTON_HEIGHT = 28; // As defined by CSS
 const RESIZE_HANDLE_HEIGHT = 4; // As defined by CSS
@@ -656,29 +657,31 @@ export default class RoomSublist extends React.Component<IProps, IState> {
                     );
 
                     let addRoomButton = null;
-                    if (!!this.props.onAddRoom) {
-                        addRoomButton = (
-                            <AccessibleTooltipButton
-                                tabIndex={tabIndex}
-                                onClick={this.onAddRoom}
-                                className="mx_RoomSublist_auxButton"
-                                tooltipClassName="mx_RoomSublist_addRoomTooltip"
-                                aria-label={this.props.addRoomLabel || _t("Add room")}
-                                title={this.props.addRoomLabel}
-                            />
-                        );
-                    } else if (this.props.addRoomContextMenu) {
-                        addRoomButton = (
-                            <ContextMenuTooltipButton
-                                tabIndex={tabIndex}
-                                onClick={this.onAddRoomContextMenu}
-                                className="mx_RoomSublist_auxButton"
-                                tooltipClassName="mx_RoomSublist_addRoomTooltip"
-                                aria-label={this.props.addRoomLabel || _t("Add room")}
-                                title={this.props.addRoomLabel}
-                                isExpanded={!!this.state.addRoomContextMenuPosition}
-                            />
-                        );
+                    if (!Tchap.isCurrentUserExtern()) {
+                        if (!!this.props.onAddRoom) {
+                            addRoomButton = (
+                                <AccessibleTooltipButton
+                                    tabIndex={tabIndex}
+                                    onClick={this.onAddRoom}
+                                    className="mx_RoomSublist_auxButton"
+                                    tooltipClassName="mx_RoomSublist_addRoomTooltip"
+                                    aria-label={this.props.addRoomLabel || _t("Add room")}
+                                    title={this.props.addRoomLabel}
+                                />
+                            );
+                        } else if (this.props.addRoomContextMenu) {
+                            addRoomButton = (
+                                <ContextMenuTooltipButton
+                                    tabIndex={tabIndex}
+                                    onClick={this.onAddRoomContextMenu}
+                                    className="mx_RoomSublist_auxButton"
+                                    tooltipClassName="mx_RoomSublist_addRoomTooltip"
+                                    aria-label={this.props.addRoomLabel || _t("Add room")}
+                                    title={this.props.addRoomLabel}
+                                    isExpanded={!!this.state.addRoomContextMenuPosition}
+                                />
+                            );
+                        }
                     }
 
                     const collapseClasses = classNames({

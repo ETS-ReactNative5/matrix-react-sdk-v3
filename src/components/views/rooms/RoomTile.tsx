@@ -489,9 +489,8 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
     }
 
     private renderRoomTypeElement(): React.ReactElement{
-        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
         let classes = "tc_RoomTile_roomType";
-        let translation = "";
+        let translation = '\u00A0';
         if (Tchap.isRoomForum(this.props.room.roomId)) {
             classes += " tc_Room_roomType_forum";
             translation = _t("Forum");
@@ -501,10 +500,8 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         } else if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
             classes += " tc_Room_roomType_unrestricted";
             translation = _t("External");
-        } else {
-            translation = '\u00A0';
         }
-        if (!this.props.isMinimized) {
+        if (!this.props.isMinimized && this.props.room.getMyMembership() !== "invite") {
             return (
                 <React.Fragment>
                     <div className={classes}>{translation}</div>

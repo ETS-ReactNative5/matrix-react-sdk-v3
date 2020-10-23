@@ -26,30 +26,16 @@ const plEventsToLabels = {
     // These will be translated for us later.
     "m.room.avatar": _td("Change room avatar"),
     "m.room.name": _td("Change room name"),
-    "m.room.canonical_alias": _td("Change main address for the room"),
-    "m.room.history_visibility": _td("Change history visibility"),
     "m.room.power_levels": _td("Change permissions"),
     "m.room.topic": _td("Change topic"),
-    "m.room.tombstone": _td("Upgrade the room"),
-    "m.room.encryption": _td("Enable room encryption"),
-
-    // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
-    "im.vector.modular.widgets": _td("Modify widgets"),
 };
 
 const plEventsToShow = {
     // If an event is listed here, it will be shown in the PL settings. Defaults will be calculated.
     "m.room.avatar": {isState: true},
     "m.room.name": {isState: true},
-    "m.room.canonical_alias": {isState: true},
-    "m.room.history_visibility": {isState: true},
     "m.room.power_levels": {isState: true},
     "m.room.topic": {isState: true},
-    "m.room.tombstone": {isState: true},
-    "m.room.encryption": {isState: true},
-
-    // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
-    "im.vector.modular.widgets": {isState: true},
 };
 
 // parse a string as an integer; if the input is undefined, or cannot be parsed
@@ -248,7 +234,7 @@ export default class RolesRoomSettingsTab extends React.Component {
             },
         };
 
-        const eventsLevels = plContent.events || {};
+        const eventsLevels = {};
         const userLevels = plContent.users || {};
         const banLevel = parseIntWithDefault(plContent.ban, powerLevelDescriptors.ban.defaultValue);
         const defaultUserLevel = parseIntWithDefault(

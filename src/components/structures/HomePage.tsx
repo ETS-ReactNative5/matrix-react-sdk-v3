@@ -23,6 +23,7 @@ import SdkConfig from "../../SdkConfig";
 import * as sdk from "../../index";
 import dis from "../../dispatcher/dispatcher";
 import { Action } from "../../dispatcher/actions";
+import Tchap from "../../tchap/Tchap";
 
 const onClickSendDm = () => dis.dispatch({action: 'view_create_chat'});
 const onClickExplore = () => dis.fire(Action.ViewRoomDirectory);
@@ -31,6 +32,7 @@ const onClickNewRoom = () => dis.dispatch({action: 'view_create_room'});
 const HomePage = () => {
     const config = SdkConfig.get();
     const pageUrl = getHomePageUrl(config);
+    const AccessibleButton = sdk.getComponent("elements.AccessibleButton");
 
     if (pageUrl) {
         const EmbeddedPage = sdk.getComponent('structures.EmbeddedPage');
@@ -39,23 +41,29 @@ const HomePage = () => {
 
     let logoUrl = "themes/tchap/img/logos/tchap-logo.svg";
 
-    const AccessibleButton = sdk.getComponent("elements.AccessibleButton");
-    return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
-        <div className="mx_HomePage_default_wrapper">
-            <img src={logoUrl} alt={config.brand || "Element"} />
-            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand || "Element" }) }</h1>
-            <h4>{ _t("State instant messaging") }</h4>
+    let defaultButtons = null;
+    if (!Tchap.isCurrentUserExtern()) {
+        defaultButtons  = (
             <div className="mx_HomePage_default_buttons">
                 <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
                     { _t("Send a Direct Message") }
                 </AccessibleButton>
                 <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
-                    { _t("Explore Public Rooms") }
+                    { _t("Explore Forums") }
                 </AccessibleButton>
                 <AccessibleButton onClick={onClickNewRoom} className="mx_HomePage_button_createGroup">
                     { _t("Create a Group Chat") }
                 </AccessibleButton>
             </div>
+        );
+    }
+
+    return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
+        <div className="mx_HomePage_default_wrapper">
+            <img src={logoUrl} alt={config.brand || "Element"} />
+            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand || "Element" }) }</h1>
+            <h4>{ _t("State instant messaging") }</h4>
+            { defaultButtons }
         </div>
     </AutoHideScrollbar>;
 };
