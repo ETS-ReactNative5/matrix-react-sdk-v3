@@ -94,11 +94,15 @@ export default class SenderProfile extends React.Component {
         let name = "";
 
         // Set displayname for search results.
-        if (mxEvent.sender) {
-            name = mxEvent.sender.name
-        } else {
-            const user = MatrixClientPeg.get().getUser(mxEvent.getSender());
+        const user = MatrixClientPeg.get().getUser(mxEvent.getSender());
+        if (user) {
             name = user.rawDisplayName;
+        } else if (mxEvent.sender) {
+            name = mxEvent.sender.name;
+        } else if (mxEvent.getSender()) {
+            name = mxEvent.getSender();
+        } else {
+            name = "";
         }
 
         if (msgtype === 'm.emote') {
