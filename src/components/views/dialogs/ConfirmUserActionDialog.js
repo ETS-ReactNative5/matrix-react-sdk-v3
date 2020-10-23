@@ -123,7 +123,6 @@ export default class ConfirmUserActionDialog extends React.Component {
                         { avatar }
                     </div>
                     <div className="mx_ConfirmUserActionDialog_name">{ name }</div>
-                    <div className="mx_ConfirmUserActionDialog_userId">{ userId }</div>
                 </div>
                 { reasonBox }
                 <DialogButtons primaryButton={this.props.action}

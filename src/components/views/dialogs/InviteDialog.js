@@ -37,8 +37,6 @@ import {Action} from "../../../dispatcher/actions";
 import {DefaultTagID} from "../../../stores/room-list/models";
 import RoomListStore from "../../../stores/room-list/RoomListStore";
 import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
-import SettingsStore from "../../../settings/SettingsStore";
-import {UIFeature} from "../../../settings/UIFeature";
 import Tchap from "../../../tchap/Tchap";
 
 // we have a number of types defined from the Matrix spec which can't reasonably be altered here.
@@ -564,9 +562,6 @@ export default class InviteDialog extends React.PureComponent {
         if (this.state.filterText.startsWith('@')) {
             // Assume mxid
             newMember = new DirectoryMember({user_id: this.state.filterText, display_name: null, avatar_url: null});
-        } else if (SettingsStore.getValue(UIFeature.IdentityServer)) {
-            // Assume email
-            newMember = new ThreepidMember(this.state.filterText);
         }
         const newTargets = [...(this.state.targets || []), newMember];
         this.setState({targets: newTargets, filterText: ''});
@@ -577,10 +572,17 @@ export default class InviteDialog extends React.PureComponent {
         this.setState({busy: true});
         const targets = this._convertFilter();
         const targetIds = targets.map(t => t.userId);
-        const otherUserId = targetIds[0];
+
+        let otherUserId = targetIds[0];
+        if (Email.looksValid(otherUserId)) {
+            const lookup = await Tchap.lookupThreePid('email', otherUserId);
+            otherUserId = lookup.mxid ? lookup.mxid : otherUserId;
+        }
+
+        const updatedTargetIds  = [otherUserId]
 
         // Check if there is already a DM with these people and reuse it if possible.
-        const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
+        const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(updatedTargetIds);
         if (existingRoom && existingRoom.currentState.members[otherUserId].membership !== "leave") {
             dis.dispatch({
                 action: 'view_room',
@@ -591,10 +593,6 @@ export default class InviteDialog extends React.PureComponent {
             this.props.onFinished();
             return;
         }
-
-
-        // BYPASS IF EMAIL Return a new room
-
 
         let otherRoom = Tchap.getExistingRoom(MatrixClientPeg.get().getUserId(), otherUserId);
         if (otherRoom) {
@@ -610,7 +608,7 @@ export default class InviteDialog extends React.PureComponent {
                     });
                     break;
                 case "leave":
-                    inviteMultipleToRoom(otherRoom.roomId, targetIds).then(result => {
+                    inviteMultipleToRoom(otherRoom.roomId, updatedTargetIds).then(result => {
                         dis.dispatch({
                             action: 'view_room',
                             room_id: otherRoom.roomId,
@@ -644,7 +642,7 @@ export default class InviteDialog extends React.PureComponent {
             const has3PidMembers = targets.some(t => t instanceof ThreepidMember);
             if (!has3PidMembers) {
                 const client = MatrixClientPeg.get();
-                const allHaveDeviceKeys = await canEncryptToAllUsers(client, targetIds);
+                const allHaveDeviceKeys = await canEncryptToAllUsers(client, updatedTargetIds);
                 if (allHaveDeviceKeys) {
                     createRoomOptions.encryption = true;
                 }
@@ -654,16 +652,16 @@ export default class InviteDialog extends React.PureComponent {
         // Check if it's a traditional DM and create the room if required.
         // TODO: [Canonical DMs] Remove this check and instead just create the multi-person DM
         let createRoomPromise = Promise.resolve();
-        const isSelf = targetIds.length === 1 && targetIds[0] === MatrixClientPeg.get().getUserId();
-        if (targetIds.length === 1 && !isSelf) {
-            createRoomOptions.dmUserId = targetIds[0];
+        const isSelf = updatedTargetIds.length === 1 && updatedTargetIds[0] === MatrixClientPeg.get().getUserId();
+        if (updatedTargetIds.length === 1 && !isSelf) {
+            createRoomOptions.dmUserId = updatedTargetIds[0];
             createRoomPromise = createRoom(createRoomOptions);
         } else if (isSelf) {
             createRoomPromise = createRoom(createRoomOptions);
         } else {
             // Create a boring room and try to invite the targets manually.
             createRoomPromise = createRoom(createRoomOptions).then(roomId => {
-                return inviteMultipleToRoom(roomId, targetIds);
+                return inviteMultipleToRoom(roomId, updatedTargetIds);
             }).then(result => {
                 if (this._shouldAbortAfterInviteError(result)) {
                     return true; // abort
@@ -684,7 +682,7 @@ export default class InviteDialog extends React.PureComponent {
         });
     };
 
-    _inviteUsers = () => {
+    _inviteUsers = async () => {
         this.setState({busy: true});
         this._convertFilter();
         const targets = this._convertFilter();
@@ -700,7 +698,16 @@ export default class InviteDialog extends React.PureComponent {
             return;
         }
 
-        inviteMultipleToRoom(this.props.roomId, targetIds).then(result => {
+        const updatedTargetIds = await Promise.all(targetIds.map(async (t) => {
+            let otherUserId = t;
+            if (Email.looksValid(t)) {
+                const lookup = await Tchap.lookupThreePid('email', t);
+                otherUserId = lookup.mxid ? lookup.mxid : otherUserId;
+            }
+            return otherUserId;
+        }));
+
+        inviteMultipleToRoom(this.props.roomId, updatedTargetIds).then(result => {
             if (!this._shouldAbortAfterInviteError(result)) { // handles setting error message too
                 this.props.onFinished();
             }
@@ -794,7 +801,7 @@ export default class InviteDialog extends React.PureComponent {
                 this.setState({tryingIdentityServer: true});
                 return;
             }
-            if (term.indexOf('@') > 0 && Email.looksValid(term) && SettingsStore.getValue(UIFeature.IdentityServer)) {
+            if (term.indexOf('@') > 0 && Email.looksValid(term)) {
                 // Start off by suggesting the plain email while we try and resolve it
                 // to a real account.
                 this.setState({
@@ -802,8 +809,6 @@ export default class InviteDialog extends React.PureComponent {
                     threepidResultsMixin: [{user: new ThreepidMember(term), userId: term}],
                 });
                 try {
-                    const authClient = new IdentityAuthClient();
-                    const token = await authClient.getAccessToken();
                     if (term !== this.state.filterText) return; // abandon hope
 
                     const lookup = await Tchap.lookupThreePid(
@@ -1103,7 +1108,7 @@ export default class InviteDialog extends React.PureComponent {
                 ref={this._editorRef}
                 onPaste={this._onPaste}
                 autoFocus={true}
-                disabled={this.state.busy}
+                disabled={isDisabled}
             />
         );
         return (
@@ -1112,42 +1117,6 @@ export default class InviteDialog extends React.PureComponent {
                 {input}
             </div>
         );
-    }
-
-    _renderIdentityServerWarning() {
-        if (!this.state.tryingIdentityServer || this.state.canUseIdentityServer ||
-            !SettingsStore.getValue(UIFeature.IdentityServer)
-        ) {
-            return null;
-        }
-
-        const defaultIdentityServerUrl = getDefaultIdentityServerUrl();
-        if (defaultIdentityServerUrl) {
-            return (
-                <div className="mx_AddressPickerDialog_identityServer">{_t(
-                    "Use an identity server to invite by email. " +
-                    "<default>Use the default (%(defaultIdentityServerName)s)</default> " +
-                    "or manage in <settings>Settings</settings>.",
-                    {
-                        defaultIdentityServerName: abbreviateUrl(defaultIdentityServerUrl),
-                    },
-                    {
-                        default: sub => <a href="#" onClick={this._onUseDefaultIdentityServerClick}>{sub}</a>,
-                        settings: sub => <a href="#" onClick={this._onManageSettingsClick}>{sub}</a>,
-                    },
-                )}</div>
-            );
-        } else {
-            return (
-                <div className="mx_AddressPickerDialog_identityServer">{_t(
-                    "Use an identity server to invite by email. " +
-                    "Manage in <settings>Settings</settings>.",
-                    {}, {
-                        settings: sub => <a href="#" onClick={this._onManageSettingsClick}>{sub}</a>,
-                    },
-                )}</div>
-            );
-        }
     }
 
     _renderRestriction() {
@@ -1184,9 +1153,6 @@ export default class InviteDialog extends React.PureComponent {
         let buttonText;
         let goButtonFn;
 
-        const identityServersEnabled = SettingsStore.getValue(UIFeature.IdentityServer);
-
-        const userId = MatrixClientPeg.get().getUserId();
         if (this.props.kind === KIND_DM) {
             title = _t("Direct Messages");
             helpText = _t("Start a conversation with someone using their name or email address.");
@@ -1211,8 +1177,7 @@ export default class InviteDialog extends React.PureComponent {
             );
         }
 
-        const hasSelection = this.state.targets.length > 0
-            || (this.state.filterText && this.state.filterText.includes('@'));
+        const hasSelection = this.state.targets.length > 0;
         return (
             <BaseDialog
                 className='mx_InviteDialog'
@@ -1237,7 +1202,6 @@ export default class InviteDialog extends React.PureComponent {
                             {spinner}
                         </div>
                     </div>
-                    {this._renderIdentityServerWarning()}
                     <div className='error'>{this.state.errorText}</div>
                     <div className='mx_InviteDialog_userSections'>
                         {this._renderSection('recents')}

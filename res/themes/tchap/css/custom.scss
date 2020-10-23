@@ -553,6 +553,22 @@
     }
 }
 
+
+// Invite Dialog
+.mx_InviteDialog {
+    height: unset;
+}
+.mx_InviteDialog_addressBar .mx_InviteDialog_editor {
+    textarea,
+    textarea:focus {
+        width: 100%;
+    }
+}
+.tc_InviteDialog_advanced {
+    margin-top: 6px;
+}
+
+
 /*
 .tc_LeftPanel_Button_cross {
     margin-right: 19px;

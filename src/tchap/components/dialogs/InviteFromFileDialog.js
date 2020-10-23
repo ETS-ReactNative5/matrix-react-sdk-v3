@@ -33,6 +33,8 @@ export default class InviteFromFileDialog extends React.Component {
 
     constructor(props) {
         super(props);
+        this._handleFileRead = this._handleFileRead.bind(this);
+        this._parseFile = this._parseFile.bind(this);
 
         this.state = {
             error: null,
@@ -79,6 +81,9 @@ export default class InviteFromFileDialog extends React.Component {
             return;
         }
 
+        console.error("addresses");
+        console.error(addresses);
+
         this.setState({
             listSize: addresses.length
         });
@@ -90,11 +95,12 @@ export default class InviteFromFileDialog extends React.Component {
                         Tchap.getHSInfoFromEmail(address).then(res => {
                             if (!Tchap.isUserExternFromServerHostname(res.hs)) {
                                 Tchap.lookupThreePid("email", address).then(r => {
-                                    let member = room.getMember(r.mxid);
+                                    const member = room.getMember(r.mxid);
+                                    const invitedUser = r.mxid ? r.mxid : address;
                                     let idx = this.state.processingIndex + 1;
-                                    if (member === null || !member.membership) {
+                                    if (member === null || !member.membership || member.membership === "leave") {
                                         let tmpList = this.state.list;
-                                        tmpList.push(address);
+                                        tmpList.push(invitedUser);
                                         this.setState({
                                             list: tmpList
                                         });
@@ -113,11 +119,12 @@ export default class InviteFromFileDialog extends React.Component {
                         });
                     } else {
                         Tchap.lookupThreePid("email", address).then(r => {
-                            let member = room.getMember(r.mxid);
+                            const member = room.getMember(r.mxid);
+                            const invitedUser = r.mxid ? r.mxid : address;
                             let idx = this.state.processingIndex + 1;
-                            if (member === null || !member.membership) {
+                            if (member === null || !member.membership || member.membership === "leave") {
                                 let tmpList = this.state.list;
-                                tmpList.push(address);
+                                tmpList.push(invitedUser);
                                 this.setState({
                                     list: tmpList
                                 });
