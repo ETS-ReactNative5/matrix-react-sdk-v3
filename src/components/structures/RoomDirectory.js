@@ -189,7 +189,7 @@ export default class RoomDirectory extends React.Component {
             this.setState({
                 loading: false,
                 error: (
-                    _t('%(brand)s failed to get the public room list.', { brand }) +
+                    _t('%(brand)s failed to get the forums list.', { brand }) +
                     (err && err.message) ? err.message : _t('The homeserver may be unavailable or overloaded.')
                 ),
             });

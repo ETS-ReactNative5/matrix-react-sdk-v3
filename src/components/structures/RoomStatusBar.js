@@ -143,13 +143,13 @@ export default class RoomStatusBar extends React.Component {
         });
     };
 
-    _onReinviteClick() {
+    _onReinviteClick = () => {
         const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
         inviteMultipleToRoom(this.props.room.roomId, [dmUserId]).then().catch(err => {
             console.error("Failed to invite user to the room")
             console.error(err)
         });
-    }
+    };
 
     // Check whether current size is greater than 0, if yes call props.onVisible
     _checkSize() {

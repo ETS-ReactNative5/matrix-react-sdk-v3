@@ -155,7 +155,7 @@ function textForJoinRulesEvent(ev) {
     const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
     switch (ev.getContent().join_rule) {
         case "public":
-            return _t('%(senderDisplayName)s made the room public to whoever knows the link.', {senderDisplayName});
+            return _t('%(senderDisplayName)s made the room accessible to whoever knows the link.', {senderDisplayName});
         case "invite":
             return _t('%(senderDisplayName)s made the room invite only.', {senderDisplayName});
         default:

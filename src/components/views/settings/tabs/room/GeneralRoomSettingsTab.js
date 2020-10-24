@@ -56,9 +56,9 @@ export default class GeneralRoomSettingsTab extends React.Component {
         const self = this;
         const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
 
-        Modal.createTrackedDialog('Remove this room from the rooms directory', '', QuestionDialog, {
-            title: _t('Remove this room from the rooms directory'),
-            description: ( _t('This action is irreversible.') + " " + _t('Are you sure you want to remove this room from the rooms directory?')),
+        Modal.createTrackedDialog('Remove this room from the forums directory', '', QuestionDialog, {
+            title: _t('Remove this room from the forums directory'),
+            description: ( _t('This action is irreversible.') + " " + _t('Are you sure you want to remove this room from the forums directory?')),
             onFinished: (confirm) => {
                 if (confirm) {
                     client.sendStateEvent(room.roomId, "m.room.encryption", { algorithm: "m.megolm.v1.aes-sha2" });
@@ -114,10 +114,10 @@ export default class GeneralRoomSettingsTab extends React.Component {
         if (isCurrentUserAdmin && this.state.isRoomPublished) {
             roomPublishChange = (
                 <div>
-                    <span className='mx_SettingsTab_subheading'>{_t('Remove this room from the rooms directory')}</span>
+                    <span className='mx_SettingsTab_subheading'>{_t('Remove this room from the forums directory')}</span>
                     <div className='mx_SettingsTab_section'>
                         <AccessibleButton kind='primary' onClick={this._onRoomPublishChange}>
-                            {_t('Remove this room from the rooms directory')}
+                            {_t('Remove this room from the forums directory')}
                         </AccessibleButton>
                     </div>
                 </div>

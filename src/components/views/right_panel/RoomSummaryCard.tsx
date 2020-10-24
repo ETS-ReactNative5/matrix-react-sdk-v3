@@ -289,13 +289,22 @@ export default class RoomSummaryCard extends React.PureComponent<IProps, IState>
             );
         }
 
+        const name = () => {
+            let tmpName = room.name;
+            if (tmpName.startsWith("Empty room (was ")) {
+                tmpName = tmpName.replace("Empty room (was ", "");
+                tmpName.slice(0, -1);
+            }
+            return tmpName;
+        }
+
         const header = <React.Fragment>
             { roomIcon }
             <div className={roomCardAvatarClasses} role="presentation">
                 <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
             </div>
 
-            <h2 title={room.name}>{ room.name }</h2>
+            <h2 title={name()}>{ name() }</h2>
         </React.Fragment>;
 
         const memberCount = this.state.roomMemberCount;
