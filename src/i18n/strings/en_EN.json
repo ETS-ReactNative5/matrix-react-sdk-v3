@@ -2454,7 +2454,8 @@
     "Error : Invalid file format.": "Error : Invalid file format.",
     "Some users are extern. This room is restricted. They will not be invited.": "Some users are extern. This room is restricted. They will not be invited.",
     "Supported formats :": "Supported formats :",
-    ".txt with email addresses separated by ';'": ".txt with email addresses separated by ';'",
+    ".txt with email addresses separated by \" ; \"": ".txt with email addresses separated by \" ; \"",
+    ".txt with outlook format email (i.e. \"Firstname Name <firstname.name@email.com>;\")": ".txt with outlook format email (i.e. \"Firstname Name <firstname.name@email.com>;\")",
     ".csv with email addresses separated by lines break": ".csv with email addresses separated by lines break",
     "The file %(file)s was rejected by the security policy": "The file %(file)s was rejected by the security policy",
     "Analysis in progress": "Analysis in progress",
@@ -2476,5 +2477,17 @@
     "Save and log-out": "Save and log-out",
     "An invitation is still required for externs, although link access is enabled.": "An invitation is still required for externs, although link access is enabled.",
     "Your account's validity period has expired. Awaiting renewal validation...": "Your account's validity period has expired. Awaiting renewal validation...",
-    "You are not allowed to join %(roomName)s": "You are not allowed to join %(roomName)s"
+    "You are not allowed to join %(roomName)s": "You are not allowed to join %(roomName)s",
+    "Verify this device": "Verify this device",
+    "Verify another device": "Verify another device",
+    "Waiting for you to accept on your other device…": "Waiting for you to accept on your other device…",
+    "Verify this device by completing one of the following:": "Verify this device by completing one of the following:",
+    "Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…": "Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…",
+    "Waiting for your other device to verify…": "Waiting for your other device to verify…",
+    "Decryption fail: Please open Tchap on an other connected device to allow key sharing.": "Decryption fail: Please open Tchap on an other connected device to allow key sharing.",
+    "Request sent. <requestLink>Resend</requestLink>.": "Request sent. <requestLink>Resend</requestLink>.",
+    "Your key share request has been sent - please check your other devices for key share requests.": "Your key share request has been sent - please check your other devices for key share requests.",
+    "Key share requests are sent to your other devices automatically. If you rejected or dismissed the key share request on your other devices, click here to request the keys for this device again.": "Key share requests are sent to your other devices automatically. If you rejected or dismissed the key share request on your other devices, click here to request the keys for this device again.",
+    "If your other devices do not have the key for this message you will not be able to decrypt them.": "If your other devices do not have the key for this message you will not be able to decrypt them.",
+    "Request in progress…": "Request in progress…"
 }

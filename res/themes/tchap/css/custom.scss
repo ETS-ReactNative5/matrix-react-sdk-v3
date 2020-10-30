@@ -569,6 +569,33 @@
 }
 
 
+// Invite Dialog > Invite From File
+.tc_InviteDialog_InviteFromFile_type {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    margin-left: 2px;
+}
+
+
+// Share key dialog & toast
+.mx_EncryptionInfo_spinner .mx_Spinner {
+    margin-bottom: 24px;
+}
+
+.mx_VerificationShowSas {
+    .mx_Dialog_buttons {
+        button.mx_VerificationShowSas_matchButton {
+            color: $secondary-fg-color;
+            background-color: $accent-bg-color;
+            border: none;
+        }
+    }
+}
+
+
+
+
 /*
 .tc_LeftPanel_Button_cross {
     margin-right: 19px;

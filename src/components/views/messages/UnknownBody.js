@@ -16,9 +16,14 @@ limitations under the License.
 */
 
 import React, {forwardRef} from "react";
+import {_t} from "../../../languageHandler"
 
 export default forwardRef(({mxEvent}, ref) => {
-    const text = mxEvent.getContent().body;
+    let text = mxEvent.getContent().body;
+    if (text.includes("** Unable to decrypt: The sender's device has not sent us the keys for this message. **")
+        || text.includes("** Unable to decrypt: Error: OLM.UNKNOWN_MESSAGE_INDEX **")) {
+        text = _t("Decryption fail: Please open Tchap on an other connected device to allow key sharing.")
+    }
     return (
         <span className="mx_UnknownBody" ref={ref}>
             { text }

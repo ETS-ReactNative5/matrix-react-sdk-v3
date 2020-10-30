@@ -44,7 +44,7 @@ export default class VerificationQREmojiOptions extends React.Component {
 
         return (
             <div>
-                {_t("Verify this session by completing one of the following:")}
+                {_t("Verify this device by completing one of the following:")}
                 <div className='mx_IncomingSasDialog_startOptions'>
                     <div className='mx_IncomingSasDialog_startOption'>
                         <p>{_t("Scan this unique code")}</p>

@@ -120,12 +120,12 @@ export default class VerificationShowSas extends React.Component {
                     // device shouldn't be null in this situation but it can be, eg. if the device is
                     // logged out during verification
                     if (this.props.device) {
-                        text = _t("Waiting for your other session, %(deviceName)s (%(deviceId)s), to verify…", {
+                        text = _t("Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…", {
                             deviceName: this.props.device ? this.props.device.getDisplayName() : '',
                             deviceId: this.props.device ? this.props.device.deviceId : '',
                         });
                     } else {
-                        text = _t("Waiting for your other session to verify…");
+                        text = _t("Waiting for your other device to verify…");
                     }
                 } else {
                     const {displayName} = this.props;

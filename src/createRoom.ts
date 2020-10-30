@@ -155,9 +155,9 @@ export default function createRoom(opts: IOpts): Promise<string | null> {
     let alias;
     if (createOpts.name) {
         const tmpAlias = createOpts.name.replace(/[^a-z0-9]/gi, "");
-        alias = tmpAlias + _generateRandomString(7);
+        alias = tmpAlias + _generateRandomString(11);
     } else {
-        alias = _generateRandomString(7);
+        alias = _generateRandomString(11);
     }
 
     if (createOpts.visibility !== 'private') {

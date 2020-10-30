@@ -203,7 +203,7 @@ export default class IncomingSasDialog extends React.Component {
         return (
             <div>
                 <Spinner />
-                <p>{_t("Waiting for confirmation from other device...")}</p>
+                <p>{_t("Waiting for you to accept on your other device…")}</p>
             </div>
         );
     }

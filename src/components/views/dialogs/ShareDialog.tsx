@@ -46,6 +46,7 @@ const socials = [
 interface IProps extends IDialogProps {
     target: Room | User | Group | RoomMember | MatrixEvent;
     permalinkCreator: RoomPermalinkCreator;
+    isExtShared: boolean;
 }
 
 interface IState {

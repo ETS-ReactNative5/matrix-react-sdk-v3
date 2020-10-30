@@ -44,6 +44,7 @@ export default class InviteFromFileDialog extends React.Component {
             fileReader: new FileReader(),
             processingIndex: 0,
             fileType: null,
+            type: "",
             authorizedTypeTxt: ['text/plain'],
             authorizedTypeCsv: ['text/csv', 'text/x-csv', 'application/vnd.ms-excel', 'application/csv', 'application/x-csv']
         };
@@ -54,7 +55,8 @@ export default class InviteFromFileDialog extends React.Component {
     }
 
     onInvite = () => {
-        this.props.onFinished(true, this.state.list);
+        console.error("INVITED")
+        //this.props.onFinished(true, this.state.list);
     }
 
     _handleFileRead() {
@@ -68,11 +70,27 @@ export default class InviteFromFileDialog extends React.Component {
         let list = fileReader.result;
         let addresses = null;
 
+        console.error("list")
+        console.error(list)
+
         if (authorizedTypeTxt.includes(fileType)) {
-            list = list.replace(/(\r\n|\n|\r)/gm, "");
-            list = list.replace(/\s/gm, "");
-            addresses = list.split(";").filter(Boolean);
+            if (list.includes("<") && list.includes(">")) {
+                this.setState({type: "Outlook"});
+                let tmpAddresses = null;
+                list = list.replace(/(\r\n|\n|\r)/gm, "");
+                list = list.replaceAll("<", " ");
+                list = list.replaceAll(">", " ");
+                list = list.replaceAll(";", " ");
+                tmpAddresses = list.split(" ").filter(Boolean);
+                addresses = tmpAddresses.filter(a => Email.looksValid(a));
+            } else {
+                this.setState({type: "Txt"});
+                list = list.replace(/(\r\n|\n|\r)/gm, "");
+                list = list.replace(/\s/gm, "");
+                addresses = list.split(";").filter(Boolean);
+            }
         } else if (authorizedTypeCsv.includes(fileType)) {
+            this.setState({type: "Csv"});
             list = list.replace(/(\r)/gm, "");
             list = list.replace(/(\r\n|\n)/gm, ";");
             list = list.replace(/\s/gm, "");
@@ -188,6 +206,7 @@ export default class InviteFromFileDialog extends React.Component {
         const error = this.state.error;
         const totalProcess = this.state.processingIndex;
         const totalSize = this.state.listSize;
+        const type = this.state.type;
         const authorizedType = (this.state.authorizedTypeTxt).concat(this.state.authorizedTypeCsv).join(',')
 
         let errorRestricted = null;
@@ -207,7 +226,8 @@ export default class InviteFromFileDialog extends React.Component {
                     <label htmlFor="import-file">
                         { _t("Supported formats :") }
                         <ul>
-                            <li>{_t(".txt with email addresses separated by ';'")}</li>
+                            <li>{_t(".txt with email addresses separated by \" ; \"")}</li>
+                            <li>{_t(".txt with outlook format email (i.e. \"Firstname Name <firstname.name@email.com>;\")")}</li>
                             <li>{_t(".csv with email addresses separated by lines break")}</li>
                         </ul>
                     </label>
@@ -223,6 +243,7 @@ export default class InviteFromFileDialog extends React.Component {
                         accept={authorizedType}
                         onChange={e => this._parseFile(e.target.files[0])}
                     />
+                    <span className="tc_InviteDialog_InviteFromFile_type">Type : {type}</span>
                 </div>
                 <DialogButtons primaryButton={_t("Send %(number)s invites", {number: inviteNumber})}
                     onPrimaryButtonClick={this.onInvite}

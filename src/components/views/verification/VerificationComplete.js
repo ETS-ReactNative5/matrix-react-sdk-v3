@@ -18,6 +18,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as sdk from '../../../index';
 import { _t } from '../../../languageHandler';
+import E2EIcon from "../rooms/E2EIcon";
 
 export default class VerificationComplete extends React.Component {
     static propTypes = {
@@ -25,16 +26,16 @@ export default class VerificationComplete extends React.Component {
     }
 
     render() {
-        const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
-        return <div>
-            <h2>{_t("Verified!")}</h2>
-            <p>{_t(
-                "You've successfully verified this device.",
-            )}</p>
-            <DialogButtons onPrimaryButtonClick={this.props.onDone}
-                primaryButton={_t("Got It")}
-                hasCancel={false}
-            />
-        </div>;
+        const AccessibleButton = sdk.getComponent('elements.AccessibleButton');
+        return (
+            <div className="mx_UserInfo_container mx_VerificationPanel_verified_section">
+                <h3>{_t("Verified")}</h3>
+                <p>{_t("You've successfully verified your device!")}</p>
+                <E2EIcon isUser={true} status="verified" size={128} hideTooltip={true} />
+                <AccessibleButton kind="primary" className="mx_UserInfo_wideButton" onClick={this.props.onDone}>
+                    {_t("Got it")}
+                </AccessibleButton>
+            </div>
+        );
     }
 }

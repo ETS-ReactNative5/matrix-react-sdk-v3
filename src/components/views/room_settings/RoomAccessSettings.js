@@ -162,9 +162,9 @@ export default class RoomAccessSettings extends React.Component {
             let alias = "";
             if (room.name) {
                 const tmpAlias = room.name.replace(/[^a-z0-9]/gi, "");
-                alias = tmpAlias + this._generateRandomString(7);
+                alias = tmpAlias + this._generateRandomString(11);
             } else {
-                alias = this._generateRandomString(7);
+                alias = this._generateRandomString(11);
             }
             alias = `#${alias}:${client.getDomain()}`;
             client.createAlias(alias, room.roomId).then(() => {
