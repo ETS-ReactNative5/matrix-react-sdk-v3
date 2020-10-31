@@ -105,7 +105,7 @@ export function getUserNameColorClass(userId: string): string {
  */
 export function formatCommaSeparatedList(items: string[], itemLimit?: number): string {
     items = items.map(i => {
-        if (i.includes("] (@")) {
+        if (i && i.includes("] (@")) {
             return i.split(" (@")[0]
         }
         return i;

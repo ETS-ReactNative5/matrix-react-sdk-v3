@@ -427,7 +427,6 @@ export default class LeftPanel extends React.Component<IProps, IState> {
                 <aside className="mx_LeftPanel_roomListContainer">
                     {this.renderHeader()}
                     {this.renderSearchExplore()}
-                    {this.renderBreadcrumbs()}
                     <RoomListNumResults />
                     <div className="mx_LeftPanel_roomListWrapper">
                         <div

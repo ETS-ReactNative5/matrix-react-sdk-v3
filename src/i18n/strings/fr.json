@@ -2534,6 +2534,7 @@
     "Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…": "Dans l’attente que votre autre appareil, %(deviceName)s (%(deviceId)s), vérifie…",
     "Waiting for your other device to verify…": "En attente de la vérification depuis votre autre appareil…",
     "Decryption fail: Please open Tchap on an other connected device to allow key sharing.": "Echec de déchiffrement : Veuillez ouvrir Tchap sur vos autres appareils connectés afin d'autoriser le partage de clés.",
+    "Decryption fail": "Echec de déchiffrement",
     "Request sent. <requestLink>Resend</requestLink>.": "Demande envoyée. <requestLink>Renvoyer</requestLink>.",
     "Your key share request has been sent - please check your other devices for key share requests.": "Votre demande de partage de clé a été envoyée − vérifiez les demandes de partage de clé sur vos autres appareils.",
     "Key share requests are sent to your other devices automatically. If you rejected or dismissed the key share request on your other devices, click here to request the keys for this device again.": "Les demandes de partage de clé sont envoyées à vos autres appareils automatiquement. Si vous avez rejeté ou ignoré la demande de partage de clé sur vos autres appareils, cliquez ici pour redemander les clés pour cet appareil.",

@@ -2,6 +2,7 @@ import {MatrixClientPeg} from '../MatrixClientPeg';
 import SdkConfig from "../SdkConfig";
 import TchapApi from './TchapApi';
 import DMRoomMap from "../utils/DMRoomMap";
+import {_t} from "../languageHandler";
 
 /**
  * Tchap utils.
@@ -398,6 +399,16 @@ export default class Tchap {
                     resolve({err});
                 });
         });
+    }
+
+    static transformServerErrors(str, short = false) {
+        let translatedString = str;
+        if (str &&
+            str.includes("** Unable to decrypt: The sender's device has not sent us the keys for this message. **") ||
+            str.includes("** Unable to decrypt: Error: OLM.UNKNOWN_MESSAGE_INDEX **")) {
+            translatedString = short ? _t("Decryption fail") : _t("Decryption fail: Please open Tchap on an other connected device to allow key sharing.");
+        }
+        return translatedString;
     }
 
     /**

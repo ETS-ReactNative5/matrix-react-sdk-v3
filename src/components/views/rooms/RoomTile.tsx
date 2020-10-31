@@ -575,7 +575,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         if (this.showMessagePreview && this.state.messagePreview) {
             messagePreview = (
                 <div className="mx_RoomTile_messagePreview" id={messagePreviewId(this.props.room.roomId)}>
-                    {this.state.messagePreview}
+                    {Tchap.transformServerErrors(this.state.messagePreview, true)}
                 </div>
             );
         }

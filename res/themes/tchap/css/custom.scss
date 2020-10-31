@@ -384,6 +384,13 @@
 }
 
 
+// Left Panel > Room List > Message Preview
+.mx_RoomTile .mx_RoomTile_nameContainer .mx_RoomTile_messagePreview {
+    color: $room-type-direct;
+    font-size: $font-12px;
+}
+
+
 // Room Header
 .mx_DecoratedRoomHeaderAvatar_icon {
     position: relative;

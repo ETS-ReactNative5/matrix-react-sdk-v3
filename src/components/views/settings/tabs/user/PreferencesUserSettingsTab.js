@@ -26,7 +26,7 @@ import {SettingLevel} from "../../../../../settings/SettingLevel";
 
 export default class PreferencesUserSettingsTab extends React.Component {
     static ROOM_LIST_SETTINGS = [
-        'breadcrumbs',
+        // 'breadcrumbs',
     ];
 
     static COMPOSER_SETTINGS = [
@@ -53,6 +53,8 @@ export default class PreferencesUserSettingsTab extends React.Component {
     ];
 
     static GENERAL_SETTINGS = [
+        // 'TagPanel.enableTagPanel',
+        // 'promptBeforeInviteUnknownUsers',
         // Start automatically after startup (electron-only)
         // Autocomplete delay (niche text box)
     ];

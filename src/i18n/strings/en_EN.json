@@ -2485,6 +2485,7 @@
     "Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…": "Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…",
     "Waiting for your other device to verify…": "Waiting for your other device to verify…",
     "Decryption fail: Please open Tchap on an other connected device to allow key sharing.": "Decryption fail: Please open Tchap on an other connected device to allow key sharing.",
+    "Decryption fail": "Decryption fail",
     "Request sent. <requestLink>Resend</requestLink>.": "Request sent. <requestLink>Resend</requestLink>.",
     "Your key share request has been sent - please check your other devices for key share requests.": "Your key share request has been sent - please check your other devices for key share requests.",
     "Key share requests are sent to your other devices automatically. If you rejected or dismissed the key share request on your other devices, click here to request the keys for this device again.": "Key share requests are sent to your other devices automatically. If you rejected or dismissed the key share request on your other devices, click here to request the keys for this device again.",
