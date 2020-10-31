@@ -2538,5 +2538,8 @@
     "Your key share request has been sent - please check your other devices for key share requests.": "Votre demande de partage de clé a été envoyée − vérifiez les demandes de partage de clé sur vos autres appareils.",
     "Key share requests are sent to your other devices automatically. If you rejected or dismissed the key share request on your other devices, click here to request the keys for this device again.": "Les demandes de partage de clé sont envoyées à vos autres appareils automatiquement. Si vous avez rejeté ou ignoré la demande de partage de clé sur vos autres appareils, cliquez ici pour redemander les clés pour cet appareil.",
     "If your other devices do not have the key for this message you will not be able to decrypt them.": "Si vos autres appareils n’ont pas la clé pour ce message vous ne pourrez pas le déchiffrer.",
-    "Request in progress…": "Demande en cours…"
+    "Request in progress…": "Demande en cours…",
+    "Download logs": "Télécharger les logs",
+    "Use a valid email address": "Utilisez une adresse e-mail valide",
+    "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.": "<b>Information</b> : Le domaine de votre adresse email n'est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap \"invité\", permettant uniquement de participer aux échanges privés auxquels vous êtes convié."
 }

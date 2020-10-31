@@ -204,15 +204,6 @@ export default class BugReportDialog extends React.Component {
                         </AccessibleButton>
                         {this.state.downloadProgress && <span>{this.state.downloadProgress} ...</span>}
                     </div>
-
-                    <Field
-                        type="text"
-                        className="mx_BugReportDialog_field_input"
-                        label={_t("GitHub issue")}
-                        onChange={this._onIssueUrlChange}
-                        value={this.state.issueUrl}
-                        placeholder="https://github.com/vector-im/element-web/issues/..."
-                    />
                     <Field
                         className="mx_BugReportDialog_field_input"
                         element="textarea"

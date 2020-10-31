@@ -27,6 +27,9 @@ import { SAFE_LOCALPART_REGEX } from '../../../Registration';
 import withValidation from '../elements/Validation';
 import {ValidatedServerConfig} from "../../../utils/AutoDiscoveryUtils";
 import PassphraseField from "./PassphraseField";
+import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
+import Tchap from "../../../tchap/Tchap";
+import classNames from "classnames";
 
 const FIELD_EMAIL = 'field_email';
 const FIELD_PASSWORD = 'field_password';
@@ -64,6 +67,7 @@ export default class RegistrationForm extends React.Component {
             password: this.props.defaultPassword || "",
             passwordConfirm: this.props.defaultPassword || "",
             passwordComplexity: null,
+            isExtern: false,
         };
     }
 
@@ -178,17 +182,25 @@ export default class RegistrationForm extends React.Component {
     onEmailChange = ev => {
         this.setState({
             email: ev.target.value,
+            isExtern: false,
         });
     };
 
     onEmailValidate = async fieldState => {
         const result = await this.validateEmailRules(fieldState);
+        if (result.valid) {
+            Tchap.discoverPlatform(fieldState.value).then(hsUrl => {
+                if (Tchap.isUserExternFromServer(hsUrl)) {
+                    this.setState({isExtern: true})
+                }
+            });
+        }
         this.markFieldValid(FIELD_EMAIL, result.valid);
         return result;
     };
 
     validateEmailRules = withValidation({
-        description: () => _t("Use an email address to recover your account"),
+        description: () => _t("Use a valid email address"),
         rules: [
             {
                 key: "required",
@@ -211,9 +223,31 @@ export default class RegistrationForm extends React.Component {
         });
     };
 
-    onPasswordValidate = result => {
+    onPasswordValidate = async fieldState => {
+        const result = await this.validatePasswordRules(fieldState);
         this.markFieldValid(FIELD_PASSWORD, result.valid);
+        return result;
     };
+
+    validatePasswordRules = withValidation({
+        description: () => _t("Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length."),
+        rules: [
+            {
+                key: "required",
+                test: ({ value, allowEmpty }) => allowEmpty || !!value,
+                invalid: () => _t("Enter password"),
+            },
+            {
+                key: "match",
+                test({ value }) {
+                    return !value || Tchap.discoverPlatform(this.state.email).then(hsUrl => {
+                        return TchapStrongPassword.validatePassword(hsUrl, value);
+                    });
+                },
+                invalid: () => _t("Password too weak !"),
+            },
+        ],
+    });
 
     onPasswordConfirmChange = ev => {
         this.setState({
@@ -257,10 +291,14 @@ export default class RegistrationForm extends React.Component {
     }
 
     renderPassword() {
-        return <PassphraseField
+        const Field = sdk.getComponent('elements.Field');
+        return <Field
             id="mx_RegistrationForm_password"
-            fieldRef={field => this[FIELD_PASSWORD] = field}
-            minScore={PASSWORD_MIN_SCORE}
+            className={"mx_PassphraseField"}
+            ref={field => this[FIELD_PASSWORD] = field}
+            type="password"
+            autoComplete="new-password"
+            label={_t("Password")}
             value={this.state.password}
             onChange={this.onPasswordChange}
             onValidate={this.onPasswordValidate}
@@ -281,6 +319,19 @@ export default class RegistrationForm extends React.Component {
         />;
     }
 
+    renderExternalWarning() {
+        if (this.state.isExtern) {
+            return <div className="tc_RegistrationForm_extern_warning">
+                { _t("<b>Information</b>: The domain of your email address is not declared in Tchap. " +
+                    "If you have received an invitation, you will be able to create a \"guest\" account, " +
+                    "allowing only to participate in private exchanges to which you are invited.",
+                    {},
+                    { b: (sub) => <b> { sub } </b> },) }
+            </div>;
+        }
+        return;
+    }
+
     render() {
         const registerButton = (
             <input className="mx_Login_submit" type="submit" value={_t("Register")} disabled={!this.props.canSubmit} />
@@ -292,6 +343,7 @@ export default class RegistrationForm extends React.Component {
                     <div className="mx_AuthBody_fieldRow">
                         {this.renderEmail()}
                     </div>
+                    {this.renderExternalWarning()}
                     <div className="mx_AuthBody_fieldRow">
                         {this.renderPassword()}
                         {this.renderPasswordConfirm()}
