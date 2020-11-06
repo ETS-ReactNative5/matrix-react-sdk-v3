@@ -547,7 +547,7 @@
 }
 
 
-// Message composer (& bottom bar)
+// Message Composer (& bottom bar)
 .tc_RoomStatusBar_reinvite {
     display: inline;
     padding: 4px 8px;
@@ -558,6 +558,49 @@
     &:focus {
         border-color: $accent-secondary !important;
     }
+}
+
+
+// Timeline > Text Event > Message > "..." Context Menu
+.mx_MessageContextMenu_field {
+    padding: 4px 6px 4px 23px;
+}
+
+.mx_MessageContextMenu_field::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    height: 16px;
+    width: 16px;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    mask-size: 16px;
+    -webkit-mask-size: 16px;
+    background-color: #2e2f32;
+}
+
+.mx_MessageContextMenu_field_remove::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/trash.svg');
+}
+
+.mx_MessageContextMenu_field_forward::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/reply.svg');
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.mx_MessageContextMenu_field_share::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/share.svg');
+}
+
+.mx_MessageContextMenu_field_quote::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/quote.svg');
+}
+
+.mx_MessageContextMenu_field_report::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/warning.svg');
 }
 
 

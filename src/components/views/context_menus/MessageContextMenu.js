@@ -323,7 +323,7 @@ export default class MessageContextMenu extends React.Component {
 
         if (isSent && this.state.canRedact) {
             redactButton = (
-                <MenuItem className="mx_MessageContextMenu_field" onClick={this.onRedactClick}>
+                <MenuItem className="mx_MessageContextMenu_field mx_MessageContextMenu_field_remove" onClick={this.onRedactClick}>
                     { _t('Remove') }
                 </MenuItem>
             );
@@ -339,7 +339,7 @@ export default class MessageContextMenu extends React.Component {
 
         if (isContentActionable(mxEvent)) {
             forwardButton = (
-                <MenuItem className="mx_MessageContextMenu_field" onClick={this.onForwardClick}>
+                <MenuItem className="mx_MessageContextMenu_field mx_MessageContextMenu_field_forward" onClick={this.onForwardClick}>
                     { _t('Forward Message') }
                 </MenuItem>
             );
@@ -371,7 +371,7 @@ export default class MessageContextMenu extends React.Component {
         const permalinkButton = (
             <MenuItem
                 element="a"
-                className="mx_MessageContextMenu_field"
+                className="mx_MessageContextMenu_field mx_MessageContextMenu_field_share"
                 onClick={this.onPermalinkClick}
                 href={permalink}
                 target="_blank"
@@ -384,7 +384,7 @@ export default class MessageContextMenu extends React.Component {
 
         if (this.props.eventTileOps) { // this event is rendered using TextualBody
             quoteButton = (
-                <MenuItem className="mx_MessageContextMenu_field" onClick={this.onQuoteClick}>
+                <MenuItem className="mx_MessageContextMenu_field mx_MessageContextMenu_field_quote" onClick={this.onQuoteClick}>
                     { _t('Quote') }
                 </MenuItem>
             );
@@ -420,7 +420,7 @@ export default class MessageContextMenu extends React.Component {
         let reportEventButton;
         if (mxEvent.getSender() !== me) {
             reportEventButton = (
-                <MenuItem className="mx_MessageContextMenu_field" onClick={this.onReportEventClick}>
+                <MenuItem className="mx_MessageContextMenu_field mx_MessageContextMenu_field_report" onClick={this.onReportEventClick}>
                     { _t('Report Content') }
                 </MenuItem>
             );
