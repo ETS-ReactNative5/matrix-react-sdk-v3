@@ -708,7 +708,7 @@ export default class InviteDialog extends React.PureComponent {
         }));
 
         inviteMultipleToRoom(this.props.roomId, updatedTargetIds).then(result => {
-            if (!this._shouldAbortAfterInviteError(result)) { // handles setting error message too
+            if (!this._shouldAbortAfterInviteError(result) && !result.inviter.busy) { // handles setting error message too
                 this.props.onFinished();
             }
         }).catch(err => {

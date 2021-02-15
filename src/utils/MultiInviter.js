@@ -121,7 +121,7 @@ export default class MultiInviter {
                 throw {errcode: "RIOT.ALREADY_IN_ROOM", error: "Member already invited"};
             }
 
-            if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
+            if (!ignoreProfile) {
                 try {
                     const profile = await MatrixClientPeg.get().getProfileInfo(addr);
                     if (!profile) {
@@ -160,7 +160,6 @@ export default class MultiInviter {
 
                 this.completionStates[address] = 'invited';
                 delete this.errors[address];
-
                 resolve();
             }).catch((err) => {
                 if (this._canceled) {
@@ -228,30 +227,16 @@ export default class MultiInviter {
                 const unknownProfileErrors = ['M_NOT_FOUND', 'M_USER_NOT_FOUND', 'M_PROFILE_UNDISCLOSED', 'M_PROFILE_NOT_FOUND', 'RIOT.USER_NOT_FOUND'];
                 const unknownProfileUsers = Object.keys(this.errors).filter(a => unknownProfileErrors.includes(this.errors[a].errcode));
 
+                console.error("unknownProfileUsers")
+                console.error(unknownProfileUsers)
+
                 if (unknownProfileUsers.length > 0) {
                     const inviteUnknowns = () => {
                         const promises = unknownProfileUsers.map(u => this._doInvite(u, true));
                         Promise.all(promises).then(() => this.deferred.resolve(this.completionStates));
                     };
 
-                    if (!SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
-                        inviteUnknowns();
-                        return;
-                    }
-
-                    const AskInviteAnywayDialog = sdk.getComponent("dialogs.AskInviteAnywayDialog");
-                    console.log("Showing failed to invite dialog...");
-                    Modal.createTrackedDialog('Failed to invite the following users to the room', '', AskInviteAnywayDialog, {
-                        unknownProfileUsers: unknownProfileUsers.map(u => {return {userId: u, errorText: this.errors[u].errorText};}),
-                        onInviteAnyways: () => inviteUnknowns(),
-                        onGiveUp: () => {
-                            // Fake all the completion states because we already warned the user
-                            for (const addr of unknownProfileUsers) {
-                                this.completionStates[addr] = 'invited';
-                            }
-                            this.deferred.resolve(this.completionStates);
-                        },
-                    });
+                    inviteUnknowns();
                     return;
                 }
             }

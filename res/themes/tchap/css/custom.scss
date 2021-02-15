@@ -237,16 +237,16 @@
 
 .mx_RoomSearch.mx_RoomSearch_focused, .mx_RoomSearch.mx_RoomSearch_hasQuery {
     background-color: $accent-bg-color;
-    -webkit-box-shadow: 0 0 4px 4px $accent-secondary;
-    box-shadow: 0 0 4px 4px $accent-secondary;
-    border-color: $secondary-fg-color;
+    -webkit-box-shadow: 0 0 2px 2px $accent-secondary;
+    box-shadow: 0 0 2px 2px $accent-secondary;
+    border-color: $tertiary-fg-color;
 }
 
 .mx_RoomSublist_resizeBox {
     &:hover, &.mx_RoomSublist_hasMenuOpen {
         .mx_RoomSublist_resizerHandle {
             opacity: 0.8;
-            background-color: $secondary-fg-color;
+            background-color: $tertiary-fg-color !important;
         }
     }
 }
@@ -283,7 +283,7 @@
     .mx_RoomTile_menuButton,
     .mx_RoomTile_notificationsButton {
         &::before {
-            background: $secondary-fg-color;
+            background: $tertiary-fg-color;
         }
     }
 }
@@ -386,8 +386,9 @@
 
 // Left Panel > Room List > Message Preview
 .mx_RoomTile .mx_RoomTile_nameContainer .mx_RoomTile_messagePreview {
-    color: $room-type-direct;
+    color: $roomtile2-preview-color;
     font-size: $font-12px;
+    line-height: $font-12px;
 }
 
 
