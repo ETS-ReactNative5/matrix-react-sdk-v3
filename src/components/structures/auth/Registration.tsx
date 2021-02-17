@@ -21,7 +21,6 @@ import {MatrixClient} from "matrix-js-sdk/src/client";
 import * as sdk from '../../../index';
 import { _t, _td } from '../../../languageHandler';
 import { messageForResourceLimitError } from '../../../utils/ErrorUtils';
-import AutoDiscoveryUtils, {ValidatedServerConfig} from "../../../utils/AutoDiscoveryUtils";
 import classNames from "classnames";
 import * as Lifecycle from '../../../Lifecycle';
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
@@ -30,9 +29,10 @@ import Login, {ISSOFlow} from "../../../Login";
 import dis from "../../../dispatcher/dispatcher";
 import SSOButtons from "../../views/elements/SSOButtons";
 import ServerPicker from '../../views/elements/ServerPicker';
+import Tchap from "../../../tchap/Tchap";
+import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
 interface IProps {
-    serverConfig: ValidatedServerConfig;
     defaultDeviceDisplayName: string;
     email?: string;
     brand?: string;
@@ -128,27 +128,19 @@ export default class Registration extends React.Component<IProps, IState> {
             serverErrorIsFatal: false,
             serverDeadError: "",
         };
-
-        const {hsUrl, isUrl} = this.props.serverConfig;
-        this.loginLogic = new Login(hsUrl, isUrl, null, {
-            defaultDeviceDisplayName: "Element login check", // We shouldn't ever be used
-        });
     }
 
     componentDidMount() {
-        this.replaceClient(this.props.serverConfig);
+        this.replaceClient();
     }
 
     // TODO: [REACT-WARNING] Replace with appropriate lifecycle event
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(newProps) {
-        if (newProps.serverConfig.hsUrl === this.props.serverConfig.hsUrl &&
-            newProps.serverConfig.isUrl === this.props.serverConfig.isUrl) return;
-
-        this.replaceClient(newProps.serverConfig);
+        this.replaceClient();
     }
 
-    private async replaceClient(serverConfig: ValidatedServerConfig) {
+    private async replaceClient(hsUrl) {
         this.setState({
             errorText: null,
             serverDeadError: null,
@@ -158,34 +150,18 @@ export default class Registration extends React.Component<IProps, IState> {
             busy: true,
         });
 
-        // Do a liveliness check on the URLs
-        try {
-            await AutoDiscoveryUtils.validateServerConfigWithStaticUrls(
-                serverConfig.hsUrl,
-                serverConfig.isUrl,
-            );
-            this.setState({
-                serverIsAlive: true,
-                serverErrorIsFatal: false,
-            });
-        } catch (e) {
-            this.setState({
-                busy: false,
-                ...AutoDiscoveryUtils.authComponentStateForError(e, "register"),
-            });
-            if (this.state.serverErrorIsFatal) {
-                return; // Server is dead - do not continue.
-            }
+        let serverUrl = hsUrl;
+        if (!hsUrl) {
+            serverUrl = Tchap.getRandomHSUrlFromList();
         }
 
-        const {hsUrl, isUrl} = serverConfig;
         const cli = Matrix.createClient({
-            baseUrl: hsUrl,
-            idBaseUrl: isUrl,
+            baseUrl: serverUrl,
+            idBaseUrl: serverUrl,
         });
 
-        this.loginLogic.setHomeserverUrl(hsUrl);
-        this.loginLogic.setIdentityServerUrl(isUrl);
+        this.loginLogic.setHomeserverUrl(serverUrl);
+        this.loginLogic.setIdentityServerUrl(serverUrl);
 
         let ssoFlow: ISSOFlow;
         try {
@@ -221,21 +197,6 @@ export default class Registration extends React.Component<IProps, IState> {
                 this.setState({
                     flows: e.data.flows,
                 });
-            } else if (e.httpStatus === 403 && e.errcode === "M_UNKNOWN") {
-                // At this point registration is pretty much disabled, but before we do that let's
-                // quickly check to see if the server supports SSO instead. If it does, we'll send
-                // the user off to the login page to figure their account out.
-                if (ssoFlow) {
-                    // Redirect to login page - server probably expects SSO only
-                    dis.dispatch({action: 'start_login'});
-                } else {
-                    this.setState({
-                        serverErrorIsFatal: true, // fatal because user cannot continue on this server
-                        errorText: _t("Registration has been disabled on this homeserver."),
-                        // add empty flows array to get rid of spinner
-                        flows: [],
-                    });
-                }
             } else {
                 console.log("Unable to query for supported registration methods.", e);
                 showGenericError(e);
@@ -243,12 +204,38 @@ export default class Registration extends React.Component<IProps, IState> {
         }
     }
 
-    private onFormSubmit = formVals => {
-        this.setState({
-            errorText: "",
-            busy: true,
-            formVals: formVals,
-            doingUIAuth: true,
+    onFormSubmit = formVals => {
+        Tchap.discoverPlatform(formVals.email).then(hs => {
+            TchapStrongPassword.validatePassword(hs, formVals.password).then(isPasswdValid => {
+                if (!isPasswdValid) {
+                    this.setState({
+                        hsUrl: hs,
+                        errorText: _t('This password is too weak. It must include a lower-case letter, an upper-case letter, ' +
+                            'a number and a symbol and be at a minimum 8 characters in length.'),
+                    });
+                } else {
+                    this.setState({
+                        hsUrl: hs,
+                        errorText: "",
+                        busy: true,
+                        formVals: formVals,
+                        doingUIAuth: true,
+                    });
+                }
+                this._replaceClient(hs);
+            });
+        }).catch(err => {
+            console.warn(err);
+            let errorText;
+            if (err === "ERR_UNREACHABLE_HOMESERVER") {
+                errorText = _t('Unreachable Homeserver');
+            } else {
+                errorText = err;
+            }
+            this.setState({
+                errorText: errorText,
+                busy: false,
+            });
         });
     };
 
@@ -256,7 +243,7 @@ export default class Registration extends React.Component<IProps, IState> {
         return this.state.matrixClient.requestRegisterEmailToken(
             emailAddress,
             clientSecret,
-            sendAttempt,
+            1,
             this.props.makeRegistrationUrl({
                 client_secret: clientSecret,
                 hs_url: this.state.matrixClient.getHomeserverUrl(),
@@ -383,7 +370,7 @@ export default class Registration extends React.Component<IProps, IState> {
     private onGoToFormClicked = ev => {
         ev.preventDefault();
         ev.stopPropagation();
-        this.replaceClient(this.props.serverConfig);
+        this.replaceClient();
         this.setState({
             busy: false,
             doingUIAuth: false,
@@ -402,23 +389,28 @@ export default class Registration extends React.Component<IProps, IState> {
         // session).
         if (!this.state.formVals.password) inhibitLogin = null;
 
-        const registerParams = {
-            username: this.state.formVals.username,
-            password: this.state.formVals.password,
-            initial_device_display_name: this.props.defaultDeviceDisplayName,
-            auth: undefined,
-            inhibit_login: undefined,
-        };
-        if (auth) registerParams.auth = auth;
-        if (inhibitLogin !== undefined && inhibitLogin !== null) registerParams.inhibit_login = inhibitLogin;
-        return this.state.matrixClient.registerRequest(registerParams);
+
+            return Tchap.discoverPlatform(this.state.formVals.email).then(hs => {
+                if (hs !== this.state.matrixClient.baseUrl) {
+                    return this.replaceClient(hs);
+                }
+            }).then(() => {
+                const registerParams = {
+                    email: this.state.formVals.email,
+                    password: this.state.formVals.password,
+                    initial_device_display_name: this.props.defaultDeviceDisplayName,
+                    auth: undefined,
+                    inhibit_login: undefined,
+                };
+                if (auth) registerParams.auth = auth;
+                if (inhibitLogin !== undefined && inhibitLogin !== null) registerParams.inhibit_login = inhibitLogin;
+                return this.state.matrixClient.registerRequest(registerParams);
+            });
     };
 
     private getUIAuthInputs() {
         return {
             emailAddress: this.state.formVals.email,
-            phoneCountry: this.state.formVals.phoneCountry,
-            phoneNumber: this.state.formVals.phoneNumber,
         };
     }
 
@@ -459,44 +451,13 @@ export default class Registration extends React.Component<IProps, IState> {
                 <Spinner />
             </div>;
         } else if (this.state.flows.length) {
-            let ssoSection;
-            if (this.state.ssoFlow) {
-                let continueWithSection;
-                const providers = this.state.ssoFlow["org.matrix.msc2858.identity_providers"] || [];
-                // when there is only a single (or 0) providers we show a wide button with `Continue with X` text
-                if (providers.length > 1) {
-                    // i18n: ssoButtons is a placeholder to help translators understand context
-                    continueWithSection = <h3 className="mx_AuthBody_centered">
-                        { _t("Continue with %(ssoButtons)s", { ssoButtons: "" }).trim() }
-                    </h3>;
-                }
-
-                // i18n: ssoButtons & usernamePassword are placeholders to help translators understand context
-                ssoSection = <React.Fragment>
-                    { continueWithSection }
-                    <SSOButtons
-                        matrixClient={this.loginLogic.createTemporaryClient()}
-                        flow={this.state.ssoFlow}
-                        loginType={this.state.ssoFlow.type === "m.login.sso" ? "sso" : "cas"}
-                        fragmentAfterLogin={this.props.fragmentAfterLogin}
-                    />
-                    <h3 className="mx_AuthBody_centered">
-                        { _t("%(ssoButtons)s Or %(usernamePassword)s", { ssoButtons: "", usernamePassword: ""}).trim() }
-                    </h3>
-                </React.Fragment>;
-            }
-
             return <React.Fragment>
-                { ssoSection }
                 <RegistrationForm
-                    defaultUsername={this.state.formVals.username}
                     defaultEmail={this.state.formVals.email}
-                    defaultPhoneCountry={this.state.formVals.phoneCountry}
-                    defaultPhoneNumber={this.state.formVals.phoneNumber}
                     defaultPassword={this.state.formVals.password}
                     onRegisterClick={this.onFormSubmit}
                     flows={this.state.flows}
-                    serverConfig={this.props.serverConfig}
+                    serverConfig={null}
                     canSubmit={!this.state.serverErrorIsFatal}
                 />
             </React.Fragment>;
@@ -586,12 +547,6 @@ export default class Registration extends React.Component<IProps, IState> {
                 <h2>{ _t('Create account') }</h2>
                 { errorText }
                 { serverDeadSection }
-                <ServerPicker
-                    title={_t("Host account on")}
-                    dialogTitle={_t("Decide where your account is hosted")}
-                    serverConfig={this.props.serverConfig}
-                    onServerConfigChange={this.state.doingUIAuth ? undefined : this.props.onServerConfigChange}
-                />
                 { this.renderRegisterComponent() }
                 { goBack }
                 { signIn }

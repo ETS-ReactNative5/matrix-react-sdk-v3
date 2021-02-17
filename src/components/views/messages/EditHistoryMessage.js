@@ -114,16 +114,10 @@ export default class EditHistoryMessage extends React.PureComponent {
                 </AccessibleButton>
             );
         }
-        const viewSourceButton = (
-            <AccessibleButton onClick={this._onViewSourceClick}>
-                {_t("View Source")}
-            </AccessibleButton>
-        );
         // disabled remove button when not allowed
         return (
             <div className="mx_MessageActionBar">
                 {redactButton}
-                {viewSourceButton}
             </div>
         );
     }

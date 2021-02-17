@@ -110,13 +110,6 @@ export default class ProfileSettings extends React.Component {
         this.setState(newState);
     };
 
-    _onDisplayNameChanged = (e) => {
-        this.setState({
-            displayName: e.target.value,
-            enableProfileSave: true,
-        });
-    };
-
     _onAvatarChanged = (e) => {
         if (!e.target.files || !e.target.files.length) {
             this.setState({
@@ -177,8 +170,7 @@ export default class ProfileSettings extends React.Component {
                             onChange={this._onDisplayNameChanged}
                         />
                         <p>
-                            {this.state.userId}
-                            {hostingSignup}
+                            {this.state.displayName}
                         </p>
                     </div>
                     <AvatarSetting

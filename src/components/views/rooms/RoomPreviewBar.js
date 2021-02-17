@@ -27,6 +27,7 @@ import SdkConfig from "../../../SdkConfig";
 import IdentityAuthClient from '../../../IdentityAuthClient';
 import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
 import {UPDATE_EVENT} from "../../../stores/AsyncStore";
+import Tchap from "../../../tchap/Tchap";
 
 const MessageCase = Object.freeze({
     NotLoggedIn: "NotLoggedIn",
@@ -35,6 +36,7 @@ const MessageCase = Object.freeze({
     Rejecting: "Rejecting",
     Kicked: "Kicked",
     Banned: "Banned",
+    ExternNotInvited: "ExternNotInvited",
     OtherThreePIDError: "OtherThreePIDError",
     InvitedEmailNotFoundInAccount: "InvitedEmailNotFoundInAccount",
     InvitedEmailNoIdentityServer: "InvitedEmailNoIdentityServer",
@@ -129,11 +131,9 @@ export default class RoomPreviewBar extends React.Component {
                 }
                 const authClient = new IdentityAuthClient();
                 const identityAccessToken = await authClient.getAccessToken();
-                const result = await MatrixClientPeg.get().lookupThreePid(
+                const result = await Tchap.lookupThreePid(
                     'email',
-                    this.props.invitedEmail,
-                    undefined /* callback */,
-                    identityAccessToken,
+                    this.props.invitedEmail
                 );
                 this.setState({invitedEmailMxid: result.mxid});
             } catch (err) {
@@ -157,6 +157,8 @@ export default class RoomPreviewBar extends React.Component {
             return MessageCase.NotLoggedIn;
         }
 
+        const isUserExtern = Tchap.isCurrentUserExtern();
+
         const myMember = this._getMyMember();
 
         if (myMember) {
@@ -171,6 +173,8 @@ export default class RoomPreviewBar extends React.Component {
             return MessageCase.Joining;
         } else if (this.props.rejecting) {
             return MessageCase.Rejecting;
+        } else if (isUserExtern && this.props.error) {
+            return MessageCase.ExternNotInvited;
         } else if (this.props.loading || this.state.busy) {
             return MessageCase.Loading;
         }
@@ -226,17 +230,11 @@ export default class RoomPreviewBar extends React.Component {
         }
     }
 
-    _communityProfile() {
-        if (this.props.room) return CommunityPrototypeStore.instance.getInviteProfile(this.props.room.roomId);
-        return {displayName: null, avatarMxc: null};
-    }
-
     _roomName(atStart = false) {
-        let name = this.props.room ? this.props.room.name : this.props.roomAlias;
-        const profile = this._communityProfile();
-        if (profile.displayName) name = profile.displayName;
-        if (name) {
-            return name;
+        if (this.props.room) {
+            return this.props.room.name;
+        } else if (this.props.roomAlias) {
+            return this.props.roomAlias.split(':')[0]
         } else if (atStart) {
             return _t("This room");
         } else {
@@ -370,6 +368,11 @@ export default class RoomPreviewBar extends React.Component {
                 primaryActionHandler = this.props.onForgetClick;
                 break;
             }
+            case MessageCase.ExternNotInvited: {
+                title = _t("You are not allowed to join %(roomName)s", {roomName: this._roomName()});
+                subTitle = _t("Try again later, or ask a room admin to check if you can have access.");
+                break;
+            }
             case MessageCase.OtherThreePIDError: {
                 title = _t("Something went wrong with your invite to %(roomName)s",
                     {roomName: this._roomName()});
@@ -389,7 +392,7 @@ export default class RoomPreviewBar extends React.Component {
                         primaryActionHandler = this.props.onJoinClick;
                         break;
                     case "public":
-                        subTitle = _t("You can still join it because this is a public room.");
+                        subTitle = _t("You can still join it because this is a forum.");
                         primaryActionLabel = _t("Join the discussion");
                         primaryActionHandler = this.props.onJoinClick;
                         break;
@@ -464,7 +467,7 @@ export default class RoomPreviewBar extends React.Component {
                     inviterElement = <span>
                         <span className="mx_RoomPreviewBar_inviter">
                             {inviteMember.rawDisplayName}
-                        </span> ({inviteMember.userId})
+                        </span>
                     </span>;
                 } else {
                     inviterElement = (<span className="mx_RoomPreviewBar_inviter">{this.props.inviterName}</span>);
@@ -508,7 +511,7 @@ export default class RoomPreviewBar extends React.Component {
                         {roomName: this._roomName()});
                 } else {
                     title = _t("%(roomName)s can't be previewed. Do you want to join it?",
-                        {roomName: this._roomName(true)});
+                        {roomName: this._roomName()});
                 }
                 primaryActionLabel = _t("Join the discussion");
                 primaryActionHandler = this.props.onJoinClick;
@@ -520,18 +523,8 @@ export default class RoomPreviewBar extends React.Component {
                 break;
             }
             case MessageCase.OtherError: {
-                title = _t("%(roomName)s is not accessible at this time.", {roomName: this._roomName(true)});
-                subTitle = [
-                    _t("Try again later, or ask a room admin to check if you have access."),
-                    _t(
-                        "%(errcode)s was returned while trying to access the room. " +
-                        "If you think you're seeing this message in error, please " +
-                        "<issueLink>submit a bug report</issueLink>.",
-                        { errcode: this.props.error.errcode },
-                        { issueLink: label => <a href="https://github.com/vector-im/element-web/issues/new/choose"
-                            target="_blank" rel="noreferrer noopener">{ label }</a> },
-                    ),
-                ];
+                title = _t("You are not allowed to join %(roomName)s", {roomName: this._roomName()});
+                subTitle = _t("Try again later, or ask a room admin to check if you have access.");
                 break;
             }
         }

@@ -540,7 +540,7 @@ export default class AddressPickerDialog extends React.Component {
             const identityAccessToken = await authClient.getAccessToken();
             if (cancelled) return null;
 
-            const lookup = await MatrixClientPeg.get().lookupThreePid(
+            const lookup = await Tchap.lookupThreePid(
                 medium,
                 address,
                 undefined /* callback */,

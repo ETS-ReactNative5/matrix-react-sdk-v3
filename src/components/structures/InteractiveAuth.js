@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import getEntryComponentForLoginType from '../views/auth/InteractiveAuthEntryComponents';
 
 import * as sdk from '../../index';
+import {_t} from "../../languageHandler";
 
 export const ERROR_USER_CANCELLED = new Error("User cancelled auth session");
 
@@ -110,13 +111,15 @@ export default class InteractiveAuthComponent extends React.Component {
             requestEmailToken: this._requestEmailToken,
         });
 
-        this._intervalId = null;
+        // Tchap Disable interval
+        /*this._intervalId = null;
         if (this.props.poll) {
             this._intervalId = setInterval(() => {
                 this._authLogic.poll();
             }, 2000);
-        }
+        }*/
 
+        this._authLogic.poll();
         this._stageComponent = createRef();
     }
 
@@ -129,7 +132,12 @@ export default class InteractiveAuthComponent extends React.Component {
             };
             this.props.onAuthFinished(true, result, extra);
         }).catch((error) => {
-            this.props.onAuthFinished(false, error);
+            let err = error;
+            if (error.errcode && error.errcode === "M_THREEPID_DENIED") {
+                err = _t(error.message);
+            }
+
+            this.props.onAuthFinished(false, err);
             console.error("Error during user-interactive auth:", error);
             if (this._unmounted) {
                 return;

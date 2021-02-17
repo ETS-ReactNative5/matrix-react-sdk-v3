@@ -1,0 +1,1009 @@
+// Generic
+.mx_FormButton {
+    &.mx_AccessibleButton_kind_primary {
+        color: $secondary-fg-color
+    }
+}
+
+
+// Room Directory
+.tc_RoomDirectory_roomPreview {
+    padding: 7px 4px 7px 4px !important;
+}
+
+.mx_RoomDirectory_preview {
+    width: 60px;
+}
+
+.mx_RoomDirectory_join {
+    width: 93px;
+}
+
+
+// Access Rules Big Event
+.mx_accessRulesEvent {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) min-content;
+    &.mx_accessRulesEvent_icon::after {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        width: 16px;
+        height: 16px;
+        content: "";
+        background-image: url("$(res)/img/tchap/feather-customised/user.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-top: 4px;
+    }
+    .mx_accessRulesEvent_title, .mx_accessRulesEvent_subtitle {
+        overflow-wrap: break-word;
+    }
+    .mx_accessRulesEvent_title {
+        font-weight: 600;
+        font-size: $font-15px;
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .mx_accessRulesEvent_subtitle {
+        grid-column: 2;
+        grid-row: 2;
+        font-size: $font-12px;
+    }
+}
+
+
+// Password Helper "?"
+.tc_PasswordHelper {
+    position: relative;
+    top: 7px;
+    left: 5px;
+}
+
+
+// MCS Warning Icon Position
+.tc_MCS_error {
+    margin-bottom: -2px;
+    margin-right: 8px;
+}
+
+
+// Encryption Informations (post-login & pre-logout dialogs)
+.tc_ThreeColumn_block {
+    margin-top: 30px;
+    margin-bottom: -40px;
+}
+
+.tc_ThreeColumn_block_image {
+    width: 100px;
+    height: 100px;
+    display: inline-flex;
+}
+
+.tc_ThreeColumn_block_image img {
+    margin: 0 auto;
+}
+
+.tc_ThreeColumn_block_content {
+    padding: 0 30px 0 30px;
+    margin-bottom: 10px;
+}
+
+.tc_ThreeColumn_block_content p {
+    margin-bottom: 20px;
+}
+
+.tc_ThreeColumn_block_bordered {
+    width: calc(33% - 1px);
+    border-right: 1px solid $input-darker-fg-color;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    display: inline-flex;
+}
+
+.tc_ThreeColumn_block_last {
+    width: calc(33% - 1px);
+    position: relative;
+    text-align: center;
+    display: inline-flex;
+}
+
+.tc_ThreeColumn_block_separator {
+    position: absolute;
+    right: 0;
+    top: 38%;
+    margin-right: -10px;
+    background: white;
+    color: $input-darker-fg-color;
+}
+
+
+// Room Settings > Access Settings
+.tc_ShareDialog {
+    border-color: #e7e7e7 !important;
+}
+
+.mx_ShareDialog_matrixto {
+    margin-top: 10px;
+}
+
+.tc_ExternSharing_warning {
+    font-size: 14px;
+    color: #747474;
+    margin-bottom: 6px;
+    img {
+        position: relative;
+    }
+    span {
+        margin-left: 8px;
+    }
+}
+
+
+// Room Settings > Link Sharing "?"
+.tc_LinkSharing_Helper {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+
+// Room Creation UI
+.tc_CreateRoomDialog_RoomOption > div {
+    background-color: $secondary-accent-color;
+    border-radius: 6px;
+    margin: 8px 0 8px 0;
+    padding: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.tc_CreateRoomDialog_RoomOption_private {
+    border: 0 solid $room-type-restricted;
+    color: $room-type-restricted;
+    &::before {
+        width: 12px;
+        height: 16px;
+        content: "";
+        display: inline-block;
+        vertical-align: sub;
+        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-private.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-right: 4px;
+    }
+}
+
+.tc_CreateRoomDialog_RoomOption_external {
+    border: 0 solid $room-type-unrestricted;
+    color: $room-type-unrestricted;
+    &::before {
+        width: 12px;
+        height: 16px;
+        content: "";
+        display: inline-block;
+        vertical-align: sub;
+        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-external.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-right: 4px;
+    }
+}
+
+.tc_CreateRoomDialog_RoomOption_public {
+    border: 0 solid $room-type-forum;
+    color: $room-type-forum;
+    &::before {
+        width: 12px;
+        height: 14px;
+        content: "";
+        display: inline-block;
+        vertical-align: sub;
+        background-image: url("$(res)/img/tchap/create-room-dialog/padlock-public.svg");
+        background-repeat: no-repeat;
+        background-size: 100%;
+        margin-right: 4px;
+    }
+}
+
+.tc_CreateRoomDialog_RoomOption_descr {
+    color: grey;
+    font-weight: normal;
+    font-size: 12px;
+    padding: 0 4px;
+}
+
+.tc_CreateRoomDialog_RoomOption_suboption {
+    display: none;
+    color: grey;
+    font-weight: normal;
+    font-size: 12px;
+    padding: 10px 4px 0 4px;
+}
+
+.tc_CreateRoomDialog_RoomOption_selected {
+    border-width: 2px;
+    .tc_CreateRoomDialog_RoomOption_suboption {
+        display: block;
+    }
+}
+
+
+// Left Panel
+.mx_RoomSearch.mx_RoomSearch_focused > input,
+.mx_RoomSearch.mx_RoomSearch_hasQuery > input {
+    color: $secondary-fg-color !important;
+}
+
+.mx_RoomSearch.mx_RoomSearch_focused, .mx_RoomSearch.mx_RoomSearch_hasQuery {
+    background-color: $accent-bg-color;
+    -webkit-box-shadow: 0 0 2px 2px $accent-secondary;
+    box-shadow: 0 0 2px 2px $accent-secondary;
+    border-color: $tertiary-fg-color;
+}
+
+.mx_RoomSublist_resizeBox {
+    &:hover, &.mx_RoomSublist_hasMenuOpen {
+        .mx_RoomSublist_resizerHandle {
+            opacity: 0.8;
+            background-color: $tertiary-fg-color !important;
+        }
+    }
+}
+
+.mx_RoomSublist .mx_RoomSublist_resizeBox .mx_RoomSublist_resizerHandle {
+    &:hover,
+    &:focus {
+        background-color: $secondary-fg-color;
+    }
+}
+
+
+// Left Panel > Room List
+.mx_LeftPanel_roomListContainer {
+    background-color: $accent-color !important;
+    color: #f3f8fd;
+}
+
+.mx_RoomTile {
+    &.mx_RoomTile_selected {
+        background-color: $accent-secondary;
+    }
+    &:hover,
+    &:focus-within,
+    &.mx_RoomTile_hasMenuOpen {
+        background-color: $accent-bg-color;
+        .tc_RoomTile_roomType {
+            display: none;
+        }
+    }
+    .mx_RoomTile_menuButton::before {
+        mask-image: url('$(res)/img/tchap/roomlist/context-menu.svg');
+    }
+    .mx_RoomTile_menuButton,
+    .mx_RoomTile_notificationsButton {
+        &::before {
+            background: $tertiary-fg-color;
+        }
+    }
+}
+
+.mx_RoomTile_iconBell::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications.svg');
+}
+.mx_RoomTile_iconBellDot::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications-default.svg');
+}
+.mx_RoomTile_iconBellCrossed::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications-off.svg');
+}
+.mx_RoomTile_iconBellMentions::before {
+    mask-image: url('$(res)/img/tchap/roomlist/notifications-dm.svg');
+}
+
+
+// Left Panel > Room List > Room Type Word
+.tc_RoomTile_roomType {
+    position: relative;
+    right: 0;
+    padding: 7px 10px 0 8px;
+    font-size: 12px;
+}
+.tc_Room_roomType_direct {
+    color: $room-type-direct;
+}
+.tc_Room_roomType_restricted {
+    color: $room-type-restricted;
+}
+.tc_Room_roomType_unrestricted {
+    color: $room-type-unrestricted;
+}
+.tc_Room_roomType_forum {
+    color: $room-type-forum;
+}
+
+
+// Left Panel > Room List > Room Type Avatar
+.mx_DecoratedRoomAvatar .mx_BaseAvatar .mx_BaseAvatar_initial {
+    z-index: 1;
+}
+
+.tc_RoomTile_avatar_hexa {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    z-index: 1;
+}
+
+.tc_RoomTile_avatar_hexa img {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+
+.tc_RoomTile_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    padding: 2px;
+}
+
+
+// Left Panel > Room List > Room Type Icon
+.mx_DecoratedRoomAvatar, .mx_TemporaryTile {
+    &.mx_DecoratedRoomAvatar_cutout .mx_BaseAvatar {
+        mask: none;
+    }
+}
+
+.mx_DecoratedRoomAvatar_icon {
+    position: absolute;
+    margin-top: -1px;
+    left: 29px;
+    border-radius: 0;
+    z-index: 2;
+}
+.mx_DecoratedRoomAvatar_icon::before {
+    content: '';
+    width: 12px;
+    height: 16px;
+    position: absolute;
+}
+
+.mx_DecoratedRoomAvatar_icon_forum::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/padlock-forum_mono_light.svg');
+    -webkit-transform: translateX(2px);
+    transform: translateX(2px);
+}
+.mx_DecoratedRoomAvatar_icon_encrypted::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-blue.svg');
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+
+// Left Panel > Room List > Message Preview
+.mx_RoomTile .mx_RoomTile_nameContainer .mx_RoomTile_messagePreview {
+    color: $roomtile2-preview-color;
+    font-size: $font-12px;
+    line-height: $font-12px;
+}
+
+
+// Room Header
+.mx_DecoratedRoomHeaderAvatar_icon {
+    position: relative;
+    top: -18px;
+    left: -13px;
+    border-radius: 0;
+    z-index: 2;
+}
+.mx_DecoratedRoomHeaderAvatar_icon::before {
+    content: '';
+    width: 12px;
+    height: 16px;
+    position: absolute;
+}
+
+.mx_DecoratedRoomHeaderAvatar_icon_forum::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/padlock-forum_mono_dark.svg');
+    -webkit-transform: translateX(2px);
+    transform: translateX(2px);
+}
+.mx_DecoratedRoomHeaderAvatar_icon_encrypted::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-white.svg');
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.mx_RoomHeader_name,
+.mx_RoomHeader_avatar,
+.mx_RoomHeader_avatarPicker,
+.mx_RoomHeader_avatarPicker_edit,
+.mx_RoomHeader_avatarPicker_remove {
+    cursor: default;
+}
+
+.tc_RoomHeader_infos {
+    display: grid;
+    width: 100%;
+}
+.mx_RoomHeader_name {
+    grid-column: 1;
+    grid-row: 1;
+    margin-bottom: -2px;
+}
+.mx_RoomHeader_topic {
+    grid-column: 2;
+    grid-row: 1 / 3;
+}
+.tc_RoomHeader_roomSubline {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    &>div[class^='tc_Room_roomType_'] {
+        font-size: 14px;
+        margin-left: 6px;
+        margin-right: 6px;
+    }
+    .tc_RoomHeader_memberCount {
+        font-size: 12px;
+        margin-top: 2px;
+        margin-left: 4px;
+    }
+}
+.tc_RoomHeader_button {
+    display: inline-flex;
+}
+
+
+// Left Panel > Bottom Logo & Links
+.tc_LeftPanel_Bottom_logo {
+    position: relative;
+    display: inline-block;
+    margin: 12px 16px 6px 20px;
+    & img {
+        height: 44px;
+    }
+}
+
+.tc_LeftPanel_Bottom_logo_collapsed {
+    position: relative;
+    display: inline-block;
+    margin: 12px 16px 6px 20px;
+    & img {
+        height: 20px;
+    }
+}
+
+.tc_LeftPanel_Bottom_links {
+    display: inline-block;
+    position: absolute;
+    padding-top: 26px;
+    a {
+        text-decoration: none;
+        color: $secondary-fg-color;
+    }
+}
+
+
+// Right Panel > Room Summary Card
+.tc_RoomSummaryCard_avatar_hexa_unrestricted {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    padding: 2px;
+    img {
+        border-radius: 0;
+        -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+}
+.tc_RoomSummaryCard_avatar_hexa {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    .mx_BaseAvatar_image {
+        border-radius: 0;
+    }
+}
+
+.tc_DecoratedRoomSummaryCard_icon::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    margin-left: 43px;
+    z-index: 1;
+}
+.tc_DecoratedRoomSummaryCard_icon_forum::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/padlock-forum_mono_dark.svg');
+    -webkit-transform: translateX(2px);
+    transform: translateX(2px);
+}
+.tc_DecoratedRoomSummaryCard_icon_encrypted::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-white.svg');
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+
+// Right Panel > User Details Card
+.mx_UserInfo_roleDescription .mx_IconButton {
+    background-color: rgba(22, 45, 88, 0.2);
+}
+
+.mx_UserInfo_profileField .mx_IconButton.mx_IconButton_icon_check {
+    background-color: rgba(22, 45, 88, 0.2);
+}
+
+
+// Message Composer (& bottom bar)
+.tc_RoomStatusBar_reinvite {
+    display: inline;
+    padding: 4px 8px;
+    margin: auto 4px;
+}
+
+.mx_BasicMessageComposer_input {
+    &:focus {
+        border-color: $accent-secondary !important;
+    }
+}
+
+
+// Timeline > Text Event > Message > "..." Context Menu
+.mx_MessageContextMenu_field {
+    padding: 4px 6px 4px 23px;
+}
+
+.mx_MessageContextMenu_field::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    height: 16px;
+    width: 16px;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    mask-size: 16px;
+    -webkit-mask-size: 16px;
+    background-color: #2e2f32;
+}
+
+.mx_MessageContextMenu_field_remove::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/trash.svg');
+}
+
+.mx_MessageContextMenu_field_forward::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/reply.svg');
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.mx_MessageContextMenu_field_share::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/share.svg');
+}
+
+.mx_MessageContextMenu_field_quote::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/quote.svg');
+}
+
+.mx_MessageContextMenu_field_report::after {
+    mask-image: url('$(res)/img/tchap/room/message-bar/warning.svg');
+}
+
+
+// Invite Dialog
+.mx_InviteDialog {
+    height: unset;
+}
+.mx_InviteDialog_addressBar .mx_InviteDialog_editor {
+    textarea,
+    textarea:focus {
+        width: 100%;
+    }
+}
+.tc_InviteDialog_advanced {
+    margin-top: 6px;
+}
+
+
+// Invite Dialog > Invite From File
+.tc_InviteDialog_InviteFromFile_type {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    margin-left: 2px;
+}
+
+
+// Share key dialog & toast
+.mx_EncryptionInfo_spinner .mx_Spinner {
+    margin-bottom: 24px;
+}
+
+.mx_VerificationShowSas {
+    .mx_Dialog_buttons {
+        button.mx_VerificationShowSas_matchButton {
+            color: $secondary-fg-color;
+            background-color: $accent-bg-color;
+            border: none;
+        }
+    }
+}
+
+
+// Registration
+.tc_RegistrationForm_extern_warning {
+    margin-bottom: 20px;
+}
+
+
+/*
+.tc_LeftPanel_Button_cross {
+    margin-right: 19px;
+    margin-top: -76px;
+    z-index: 1;
+}
+
+.tc_LeftPanel_Button_cross_btn {
+    width: 58px;
+    height: 58px;
+    background-image: url('$(res)/img/tchap/btn-cross_blue.svg');
+    background-repeat: no-repeat;
+    background-position: top;
+}
+
+.mx_RoomList > .mx_RoomSubList:last-child {
+    margin-bottom: 90px;
+}
+
+.mx_RoomTile_labelContainer {
+    min-width: initial !important;
+}
+
+.mx_UserMenu_contextMenu_name {
+    width: 100% !important;
+}
+
+
+// Room List / SubList
+/*.mx_RoomSubList_label > span {
+    color: $focus-bg-color;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.mx_RoomList {
+    overflow-y: scroll;
+}
+
+.mx_RoomList > .mx_ResizeHandle > div {
+    background: $accent-secondary;
+}
+
+.mx_RoomList > .mx_ResizeHandle.mx_ResizeHandle_vertical {
+    padding-top: 4px;
+}
+
+.mx_RoomSubList_scroll {
+    padding: 0;
+}
+
+.mx_RoomSubList {
+    height: auto !important;
+}
+
+.mx_RoomSubList_labelContainer {
+    padding-top: 10px;
+    border-radius: 4px;
+}*/
+
+
+
+
+
+
+
+
+
+// Room Tile
+/*.mx_RoomTile {
+    min-height: 60px;
+    margin-top: -1px;
+    &:focus {
+        background-color: $accent-color;
+    }
+    &::after {
+        content: "";
+        position: absolute;
+        left: 10%;
+        bottom: 0;
+        height: 1px;
+        width: 80%;
+        border-bottom: 1px solid $accent-secondary;
+    }
+}
+
+.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar .mx_BaseAvatar_image,
+.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar_image {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    vertical-align: top;
+    background-color: $avatar-bg-color;
+    border-radius: 0;
+}
+
+.tc_RoomTile_firstLine {
+    color: $focus-bg-color;
+    padding-left: 10px;
+}
+
+.mx_RoomTile_name {
+    font-size: medium;
+    color: inherit;
+    display: inline-flex;
+}
+
+.tc_RoomTile_roomType {
+    display: inline-flex;
+    position: absolute;
+    right: 0;
+    background-color: $accent-color;
+    padding: 4px 24px 0 8px;
+    font-size: 12px;
+}
+
+.mx_RoomTile_selected .tc_RoomTile_roomType {
+    background-color: $accent-secondary;
+}
+
+.mx_RoomTile_menuButton {
+    z-index: 1;
+}
+
+.mx_RoomTile_selected {
+    border-radius: 0;
+    background-color: $accent-secondary;
+    &:focus {
+        background-color: $accent-secondary;
+    }
+}
+
+.mx_RoomTile_unread .mx_RoomTile_name, .mx_RoomTile_highlight .mx_RoomTile_name {
+    color: $focus-bg-color;
+    font-weight: bold;
+}
+
+.tc_RoomTile_badge {
+    display: inline-flex;
+    padding: 0 7px 0 8px;
+    background-color: $focus-bg-color !important;
+    color: $accent-color !important;
+    font-weight: bold;
+    margin: 3px 6px 3px 0;
+}
+
+.tc_RoomSubList_badge > div {
+    padding: 0 7px 0 8px;
+    background-color: $focus-bg-color !important;
+    color: $accent-color !important;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.mx_RoomTile_invite .tc_RoomTile_badge {
+    padding: 0 9px 0 9px;
+}
+
+.mx_RoomTile_forum {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 45px;
+    z-index: 2;
+    top: 13px;
+}
+
+
+.mx_RoomTile_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    margin-left: 4px;
+    margin-right: -4px;
+    padding: 2px 8px 2px 2px;
+}
+
+@-moz-document url-prefix() {
+    .mx_RoomTile_avatar_unrestricted {
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        margin-right: 4px;
+        padding: 2px;
+    }
+}
+
+.mx_RoomTile_avatar {
+    flex: 0;
+    vertical-align: middle;
+}
+
+.mx_RoomTile_dm {
+    left: 40px;
+    top: 12px;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}*/
+
+
+
+
+
+
+
+
+
+
+
+// Context Menus
+/*.mx_ContextualMenu_top {
+    -webkit-box-shadow: 2px 2px 2px 0 #dddddd;
+    box-shadow: 2px 2px 2px 0 #dddddd;
+}
+
+.mx_ContextualMenu.mx_ContextualMenu_withChevron_left {
+    background-color: $accent-bg-color;
+    color: $focus-bg-color;
+}
+
+.mx_RoomTileContextMenu_notif_field.mx_AccessibleButton,
+.mx_RoomTileContextMenu_tag_field.mx_AccessibleButton,
+.mx_RoomTileContextMenu_leave.mx_AccessibleButton {
+    &:hover {
+        background-color: $accent-secondary;
+    }
+}
+
+.mx_ContextualMenu_chevron_left {
+    border-right: 8px solid $accent-bg-color;
+}
+
+.mx_RoomTileContextMenu_separator {
+    border-color: $accent-secondary;
+}*/
+
+
+
+
+
+
+
+
+
+
+// Room Header
+/*.mx_RoomHeader_wrapper {
+    height: 72px;
+}
+
+.mx_RoomHeader_avatar_room .mx_BaseAvatar .mx_BaseAvatar_image,
+.mx_RoomHeader_avatar_room .mx_BaseAvatar_image {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+
+.mx_RoomHeader_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    flex: unset;
+    padding: 2px;
+}
+
+.mx_RoomHeader_accessibility {
+    color: $event-redacted-border-color;
+    font-weight: 400;
+    font-size: 13px;
+    margin: 0 7px;
+    margin-top: 4px; // to align baseline of topic with room name
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid transparent;
+    line-height: 1.2em;
+    max-height: 2.4em;
+    font-style: italic;
+}
+
+.tc_RoomHeader_encryptionInfos {
+    position: relative;
+    right: 16px;
+    bottom: 14px;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.tc_RoomHeader_forumInfos {
+    position: relative;
+    right: 12px;
+    bottom: 15px;
+}
+
+.mx_RoomHeader_name:hover div:not(.mx_RoomHeader_editable) {
+    cursor: initial;
+    color: $roomheader-color;
+}
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+/*.tc_PlusContextMenu {
+    height: 104px;
+    color: $focus-bg-color;
+    background-color: $accent-bg-color;
+    box-shadow: 2px 15px 30px 0 rgba(0, 0, 0, 0.48);
+    border-radius: 4px;
+    overflow-y: auto;
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s, opacity 0.3s linear;
+    z-index: 101;
+}
+
+.tc_PlusContextMenu_sub_item {
+    padding: 7px 17px 7px 15px;
+    cursor: pointer;
+    &:hover {
+        background-color: $accent-secondary;
+    }
+}
+
+.tc_PlusContextMenu_sub_img {
+    width: 12px;
+    margin-right: 10px;
+    margin-bottom: -2px;
+}
+
+.tc_PlusContextMenu_sub_separator {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
+    border-top-style: solid;
+    border-top-width: 1px;
+}
+
+.mx_IconButton {
+    &.mx_IconButton_icon_edit::before {
+        mask-image: url('$(res)/img/tchap/feather-customised/edit.svg');
+        background-color: $primary-bg-color;
+    }
+    &.mx_IconButton_icon_check::before {
+        mask-image: url('$(res)/img/tchap/feather-customised/check.svg');
+        background-color: $primary-bg-color;
+    }
+}*/
+

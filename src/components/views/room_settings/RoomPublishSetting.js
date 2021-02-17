@@ -55,7 +55,7 @@ export default class RoomPublishSetting extends React.PureComponent {
         return (<LabelledToggleSwitch value={this.state.isRoomPublished}
             onChange={this.onRoomPublishChange}
             disabled={!this.props.canSetCanonicalAlias}
-            label={_t("Publish this room to the public in %(domain)s's room directory?", {
+            label={_t("Publish this room to the %(domain)s's forum directory?", {
               domain: client.getDomain(),
             })} />);
     }

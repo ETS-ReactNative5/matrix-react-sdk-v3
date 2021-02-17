@@ -84,7 +84,7 @@ export default class VerificationShowSas extends React.Component {
             </div>;
             sasCaption = this.props.isSelf ?
                 _t(
-                    "Confirm the emoji below are displayed on both sessions, in the same order:",
+                    "Verify this device by confirming the following emoji appear on their screen:",
                 ):
                 _t(
                     "Verify this user by confirming the following emoji appear on their screen.",
@@ -98,7 +98,7 @@ export default class VerificationShowSas extends React.Component {
             </div>;
             sasCaption = this.props.isSelf ?
                 _t(
-                    "Verify this session by confirming the following number appears on its screen.",
+                    "Verify this device by confirming the following number appears on their screen:",
                 ):
                 _t(
                     "Verify this user by confirming the following number appears on their screen.",
@@ -120,12 +120,12 @@ export default class VerificationShowSas extends React.Component {
                     // device shouldn't be null in this situation but it can be, eg. if the device is
                     // logged out during verification
                     if (this.props.device) {
-                        text = _t("Waiting for your other session, %(deviceName)s (%(deviceId)s), to verify…", {
+                        text = _t("Waiting for your other device, %(deviceName)s (%(deviceId)s), to verify…", {
                             deviceName: this.props.device ? this.props.device.getDisplayName() : '',
                             deviceId: this.props.device ? this.props.device.deviceId : '',
                         });
                     } else {
-                        text = _t("Waiting for your other session to verify…");
+                        text = _t("Waiting for your other device to verify…");
                     }
                 } else {
                     const {displayName} = this.props;

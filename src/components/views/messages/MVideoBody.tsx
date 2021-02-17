@@ -16,9 +16,11 @@ limitations under the License.
 */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import MFileBody from './MFileBody';
 import {MatrixClientPeg} from '../../../MatrixClientPeg';
 import { decryptFile } from '../../../utils/DecryptFile';
+import ContentScanner  from '../../../tchap/utils/ContentScanner';
 import { _t } from '../../../languageHandler';
 import SettingsStore from "../../../settings/SettingsStore";
 import InlineSpinner from '../elements/InlineSpinner';
@@ -48,6 +50,8 @@ export default class MVideoBody extends React.PureComponent<IProps, IState> {
             decryptedUrl: null,
             decryptedThumbnailUrl: null,
             decryptedBlob: null,
+            contentUrl: null,
+            isClean: null,
             error: null,
         }
     }
@@ -78,7 +82,7 @@ export default class MVideoBody extends React.PureComponent<IProps, IState> {
         if (content.file !== undefined) {
             return this.state.decryptedUrl;
         } else {
-            return MatrixClientPeg.get().mxcUrlToHttp(content.url);
+            return this.state.contentUrl;
         }
     }
 
@@ -92,7 +96,7 @@ export default class MVideoBody extends React.PureComponent<IProps, IState> {
         if (content.file !== undefined) {
             return this.state.decryptedThumbnailUrl;
         } else if (content.info && content.info.thumbnail_url) {
-            return MatrixClientPeg.get().mxcUrlToHttp(content.info.thumbnail_url);
+            return ContentScanner.getUnencryptedContentUrl(content, true);
         } else {
             return null;
         }
@@ -102,44 +106,57 @@ export default class MVideoBody extends React.PureComponent<IProps, IState> {
         const autoplay = SettingsStore.getValue("autoplayGifsAndVideos") as boolean;
         const content = this.props.mxEvent.getContent();
         if (content.file !== undefined && this.state.decryptedUrl === null) {
-            let thumbnailPromise = Promise.resolve(null);
-            if (content.info && content.info.thumbnail_file) {
-                thumbnailPromise = decryptFile(
-                    content.info.thumbnail_file,
-                ).then(function(blob) {
-                    return URL.createObjectURL(blob);
-                });
-            }
-            try {
-                const thumbnailUrl = await thumbnailPromise;
-                if (autoplay) {
-                    console.log("Preloading video");
-                    const decryptedBlob = await decryptFile(content.file);
-                    const contentUrl = URL.createObjectURL(decryptedBlob);
+            ContentScanner.scanContent(content).then(result => {
+                if (result.clean === true) {
                     this.setState({
-                        decryptedUrl: contentUrl,
-                        decryptedThumbnailUrl: thumbnailUrl,
-                        decryptedBlob: decryptedBlob,
+                        isClean: true,
                     });
-                    this.props.onHeightChanged();
+                    let thumbnailPromise = Promise.resolve(null);
+                    if (content.info && content.info.thumbnail_file) {
+                        thumbnailPromise = ContentScanner.downloadEncryptedContent(content, true
+                        ).then(blob => {
+                            return URL.createObjectURL(blob);
+                        });
+                    }
+                    let decryptedBlob;
+                    thumbnailPromise.then(thumbnailUrl => {
+                        return Promise.resolve(ContentScanner.downloadEncryptedContent(content)
+                        ).then(blob => {
+                            decryptedBlob = blob;
+                            return URL.createObjectURL(blob);
+                        }).then(contentUrl => {
+                            this.setState({
+                                decryptedUrl: contentUrl,
+                                decryptedThumbnailUrl: thumbnailUrl,
+                                decryptedBlob: decryptedBlob,
+                            });
+                        });
+                    }).catch((err) => {
+                        console.warn("Unable to decrypt attachment: ", err);
+                        // Set a placeholder image when we can't decrypt the image.
+                        this.setState({
+                            error: err,
+                        });
+                    });
                 } else {
-                    console.log("NOT preloading video");
                     this.setState({
-                        // For Chrome and Electron, we need to set some non-empty `src` to
-                        // enable the play button. Firefox does not seem to care either
-                        // way, so it's fine to do for all browsers.
-                        decryptedUrl: `data:${content?.info?.mimetype},`,
-                        decryptedThumbnailUrl: thumbnailUrl,
-                        decryptedBlob: null,
+                        isClean: false,
                     });
                 }
-            } catch (err) {
-                console.warn("Unable to decrypt attachment: ", err);
-                // Set a placeholder image when we can't decrypt the image.
-                this.setState({
-                    error: err,
-                });
-            }
+            });
+        } else if (content.url !== undefined && this.state.contentUrl === null) {
+            ContentScanner.scanContent(content).then(result => {
+                if (result.clean === true) {
+                    this.setState({
+                        contentUrl: ContentScanner.getUnencryptedContentUrl(content),
+                        isClean: true,
+                    });
+                } else {
+                    this.setState({
+                        isClean: false,
+                    });
+                }
+            });
         }
     }
 
@@ -188,7 +205,7 @@ export default class MVideoBody extends React.PureComponent<IProps, IState> {
         if (this.state.error !== null) {
             return (
                 <span className="mx_MVideoBody">
-                    <img src={require("../../../../res/img/warning.svg")} width="16" height="16" />
+                    <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16" />
                     { _t("Error decrypting video") }
                 </span>
             );

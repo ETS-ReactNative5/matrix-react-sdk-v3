@@ -30,6 +30,25 @@ import E2EIcon from './E2EIcon';
 import DecoratedRoomAvatar from "../avatars/DecoratedRoomAvatar";
 import {DefaultTagID} from "../../../stores/room-list/models";
 import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
+import DMRoomMap from '../../../utils/DMRoomMap';
+import Tchap from "../../../tchap/Tchap";
+import TextWithTooltip from "../elements/TextWithTooltip";
+
+const Icon = Object.freeze({
+    // Note: the names here are used in CSS class names
+    None: "NONE", // ... except this one
+    Encrypted: "ENCRYPTED",
+    Forum: "FORUM",
+});
+
+const tooltipText = (variant) => {
+    switch (variant) {
+        case Icon.Forum:
+            return _t("Forum room");
+        case Icon.Encrypted:
+            return _t("Encrypted room");
+    }
+}
 
 export default class RoomHeader extends React.Component {
     static propTypes = {
@@ -52,6 +71,10 @@ export default class RoomHeader extends React.Component {
         onCancelClick: null,
     };
 
+    state = {
+        icon: Icon.None,
+    };
+
     constructor(props) {
         super(props);
 
@@ -62,6 +85,14 @@ export default class RoomHeader extends React.Component {
         const cli = MatrixClientPeg.get();
         cli.on("RoomState.events", this._onRoomStateEvents);
         cli.on("Room.accountData", this._onRoomAccountData);
+
+        let icon;
+        if (Tchap.isRoomForum(this.props.room.roomId)) {
+            icon = Icon.Forum
+        } else {
+            icon = Icon.Encrypted
+        }
+        this.setState({icon})
 
         // When a room name occurs, RoomState.events is fired *before*
         // room.name is updated. So we have to listen to Room.name as well as
@@ -139,10 +170,54 @@ export default class RoomHeader extends React.Component {
         return !(currentPinEvent.getContent().pinned && currentPinEvent.getContent().pinned.length <= 0);
     }
 
+    renderRoomSublineElement() {
+        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        let classes = "";
+        let translation = "";
+        if (Tchap.isRoomForum(this.props.room.roomId)) {
+            classes += "tc_Room_roomType_forum";
+            translation = _t("Forum");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
+            classes += "tc_Room_roomType_restricted";
+            translation = _t("Private");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
+            classes += "tc_Room_roomType_unrestricted";
+            translation = _t("External");
+        }
+
+        let memberCount = null;
+        if (!dmUserId) {
+            memberCount = (<>
+                <span className="tc_RoomHeader_middot">&middot;</span>
+                <div className="tc_RoomHeader_memberCount">{ `${this.props.room.getJoinedMemberCount()} ${_t("Members")}` }</div></>
+            );
+        }
+
+        return (
+            <div className="tc_RoomHeader_roomSubline">
+                <div className={classes}>{translation}</div>
+                {memberCount}
+            </div>
+        );
+    }
+
     render() {
         let searchStatus = null;
         let cancelButton = null;
         let pinnedEventsButton = null;
+
+        const e2eIcon = this.props.e2eStatus ?
+            <E2EIcon status={this.props.e2eStatus} /> :
+            undefined;
+
+        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        const joinRules = this.props.room && this.props.room.currentState.getStateEvents("m.room.join_rules", "");
+        const joinRule = joinRules && joinRules.getContent().join_rule;
+        let privateIcon;
+        // Don't show an invite-only icon for DMs. Users know they're invite-only.
+        if (!dmUserId && joinRule === "invite") {
+            privateIcon = <InviteOnlyIcon />;
+        }
 
         if (this.props.onCancelClick) {
             cancelButton = <CancelButton onClick={this.props.onCancelClick} />;
@@ -179,7 +254,7 @@ export default class RoomHeader extends React.Component {
 
         const textClasses = classNames('mx_RoomHeader_nametext', { mx_RoomHeader_settingsHint: settingsHint });
         const name =
-            <div className="mx_RoomHeader_name" onClick={this.props.onSettingsClick}>
+            <div className="mx_RoomHeader_name">
                 <div dir="auto" className={textClasses} title={roomName}>{ roomName }</div>
                 { searchStatus }
             </div>;
@@ -198,7 +273,7 @@ export default class RoomHeader extends React.Component {
         if (this.props.room) {
             roomAvatar = <DecoratedRoomAvatar
                 room={this.props.room}
-                avatarSize={32}
+                avatarSize={28}
                 tag={DefaultTagID.Untagged} // to apply room publicity badging
                 oobData={this.props.oobData}
                 viewAvatarOnClick={true}
@@ -232,46 +307,61 @@ export default class RoomHeader extends React.Component {
                     title={_t("Forget room")} />;
         }
 
-        let appsButton;
-        if (this.props.onAppsClick) {
-            appsButton =
-                <AccessibleTooltipButton
-                    className={classNames("mx_RoomHeader_button mx_RoomHeader_appsButton", {
-                        mx_RoomHeader_appsButton_highlight: this.props.appsShown,
-                    })}
-                    onClick={this.props.onAppsClick}
-                    title={this.props.appsShown ? _t("Hide Widgets") : _t("Show Widgets")} />;
-        }
-
         let searchButton;
-        if (this.props.onSearchClick && this.props.inRoom) {
+        if (this.props.onSearchClick && this.props.inRoom
+            && !MatrixClientPeg.get().isRoomEncrypted(this.props.room.roomId)) {
             searchButton =
                 <AccessibleTooltipButton
                     className="mx_RoomHeader_button mx_RoomHeader_searchButton"
                     onClick={this.props.onSearchClick}
-                    title={_t("Search")} />;
+                    title={_t("Search")}
+                >
+                </AccessibleTooltipButton>;
+        }
+
+        let shareRoomButton;
+        if (this.props.inRoom) {
+            shareRoomButton =
+                <AccessibleTooltipButton className="mx_RoomHeader_button mx_RoomHeader_shareButton"
+                    onClick={this.onShareRoomClick}
+                    title={_t('Share room')}
+                >
+                </AccessibleTooltipButton>;
         }
 
         const rightRow =
             <div className="mx_RoomHeader_buttons">
                 { pinnedEventsButton }
+                { shareRoomButton }
                 { forgetButton }
-                { appsButton }
                 { searchButton }
             </div>;
 
-        const e2eIcon = this.props.e2eStatus ? <E2EIcon status={this.props.e2eStatus} /> : undefined;
 
+        //{ roomAccessibility }
+
+        let roomIcon;
+        if (this.state.icon !== Icon.None) {
+            roomIcon = <TextWithTooltip
+                tooltip={tooltipText(this.state.icon)}
+                class={`mx_DecoratedRoomHeaderAvatar_icon mx_DecoratedRoomHeaderAvatar_icon_${this.state.icon.toLowerCase()}`}
+            />;
+        }
         return (
             <div className="mx_RoomHeader light-panel">
                 <div className="mx_RoomHeader_wrapper" aria-owns="mx_RightPanel">
                     <div className="mx_RoomHeader_avatar">{ roomAvatar }</div>
-                    <div className="mx_RoomHeader_e2eIcon">{ e2eIcon }</div>
-                    { name }
-                    { topicElement }
-                    { cancelButton }
-                    { rightRow }
-                    <RoomHeaderButtons />
+                    { roomIcon }
+                    <div className="tc_RoomHeader_infos">
+                        { name }
+                        { topicElement }
+                        { this.renderRoomSublineElement() }
+                    </div>
+                    <div className="tc_RoomHeader_button">
+                        { cancelButton }
+                        { rightRow }
+                        <RoomHeaderButtons />
+                    </div>
                 </div>
             </div>
         );

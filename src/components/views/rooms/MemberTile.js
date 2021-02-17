@@ -23,6 +23,7 @@ import dis from "../../../dispatcher/dispatcher";
 import { _t } from '../../../languageHandler';
 import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import {Action} from "../../../dispatcher/actions";
+import Tchap from "../../../tchap/Tchap";
 
 export default class MemberTile extends React.Component {
     static propTypes = {
@@ -41,6 +42,7 @@ export default class MemberTile extends React.Component {
             statusMessage: this.getStatusMessage(),
             isRoomEncrypted: false,
             e2eStatus: null,
+            userExpired: false,
         };
     }
 
@@ -192,8 +194,18 @@ export default class MemberTile extends React.Component {
 
     getPowerLabel() {
         return _t("%(userName)s (power %(powerLevelNumber)s)", {
-            userName: this.props.member.userId,
+            userName: this.props.member.rawDisplayName,
             powerLevelNumber: this.props.member.powerLevel,
+        });
+    }
+
+    _getExpired() {
+        Tchap.isUserExpired(this.props.member.userId).then(data => {
+            if (data === true) {
+                this.setState({
+                    userExpired: data,
+                });
+            }
         });
     }
 
@@ -204,6 +216,7 @@ export default class MemberTile extends React.Component {
         const member = this.props.member;
         const name = this._getDisplayName();
         const presenceState = member.user ? member.user.presence : null;
+        this._getExpired();
 
         let statusMessage = null;
         if (member.user && SettingsStore.getValue("feature_custom_status")) {
@@ -211,7 +224,7 @@ export default class MemberTile extends React.Component {
         }
 
         const av = (
-            <MemberAvatar member={member} width={36} height={36} aria-hidden="true" />
+            <MemberAvatar title={this.props.member.rawDisplayName} member={member} width={36} height={36} aria-hidden="true" />
         );
 
         if (member.user) {
@@ -253,6 +266,7 @@ export default class MemberTile extends React.Component {
                 powerStatus={powerStatus}
                 showPresence={this.props.showPresence}
                 subtextLabel={statusMessage}
+                userExpired={this.state.userExpired}
                 e2eStatus={e2eStatus}
                 onClick={this.onClick}
             />

@@ -29,6 +29,8 @@ import * as sdk from '../../index';
 import dis from '../../dispatcher/dispatcher';
 import {MatrixClientPeg, IMatrixClientCreds} from '../../MatrixClientPeg';
 import SettingsStore from "../../settings/SettingsStore";
+import Modal from "../../Modal";
+import InfoEncryptionDialog from "../../tchap/components/dialogs/InfoEncryptionDialog";
 
 import TagOrderActions from '../../actions/TagOrderActions';
 import RoomListActions from '../../actions/RoomListActions';
@@ -52,7 +54,6 @@ import RoomListStore from "../../stores/room-list/RoomListStore";
 import NonUrgentToastContainer from "./NonUrgentToastContainer";
 import { ToggleRightPanelPayload } from "../../dispatcher/payloads/ToggleRightPanelPayload";
 import { IThreepidInvite } from "../../stores/ThreepidInviteStore";
-import Modal from "../../Modal";
 import { ICollapseConfig } from "../../resizer/distributors/collapse";
 import HostSignupContainer from '../views/host_signup/HostSignupContainer';
 
@@ -152,6 +153,10 @@ class LoggedInView extends React.Component<IProps, IState> {
             // use compact timeline view
             useCompactLayout: SettingsStore.getValue('useCompactLayout'),
         };
+
+        if (window.localStorage && !window.localStorage.getItem("tc_validate_encryption_informations")) {
+            Modal.createTrackedDialog('', '', InfoEncryptionDialog);
+        }
 
         // stash the MatrixClient in case we log out before we are unmounted
         this._matrixClient = this.props.matrixClient;

@@ -80,7 +80,7 @@ export default class ExportE2eKeysDialog extends React.Component {
             const blob = new Blob([f], {
                 type: 'text/plain;charset=us-ascii',
             });
-            FileSaver.saveAs(blob, 'element-keys.txt');
+            FileSaver.saveAs(blob, 'tchap-keys.txt');
             this.props.onFinished(true);
         }).catch((e) => {
             console.error("Error exporting e2e keys:", e);
@@ -170,7 +170,7 @@ export default class ExportE2eKeysDialog extends React.Component {
                         </div>
                     </div>
                     <div className='mx_Dialog_buttons'>
-                        <input className='mx_Dialog_primary' type='submit' value={_t('Export')}
+                        <input className='mx_Dialog_primary' type='submit' value={_t('Save and log-out')}
                              disabled={disableForm}
                         />
                         <button onClick={this._onCancelClick} disabled={disableForm}>

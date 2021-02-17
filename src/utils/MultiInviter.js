@@ -23,6 +23,7 @@ import * as sdk from "../index";
 import Modal from "../Modal";
 import SettingsStore from "../settings/SettingsStore";
 import {defer} from "./promise";
+import Tchap from "../tchap/Tchap";
 
 /**
  * Invites multiple addresses to a room or group, handling rate limiting from the server
@@ -96,19 +97,31 @@ export default class MultiInviter {
 
     async _inviteToRoom(roomId, addr, ignoreProfile) {
         const addrType = getAddressType(addr);
+        const accessRule = Tchap.getAccessRules(roomId);
 
         if (addrType === 'email') {
-            return MatrixClientPeg.get().inviteByEmail(roomId, addr);
+            return Tchap.getHSInfoFromEmail(addr).then((d) => {
+                const isUserExtern = Tchap.isUserExternFromServerHostname(d.hs);
+                if (accessRule === 'restricted' && isUserExtern) {
+                    throw {errcode: "TCHAP.EXTERN_NOT_ALLOWED", error: "Externals are allowed to join this room"};
+                } else {
+                    return MatrixClientPeg.get().inviteByEmail(roomId, addr);
+                }
+            })
         } else if (addrType === 'mx-user-id') {
             const room = MatrixClientPeg.get().getRoom(roomId);
             if (!room) throw new Error("Room not found");
+
+            if (accessRule === 'restricted' && Tchap.isUserExtern(addr) === true) {
+                throw {errcode: "TCHAP.EXTERN_NOT_ALLOWED", error: "Externals are allowed to join this room"};
+            }
 
             const member = room.getMember(addr);
             if (member && ['join', 'invite'].includes(member.membership)) {
                 throw {errcode: "RIOT.ALREADY_IN_ROOM", error: "Member already invited"};
             }
 
-            if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
+            if (!ignoreProfile) {
                 try {
                     const profile = await MatrixClientPeg.get().getProfileInfo(addr);
                     if (!profile) {
@@ -147,7 +160,6 @@ export default class MultiInviter {
 
                 this.completionStates[address] = 'invited';
                 delete this.errors[address];
-
                 resolve();
             }).catch((err) => {
                 if (this._canceled) {
@@ -161,6 +173,8 @@ export default class MultiInviter {
                 if (err.errcode === 'M_FORBIDDEN') {
                     fatal = true;
                     errorText = _t('You do not have permission to invite people to this room.');
+                } else if (err.errcode === "TCHAP.EXTERN_NOT_ALLOWED") {
+                    errorText = _t("The user %(user)s is external", {user: address});
                 } else if (err.errcode === "RIOT.ALREADY_IN_ROOM") {
                     errorText = _t("User %(userId)s is already in the room", {userId: address});
                 } else if (err.errcode === 'M_LIMIT_EXCEEDED') {
@@ -213,30 +227,16 @@ export default class MultiInviter {
                 const unknownProfileErrors = ['M_NOT_FOUND', 'M_USER_NOT_FOUND', 'M_PROFILE_UNDISCLOSED', 'M_PROFILE_NOT_FOUND', 'RIOT.USER_NOT_FOUND'];
                 const unknownProfileUsers = Object.keys(this.errors).filter(a => unknownProfileErrors.includes(this.errors[a].errcode));
 
+                console.error("unknownProfileUsers")
+                console.error(unknownProfileUsers)
+
                 if (unknownProfileUsers.length > 0) {
                     const inviteUnknowns = () => {
                         const promises = unknownProfileUsers.map(u => this._doInvite(u, true));
                         Promise.all(promises).then(() => this.deferred.resolve(this.completionStates));
                     };
 
-                    if (!SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
-                        inviteUnknowns();
-                        return;
-                    }
-
-                    const AskInviteAnywayDialog = sdk.getComponent("dialogs.AskInviteAnywayDialog");
-                    console.log("Showing failed to invite dialog...");
-                    Modal.createTrackedDialog('Failed to invite the following users to the room', '', AskInviteAnywayDialog, {
-                        unknownProfileUsers: unknownProfileUsers.map(u => {return {userId: u, errorText: this.errors[u].errorText};}),
-                        onInviteAnyways: () => inviteUnknowns(),
-                        onGiveUp: () => {
-                            // Fake all the completion states because we already warned the user
-                            for (const addr of unknownProfileUsers) {
-                                this.completionStates[addr] = 'invited';
-                            }
-                            this.deferred.resolve(this.completionStates);
-                        },
-                    });
+                    inviteUnknowns();
                     return;
                 }
             }

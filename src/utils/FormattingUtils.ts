@@ -104,6 +104,12 @@ export function getUserNameColorClass(userId: string): string {
  * between each item, but with the last item appended as " and [lastItem]".
  */
 export function formatCommaSeparatedList(items: string[], itemLimit?: number): string {
+    items = items.map(i => {
+        if (i && i.includes("] (@")) {
+            return i.split(" (@")[0]
+        }
+        return i;
+    })
     const remaining = itemLimit === undefined ? 0 : Math.max(
         items.length - itemLimit, 0,
     );

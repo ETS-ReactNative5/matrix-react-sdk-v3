@@ -22,11 +22,12 @@ import { _t } from '../../../languageHandler';
 import * as sdk from '../../../index';
 import Modal from "../../../Modal";
 import PasswordReset from "../../../PasswordReset";
-import AutoDiscoveryUtils, {ValidatedServerConfig} from "../../../utils/AutoDiscoveryUtils";
 import classNames from 'classnames';
 import AuthPage from "../../views/auth/AuthPage";
 import CountlyAnalytics from "../../../CountlyAnalytics";
 import ServerPicker from "../../views/elements/ServerPicker";
+import Tchap from "../../../tchap/Tchap";
+import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
 // Phases
 // Show the forgot password inputs
@@ -40,8 +41,6 @@ const PHASE_DONE = 4;
 
 export default class ForgotPassword extends React.Component {
     static propTypes = {
-        serverConfig: PropTypes.instanceOf(ValidatedServerConfig).isRequired,
-        onServerConfigChange: PropTypes.func.isRequired,
         onLoginClick: PropTypes.func,
         onComplete: PropTypes.func.isRequired,
     };
@@ -70,32 +69,6 @@ export default class ForgotPassword extends React.Component {
 
     componentDidMount() {
         this.reset = null;
-        this._checkServerLiveliness(this.props.serverConfig);
-    }
-
-    // TODO: [REACT-WARNING] Replace with appropriate lifecycle event
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillReceiveProps(newProps) {
-        if (newProps.serverConfig.hsUrl === this.props.serverConfig.hsUrl &&
-            newProps.serverConfig.isUrl === this.props.serverConfig.isUrl) return;
-
-        // Do a liveliness check on the new URLs
-        this._checkServerLiveliness(newProps.serverConfig);
-    }
-
-    async _checkServerLiveliness(serverConfig) {
-        try {
-            await AutoDiscoveryUtils.validateServerConfigWithStaticUrls(
-                serverConfig.hsUrl,
-                serverConfig.isUrl,
-            );
-
-            this.setState({
-                serverIsAlive: true,
-            });
-        } catch (e) {
-            this.setState(AutoDiscoveryUtils.authComponentStateForError(e, "forgot_password"));
-        }
     }
 
     submitPasswordReset(email, password) {
@@ -103,7 +76,8 @@ export default class ForgotPassword extends React.Component {
             phase: PHASE_SENDING_EMAIL,
         });
         this.reset = new PasswordReset(this.props.serverConfig.hsUrl, this.props.serverConfig.isUrl);
-        this.reset.resetPassword(email, password).then(() => {
+        let lowercaseEmail = email.toLowerCase();
+        this.reset.resetPassword(lowercaseEmail, password).then(() => {
             this.setState({
                 phase: PHASE_EMAIL_SENT,
             });
@@ -132,9 +106,6 @@ export default class ForgotPassword extends React.Component {
     onSubmitForm = async ev => {
         ev.preventDefault();
 
-        // refresh the server errors, just in case the server came back online
-        await this._checkServerLiveliness(this.props.serverConfig);
-
         if (!this.state.email) {
             this.showErrorDialog(_t('The email address linked to your account must be entered.'));
         } else if (!this.state.password || !this.state.password2) {
@@ -142,24 +113,32 @@ export default class ForgotPassword extends React.Component {
         } else if (this.state.password !== this.state.password2) {
             this.showErrorDialog(_t('New passwords must match each other.'));
         } else {
-            const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
-            Modal.createTrackedDialog('Forgot Password Warning', '', QuestionDialog, {
-                title: _t('Warning!'),
-                description:
-                    <div>
-                        { _t(
-                            "Changing your password will reset any end-to-end encryption keys " +
-                            "on all of your sessions, making encrypted chat history unreadable. Set up " +
-                            "Key Backup or export your room keys from another session before resetting your " +
-                            "password.",
-                        ) }
-                    </div>,
-                button: _t('Continue'),
-                onFinished: (confirmed) => {
-                    if (confirmed) {
-                        this.submitPasswordReset(this.state.email, this.state.password);
+            Tchap.discoverPlatform(this.state.email).then(hs => {
+                TchapStrongPassword.validatePassword(hs, this.state.password).then(isValidPassword => {
+                    if (!isValidPassword) {
+                        this.showErrorDialog(_t('This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.'));
+                    } else {
+                        const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
+                        Modal.createTrackedDialog('Forgot Password Warning', '', QuestionDialog, {
+                            title: _t('Warning!'),
+                            description:
+                                <div>
+                                    { _t(
+                                        "Changing your password will reset any end-to-end encryption keys " +
+                                        "on all of your devices, making encrypted chat history unreadable. Set up " +
+                                        "Key Backup or export your room keys from another device before resetting your " +
+                                        "password.",
+                                    ) }
+                                </div>,
+                            button: _t('Continue'),
+                            onFinished: (confirmed) => {
+                                if (confirmed) {
+                                    this.submitPasswordReset(this.state.email, this.state.password);
+                                }
+                            },
+                        });
                     }
-                },
+                });
             });
         }
     };
@@ -210,10 +189,6 @@ export default class ForgotPassword extends React.Component {
         return <div>
             {errorText}
             {serverDeadSection}
-            <ServerPicker
-                serverConfig={this.props.serverConfig}
-                onServerConfigChange={this.props.onServerConfigChange}
-            />
             <form onSubmit={this.onSubmitForm}>
                 <div className="mx_AuthBody_fieldRow">
                     <Field
@@ -248,6 +223,11 @@ export default class ForgotPassword extends React.Component {
                         onBlur={() => CountlyAnalytics.instance.track("onboarding_forgot_password_newPassword2_blur")}
                         autoComplete="new-password"
                     />
+                    <img className="tc_PasswordHelper" src={require('../../../../res/img/tchap/question_mark.svg')}
+                        width={25} height={25}
+                        title={ _t('Your password must include a lower-case letter, ' +
+                            'an upper-case letter, a number and a symbol and be at a ' +
+                            'minimum 8 characters in length.') } alt={""} />
                 </div>
                 <span>{_t(
                     'A verification email will be sent to your inbox to confirm ' +
@@ -272,8 +252,9 @@ export default class ForgotPassword extends React.Component {
 
     renderEmailSent() {
         return <div>
-            {_t("An email has been sent to %(emailAddress)s. Once you've followed the " +
-                "link it contains, click below.", { emailAddress: this.state.email })}
+            {_t("If a Tchap account exists, an email has been sent to the address: " +
+                "%(emailAddress)s. Once you've followed the link it contains, " +
+                "click below.", { emailAddress: this.state.email })}
             <br />
             <input className="mx_Login_submit" type="button" onClick={this.onVerify}
                 value={_t('I have verified my email address')} />

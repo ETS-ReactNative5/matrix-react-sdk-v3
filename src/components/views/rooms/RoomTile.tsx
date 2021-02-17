@@ -51,6 +51,9 @@ import IconizedContextMenu, {
     IconizedContextMenuRadio,
 } from "../context_menus/IconizedContextMenu";
 import { CommunityPrototypeStore, IRoomProfile } from "../../../stores/CommunityPrototypeStore";
+import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from "../../../tchap/Tchap";
+import TextWithTooltip from "../elements/TextWithTooltip";
 
 interface IProps {
     room: Room;
@@ -66,6 +69,23 @@ interface IState {
     notificationsMenuPosition: PartialDOMRect;
     generalMenuPosition: PartialDOMRect;
     messagePreview?: string;
+    icon: Icon;
+}
+
+enum Icon {
+    // Note: the names here are used in CSS class names
+    None = "NONE", // ... except this one
+    Encrypted = "ENCRYPTED",
+    Forum = "FORUM",
+}
+
+const tooltipText = (variant: Icon) => {
+    switch (variant) {
+        case Icon.Forum:
+            return _t("Forum room");
+        case Icon.Encrypted:
+            return _t("Encrypted room");
+    }
 }
 
 const messagePreviewId = (roomId: string) => `mx_RoomTile_messagePreview_${roomId}`;
@@ -94,6 +114,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
 
             // generatePreview() will return nothing if the user has previews disabled
             messagePreview: this.generatePreview(),
+            icon: Icon.None,
         };
 
         ActiveRoomObserver.addListener(this.props.room.roomId, this.onActiveRoomUpdate);
@@ -161,6 +182,14 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
     }
 
     public componentDidMount() {
+        let icon;
+        if (Tchap.isRoomForum(this.props.room.roomId)) {
+            icon = Icon.Forum
+        } else {
+            icon = Icon.Encrypted
+        }
+        this.setState({icon})
+
         // when we're first rendered (or our sublist is expanded) make sure we are visible if we're active
         if (this.state.selected) {
             this.scrollIntoView();
@@ -444,12 +473,19 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
             </IconizedContextMenu>;
         } else if (this.state.generalMenuPosition) {
             const roomTags = RoomListStore.instance.getTagsForRoom(this.props.room);
-
+            const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
+            const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(this.props.room.roomId));
             const isFavorite = roomTags.includes(DefaultTagID.Favourite);
             const favouriteLabel = isFavorite ? _t("Favourited") : _t("Favourite");
 
-            const isLowPriority = roomTags.includes(DefaultTagID.LowPriority);
-            const lowPriorityLabel = _t("Low Priority");
+            let multiRoomOpts = null;
+            if (!isDMRoom) {
+                multiRoomOpts = (<IconizedContextMenuOption
+                    onClick={this.onOpenRoomSettings}
+                    label={_t("Settings")}
+                    iconClassName="mx_RoomTile_iconSettings"
+                />);
+            }
 
             contextMenu = <IconizedContextMenu
                 {...contextMenuBelow(this.state.generalMenuPosition)}
@@ -500,6 +536,31 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         );
     }
 
+    private renderRoomTypeElement(): React.ReactElement{
+        let classes = "tc_RoomTile_roomType";
+        let translation = '\u00A0';
+        if (Tchap.isRoomForum(this.props.room.roomId)) {
+            classes += " tc_Room_roomType_forum";
+            translation = _t("Forum");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
+            classes += " tc_Room_roomType_restricted";
+            translation = _t("Private");
+        } else if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
+            classes += " tc_Room_roomType_unrestricted";
+            translation = _t("External");
+        }
+        if (!this.props.isMinimized && this.props.room.getMyMembership() !== "invite") {
+            return (
+                <React.Fragment>
+                    <div className={classes}>{translation}</div>
+                </React.Fragment>
+            );
+        } else {
+            return null;
+        }
+
+    }
+
     public render(): React.ReactElement {
         const classes = classNames({
             'mx_RoomTile': true,
@@ -517,6 +578,15 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         if (typeof name !== 'string') name = '';
         name = name.replace(":", ":\u200b"); // add a zero-width space to allow linewrapping after the colon
 
+        // Rename "Empty room was(...)" by left user name (for direct room)
+        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        if (dmUserId) {
+            const oldMember = this.props.room.getMembersWithMembership('leave')
+            if (name.startsWith("Empty room (was ") && oldMember.length > 0) {
+                name = oldMember[0].rawDisplayName;
+            }
+        }
+
         const roomAvatar = <DecoratedRoomAvatar
             room={this.props.room}
             avatarSize={32}
@@ -524,6 +594,16 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
             displayBadge={this.props.isMinimized}
             oobData={({avatarUrl: roomProfile.avatarMxc})}
         />;
+
+        let roomIcon: React.ReactNode;
+        if (this.state.icon !== Icon.None) {
+            roomIcon  = (
+                <TextWithTooltip
+                    tooltip={tooltipText(this.state.icon)}
+                    class={`mx_DecoratedRoomAvatar_icon mx_DecoratedRoomAvatar_icon_${this.state.icon.toLowerCase()}`}
+                />
+            );
+        }
 
         let badge: React.ReactNode;
         if (!this.props.isMinimized) {
@@ -543,7 +623,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         if (this.showMessagePreview && this.state.messagePreview) {
             messagePreview = (
                 <div className="mx_RoomTile_messagePreview" id={messagePreviewId(this.props.room.roomId)}>
-                    {this.state.messagePreview}
+                    {Tchap.transformServerErrors(this.state.messagePreview, true)}
                 </div>
             );
         }
@@ -612,8 +692,10 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                             aria-describedby={ariaDescribedBy}
                         >
                             {roomAvatar}
+                            {roomIcon}
                             {nameContainer}
                             {badge}
+                            {this.renderRoomTypeElement()}
                             {this.renderGeneralMenu()}
                             {this.renderNotificationsMenu(isActive)}
                         </Button>

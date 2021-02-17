@@ -166,7 +166,7 @@ const TAG_AESTHETICS: ITagAestheticsMap = {
                 <IconizedContextMenuOption
                     label={CommunityPrototypeStore.instance.getSelectedCommunityId()
                         ? _t("Explore community rooms")
-                        : _t("Explore public rooms")}
+                        : _t("Explore forums")}
                     iconClassName="mx_RoomList_iconExplore"
                     onClick={(e) => {
                         e.preventDefault();

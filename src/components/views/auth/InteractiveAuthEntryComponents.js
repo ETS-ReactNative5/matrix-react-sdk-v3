@@ -421,11 +421,11 @@ export class EmailIdentityAuthEntry extends React.Component {
         } else {
             return (
                 <div className="mx_InteractiveAuthEntryComponents_emailWrapper">
-                    <p>{ _t("A confirmation email has been sent to %(emailAddress)s",
+                    <p>{ _t("An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it",
                         { emailAddress: (sub) => <b>{ this.props.inputs.emailAddress }</b> },
                     ) }
                     </p>
-                    <p>{ _t("Open the link in the email to continue registration.") }</p>
+                    <p>{ _t("Please check your email to continue registration.") }</p>
                 </div>
             );
         }

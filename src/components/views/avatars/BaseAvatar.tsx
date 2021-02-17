@@ -107,11 +107,14 @@ const BaseAvatar = (props: IProps) => {
 
     const [imageUrl, onError] = useImageUrl({url, urls});
 
+    let roomAvatarClasses = "mx_BaseAvatar_initial";
+    if (idName && idName.startsWith("!")) roomAvatarClasses += " tc_RoomTile_avatar_hexa";
+
     if (!imageUrl && defaultToInitialLetter) {
         const initialLetter = AvatarLogic.getInitialLetter(name);
         const textNode = (
             <span
-                className="mx_BaseAvatar_initial"
+                className={roomAvatarClasses}
                 aria-hidden="true"
                 style={{
                     fontSize: toPx(width * 0.65),

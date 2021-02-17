@@ -30,6 +30,7 @@ import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import {_t} from "../../../languageHandler";
 import TextWithTooltip from "../elements/TextWithTooltip";
 import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from '../../../tchap/Tchap';
 
 interface IProps {
     room: Room;
@@ -58,7 +59,7 @@ enum Icon {
 function tooltipText(variant: Icon) {
     switch (variant) {
         case Icon.Globe:
-            return _t("This room is public");
+            return _t("This room is a forum");
         case Icon.PresenceOnline:
             return _t("Online");
         case Icon.PresenceAway:
@@ -130,6 +131,18 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
         if (newIcon !== this.state.icon) this.setState({icon: newIcon});
     };
 
+    private getRealRoomType(): string {
+        if (this.props.room.getMyMembership() === "invite") {
+            const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+            if (dmUserId) {
+                return "direct";
+            } else if (Tchap.isCurrentUserExtern()) {
+                return "unrestricted";
+            }
+        }
+        return Tchap.getAccessRules(this.props.room.roomId);
+    }
+
     private getPresenceIcon(): Icon {
         if (!this.dmUser) return Icon.None;
 
@@ -189,19 +202,26 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
             />;
         }
 
+        const roomType = this.getRealRoomType();
+        let avatarSize = this.props.avatarSize;
+        if (roomType === "unrestricted") {
+            avatarSize -= 4;
+        }
+
         const classes = classNames("mx_DecoratedRoomAvatar", {
             mx_DecoratedRoomAvatar_cutout: icon,
+            tc_RoomTile_avatar_hexa: roomType !== "direct",
+            tc_RoomTile_avatar_unrestricted: roomType === "unrestricted",
         });
 
         return <div className={classes}>
             <RoomAvatar
                 room={this.props.room}
-                width={this.props.avatarSize}
-                height={this.props.avatarSize}
+                width={avatarSize}
+                height={avatarSize}
                 oobData={this.props.oobData}
                 viewAvatarOnClick={this.props.viewAvatarOnClick}
             />
-            {icon}
             {badge}
         </div>;
     }

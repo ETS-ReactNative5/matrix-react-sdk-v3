@@ -21,7 +21,7 @@ import filesize from 'filesize';
 import {MatrixClientPeg} from '../../../MatrixClientPeg';
 import * as sdk from '../../../index';
 import { _t } from '../../../languageHandler';
-import {decryptFile} from '../../../utils/DecryptFile';
+import ContentScanner from '../../../tchap/utils/ContentScanner';
 import Tinter from '../../../Tinter';
 import request from 'browser-request';
 import Modal from '../../../Modal';
@@ -133,6 +133,10 @@ export default class MFileBody extends React.Component {
 
         this.state = {
             decryptedBlob: (this.props.decryptedBlob ? this.props.decryptedBlob : null),
+            contentUrl: null,
+            isClean: null,
+            isEncrypted: false,
+            decrypting: false,
         };
 
         this._iframe = createRef();
@@ -169,8 +173,9 @@ export default class MFileBody extends React.Component {
     }
 
     _getContentUrl() {
-        const content = this.props.mxEvent.getContent();
-        return MatrixClientPeg.get().mxcUrlToHttp(content.url);
+        /*const content = this.props.mxEvent.getContent();
+        return MatrixClientPeg.get().mxcUrlToHttp(content.url);*/
+        return this.state.contentUrl;
     }
 
     componentDidMount() {
@@ -179,6 +184,37 @@ export default class MFileBody extends React.Component {
         this.id = nextMountId++;
         mounts[this.id] = this;
         this.tint();
+        const content = this.props.mxEvent.getContent();
+        if (content.url !== undefined && this.state.contentUrl === null) {
+            ContentScanner.scanContent(content).then(result => {
+                if (result.clean === true) {
+                    this.setState({
+                        contentUrl: ContentScanner.getUnencryptedContentUrl(content),
+                        isClean: true,
+                        isEncrypted: false,
+                    });
+                } else {
+                    this.setState({
+                        isClean: false,
+                        isEncrypted: false,
+                    });
+                }
+            });
+        } else if (content.file !== undefined) {
+            ContentScanner.scanContent(content).then(result => {
+                if (result.clean === true) {
+                    this.setState({
+                        isClean: true,
+                        isEncrypted: true,
+                    });
+                } else {
+                    this.setState({
+                        isClean: false,
+                        isEncrypted: true,
+                    });
+                }
+            });
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -211,28 +247,39 @@ export default class MFileBody extends React.Component {
     render() {
         const content = this.props.mxEvent.getContent();
         const text = this.presentableTextForFile(content);
-        const isEncrypted = content.file !== undefined;
+        const isEncrypted = this.state.isEncrypted;
+        const isClean = this.state.isClean;
         const fileName = content.body && content.body.length > 0 ? content.body : _t("Attachment");
         const contentUrl = this._getContentUrl();
         const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
         const fileSize = content.info ? content.info.size : null;
         const fileType = content.info ? content.info.mimetype : "application/octet-stream";
+        let decrypting = this.state.decrypting;
 
         if (isEncrypted) {
             if (this.state.decryptedBlob === null) {
                 // Need to decrypt the attachment
                 // Wait for the user to click on the link before downloading
                 // and decrypting the attachment.
-                let decrypting = false;
                 const decrypt = (e) => {
                     if (decrypting) {
                         return false;
                     }
-                    decrypting = true;
-                    decryptFile(content.file).then((blob) => {
-                        this.setState({
-                            decryptedBlob: blob,
-                        });
+                    this.setState({
+                        decrypting: true,
+                    });
+                    Promise.resolve(ContentScanner.downloadEncryptedContent(content )).then((blob) => {
+                        if (blob.size > 0) {
+                            this.setState({
+                                decryptedBlob: blob,
+                                isClean: true,
+                            });
+                        } else {
+                            this.setState({
+                                decryptedBlob: null,
+                                isClean: false,
+                            });
+                        }
                     }).catch((err) => {
                         console.warn("Unable to decrypt attachment: ", err);
                         Modal.createTrackedDialog('Error decrypting attachment', '', ErrorDialog, {
@@ -240,21 +287,54 @@ export default class MFileBody extends React.Component {
                             description: _t("Error decrypting attachment"),
                         });
                     }).finally(() => {
-                        decrypting = false;
+                        this.setState({
+                            decrypting: false,
+                        });
                     });
                 };
 
-                // This button should actually Download because usercontent/ will try to click itself
-                // but it is not guaranteed between various browsers' settings.
-                return (
-                    <span className="mx_MFileBody">
+                if (isClean === null) {
+                    return (
+                        <span className="mx_MFileBody" ref="body">
+                            <img
+                                src={require("../../../../res/img/spinner.gif")}
+                                alt={ _t("Analysis in progress") }
+                                width="16"
+                                height="16"
+                            />
+                            { _t("Analysis in progress") }
+                        </span>
+                    );
+                } else if (decrypting) {
+                    return (
+                        <span className="mx_MFileBody" ref="body">
+                            <img
+                                src={require("../../../../res/img/spinner.gif")}
+                                alt={ _t("Decrypting...") }
+                                width="16"
+                                height="16"
+                            />
+                            { _t("Decrypting...") }
+                        </span>
+                    );
+                } else if (isClean === true) {
+                    return (
+                        <span className="mx_MFileBody">
                         <div className="mx_MFileBody_download">
                             <AccessibleButton onClick={decrypt}>
                                 { _t("Decrypt %(text)s", { text: text }) }
                             </AccessibleButton>
                         </div>
                     </span>
-                );
+                    );
+                } else {
+                    return (
+                        <span className="mx_MFileBody" ref="body">
+                            <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16"  alt="warning"/>
+                            { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
+                        </span>
+                    );
+                }
             }
 
             // When the iframe loads we tell it to render a download link
@@ -295,16 +375,17 @@ export default class MFileBody extends React.Component {
                     </div>
                 </span>
             );
-        } else if (contentUrl) {
-            const downloadProps = {
-                target: "_blank",
-                rel: "noreferrer noopener",
+        } else if (contentUrl !== null) {
+            if (isClean) {
+                const downloadProps = {
+                    target: "_blank",
+                    rel: "noreferrer noopener nofollow",
 
-                // We set the href regardless of whether or not we intercept the download
-                // because we don't really want to convert the file to a blob eagerly, and
-                // still want "open in new tab" and "save link as" to work.
-                href: contentUrl,
-            };
+                    // We set the href regardless of whether or not we intercept the download
+                    // because we don't really want to convert the file to a blob eagerly, and
+                    // still want "open in new tab" and "save link as" to work.
+                    href: contentUrl,
+                };
 
             // Blobs can only have up to 500mb, so if the file reports as being too large then
             // we won't try and convert it. Likewise, if the file size is unknown then we'll assume
@@ -365,6 +446,14 @@ export default class MFileBody extends React.Component {
                                 { _t("Download %(text)s", { text: text }) }
                             </a>
                         </div>
+                    </span>
+                    );
+                }
+            } else {
+                return (
+                    <span className="mx_MFileBody" ref="body">
+                        <img src={require("../../../../res/img/warning.svg")} className="tc_MCS_error" width="16" height="16" />
+                        { _t("The file %(file)s was rejected by the security policy", {file: content.body}) }
                     </span>
                 );
             }

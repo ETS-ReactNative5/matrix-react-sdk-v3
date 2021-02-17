@@ -20,6 +20,9 @@ import {_t} from "../../../languageHandler";
 import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import Field from "../elements/Field";
 import * as sdk from "../../../index";
+import Tchap from "../../../tchap/Tchap";
+import LabelledToggleSwitch from "../elements/LabelledToggleSwitch";
+import Modal from '../../../Modal';
 
 // TODO: Merge with ProfileSettings?
 export default class RoomProfileSettings extends React.Component {
@@ -165,6 +168,7 @@ export default class RoomProfileSettings extends React.Component {
     };
 
     render() {
+        const client = MatrixClientPeg.get();
         const AccessibleButton = sdk.getComponent('elements.AccessibleButton');
         const AvatarSetting = sdk.getComponent('settings.AvatarSetting');
 

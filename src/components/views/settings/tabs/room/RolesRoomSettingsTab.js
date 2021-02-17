@@ -26,8 +26,6 @@ const plEventsToLabels = {
     // These will be translated for us later.
     "m.room.avatar": _td("Change room avatar"),
     "m.room.name": _td("Change room name"),
-    "m.room.canonical_alias": _td("Change main address for the room"),
-    "m.room.history_visibility": _td("Change history visibility"),
     "m.room.power_levels": _td("Change permissions"),
     "m.room.topic": _td("Change topic"),
     "m.room.tombstone": _td("Upgrade the room"),
@@ -41,8 +39,6 @@ const plEventsToShow = {
     // If an event is listed here, it will be shown in the PL settings. Defaults will be calculated.
     "m.room.avatar": {isState: true},
     "m.room.name": {isState: true},
-    "m.room.canonical_alias": {isState: true},
-    "m.room.history_visibility": {isState: true},
     "m.room.power_levels": {isState: true},
     "m.room.topic": {isState: true},
     "m.room.tombstone": {isState: true},
@@ -274,13 +270,15 @@ export default class RolesRoomSettingsTab extends React.Component {
             const mutedUsers = [];
 
             Object.keys(userLevels).forEach((user) => {
+                const userInfo = MatrixClientPeg.get().getUser(user)
+                const userName = userInfo.rawDisplayName ? userInfo.rawDisplayName : user;
                 const canChange = userLevels[user] < currentUserLevel && canChangeLevels;
                 if (userLevels[user] > defaultUserLevel) { // privileged
                     privilegedUsers.push(
                         <PowerSelector
                             value={userLevels[user]}
                             disabled={!canChange}
-                            label={user}
+                            label={userName}
                             key={user}
                             powerLevelKey={user} // Will be sent as the second parameter to `onChange`
                             onChange={this._onUserPowerLevelChanged}
@@ -291,7 +289,7 @@ export default class RolesRoomSettingsTab extends React.Component {
                         <PowerSelector
                             value={userLevels[user]}
                             disabled={!canChange}
-                            label={user}
+                            label={userName}
                             key={user}
                             powerLevelKey={user} // Will be sent as the second parameter to `onChange`
                             onChange={this._onUserPowerLevelChanged}

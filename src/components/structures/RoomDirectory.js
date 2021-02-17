@@ -55,18 +55,20 @@ export default class RoomDirectory extends React.Component {
         this.startTime = CountlyAnalytics.getTimestamp();
 
         const selectedCommunityId = GroupFilterOrderStore.getSelectedTags()[0];
+        const homeserverList = SdkConfig.get()['hs_url_list'];
         this.state = {
             publicRooms: [],
             loading: true,
             protocolsLoading: true,
             error: null,
             instanceId: undefined,
-            roomServer: MatrixClientPeg.getHomeserverName(),
+            roomServer: undefined,
             filterString: this.props.initialText || "",
             selectedCommunityId: SettingsStore.getValue("feature_communities_v2_prototypes")
                 ? selectedCommunityId
                 : null,
             communityName: null,
+            serverList: homeserverList || [],
         };
 
         this._unmounted = false;
@@ -160,11 +162,17 @@ export default class RoomDirectory extends React.Component {
             publicRooms: [],
             loading: true,
         });
-        this.getMoreRooms();
+        this._populateRoomList();
     };
 
-    getMoreRooms() {
-        if (this.state.selectedCommunityId) return Promise.resolve(); // no more rooms
+    _populateRoomList() {
+        const homeserverList = this.state.serverList;
+        for (let i = 0; i < homeserverList.length; i++) {
+            this.getMoreRooms(homeserverList[i]);
+        }
+    }
+
+    getMoreRooms(homeServer) {
         if (!MatrixClientPeg.get()) return Promise.resolve();
 
         this.setState({
@@ -172,11 +180,10 @@ export default class RoomDirectory extends React.Component {
         });
 
         const my_filter_string = this.state.filterString;
-        const my_server = this.state.roomServer;
+        const my_server = homeServer;
         // remember the next batch token when we sent the request
         // too. If it's changed, appending to the list will corrupt it.
-        const my_next_batch = this.nextBatch;
-        const opts = {limit: 20};
+        const opts = {};
         if (my_server != MatrixClientPeg.getHomeserverName()) {
             opts.server = my_server;
         }
@@ -185,13 +192,9 @@ export default class RoomDirectory extends React.Component {
         } else if (this.state.instanceId) {
             opts.third_party_instance_id = this.state.instanceId;
         }
-        if (this.nextBatch) opts.since = this.nextBatch;
         if (my_filter_string) opts.filter = { generic_search_term: my_filter_string };
         return MatrixClientPeg.get().publicRooms(opts).then((data) => {
-            if (
-                my_filter_string != this.state.filterString ||
-                my_server != this.state.roomServer ||
-                my_next_batch != this.nextBatch) {
+            if (my_filter_string != this.state.filterString) {
                 // if the filter or server has changed since this request was sent,
                 // throw away the result (don't even clear the busy flag
                 // since we must still have a request in flight)
@@ -216,10 +219,7 @@ export default class RoomDirectory extends React.Component {
             });
             return Boolean(data.next_batch);
         }, (err) => {
-            if (
-                my_filter_string != this.state.filterString ||
-                my_server != this.state.roomServer ||
-                my_next_batch != this.nextBatch) {
+            if (my_filter_string != this.state.filterString) {
                 // as above: we don't care about errors for old
                 // requests either
                 return;
@@ -227,6 +227,12 @@ export default class RoomDirectory extends React.Component {
 
             if (this._unmounted) {
                 // if we've been unmounted, we don't care either.
+                return;
+            }
+
+            if (err && (err.errcode === "M_FORBIDDEN" || err.errcode === "M_UNKNOWN")) {
+                // We don't care about federation denied error.
+                // Just go to the next server.
                 return;
             }
 
@@ -493,7 +499,7 @@ export default class RoomDirectory extends React.Component {
         // it is readable, the preview appears as normal.
         if (!hasJoinedRoom && (room.world_readable || isGuest)) {
             previewButton = (
-                <AccessibleButton kind="secondary" onClick={(ev) => this.onPreviewClick(ev, room)}>{_t("Preview")}</AccessibleButton>
+                <AccessibleButton kind="secondary" className="tc_RoomDirectory_roomPreview" onClick={(ev) => this.onPreviewClick(ev, room)}>{_t("Preview")}</AccessibleButton>
             );
         }
         if (hasJoinedRoom) {
@@ -636,6 +642,9 @@ export default class RoomDirectory extends React.Component {
             // we still show the scrollpanel, at least for now, because
             // otherwise we don't fetch more because we don't get a fill
             // request from the scrollpanel because there isn't one
+            cells.sort((a, b) => {
+                return b.num_joined_members - a.num_joined_members;
+            });
 
             let spinner;
             if (this.state.loading) {
@@ -664,7 +673,6 @@ export default class RoomDirectory extends React.Component {
 
         let listHeader;
         if (!this.state.protocolsLoading) {
-            const NetworkDropdown = sdk.getComponent('directory.NetworkDropdown');
             const DirectorySearchBox = sdk.getComponent('elements.DirectorySearchBox');
 
             const protocolName = protocolNameForInstanceId(this.protocols, this.state.instanceId);
@@ -681,11 +689,6 @@ export default class RoomDirectory extends React.Component {
             }
 
             let placeholder = _t('Find a room…');
-            if (!this.state.instanceId || this.state.instanceId === ALL_ROOMS) {
-                placeholder = _t("Find a room… (e.g. %(exampleRoom)s)", {exampleRoom: "#example:" + this.state.roomServer});
-            } else if (instance_expected_field_type) {
-                placeholder = instance_expected_field_type.placeholder;
-            }
 
             let showJoinButton = this._stringLooksLikeId(this.state.filterString, instance_expected_field_type);
             if (protocolName) {
@@ -693,18 +696,6 @@ export default class RoomDirectory extends React.Component {
                 if (this._getFieldsForThirdPartyLocation(this.state.filterString, this.protocols[protocolName], instance) === null) {
                     showJoinButton = false;
                 }
-            }
-
-            let dropdown = (
-                <NetworkDropdown
-                    protocols={this.protocols}
-                    onOptionChange={this.onOptionChange}
-                    selectedServerName={this.state.roomServer}
-                    selectedInstanceId={this.state.instanceId}
-                />
-            );
-            if (this.state.selectedCommunityId) {
-                dropdown = null;
             }
 
             listHeader = <div className="mx_RoomDirectory_listheader">
@@ -717,7 +708,6 @@ export default class RoomDirectory extends React.Component {
                     showJoinButton={showJoinButton}
                     initialText={this.props.initialText}
                 />
-                {dropdown}
             </div>;
         }
         const explanation =
@@ -730,10 +720,7 @@ export default class RoomDirectory extends React.Component {
                 }},
             );
 
-        const title = this.state.selectedCommunityId
-            ? _t("Explore rooms in %(communityName)s", {
-                communityName: this.state.communityName || this.state.selectedCommunityId,
-            }) : _t("Explore rooms");
+        const title = _t("Explore rooms");
         return (
             <BaseDialog
                 className={'mx_RoomDirectory_dialog'}

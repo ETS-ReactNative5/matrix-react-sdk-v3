@@ -38,6 +38,8 @@ import { getThreepidsWithBindStatus } from '../../../../../boundThreepids';
 import Spinner from "../../../elements/Spinner";
 import {SettingLevel} from "../../../../../settings/SettingLevel";
 import {UIFeature} from "../../../../../settings/UIFeature";
+import LabelledToggleSwitch from "../../../elements/LabelledToggleSwitch";
+import Tchap from '../../../../../tchap/Tchap';
 
 export default class GeneralUserSettingsTab extends React.Component {
     static propTypes = {
@@ -47,6 +49,8 @@ export default class GeneralUserSettingsTab extends React.Component {
     constructor() {
         super();
 
+        const accountData = MatrixClientPeg.get().getAccountData('im.vector.hide_profile');
+        const redListOption = accountData ? accountData.event.content.hide_profile : false;
         this.state = {
             language: languageHandler.getCurrentLanguage(),
             haveIdServer: Boolean(MatrixClientPeg.get().getIdentityServerUrl()),
@@ -60,6 +64,7 @@ export default class GeneralUserSettingsTab extends React.Component {
             },
             emails: [],
             msisdns: [],
+            redListOption,
             loading3pids: true, // whether or not the emails and msisdns have been loaded
         };
 
@@ -94,14 +99,6 @@ export default class GeneralUserSettingsTab extends React.Component {
             this.setState({haveIdServer: Boolean(MatrixClientPeg.get().getIdentityServerUrl())});
             this._getThreepidState();
         }
-    };
-
-    _onEmailsChange = (emails) => {
-        this.setState({ emails });
-    };
-
-    _onMsisdnsChange = (msisdns) => {
-        this.setState({ msisdns });
     };
 
     async _getThreepidState() {
@@ -218,6 +215,34 @@ export default class GeneralUserSettingsTab extends React.Component {
         });
     };
 
+    _onRedListOptionChange = async () => {
+        try {
+            const redListChecked = this.state.redListOption;
+
+            if (Tchap.isCurrentUserExtern() && redListChecked) {
+                const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
+                Modal.createTrackedDialog('Redlist disabled', '', QuestionDialog, {
+                    title: _t("Register my account on the red list"),
+                    description: _t("To disable this option, you must accept that your email address will be visible to the other users."),
+                    button: _t("Accept"),
+                    onFinished: async (proceed) => {
+                        if (proceed) {
+                            await MatrixClientPeg.get().setAccountData('im.vector.hide_profile', {hide_profile: !redListChecked});
+                            this.setState({redListOption: !redListChecked});
+                        } else {
+                            this.setState({redListOption: redListChecked});
+                        }
+                    },
+                });
+            } else {
+                await MatrixClientPeg.get().setAccountData('im.vector.hide_profile', {hide_profile: !redListChecked});
+                this.setState({redListOption: !redListChecked});
+            }
+        } catch (err) {
+            console.error("Error setting AccountData 'im.vector.hide_profile': " + err);
+        }
+    };
+
     _renderProfileSection() {
         return (
             <div className="mx_SettingsTab_section">
@@ -228,8 +253,6 @@ export default class GeneralUserSettingsTab extends React.Component {
 
     _renderAccountSection() {
         const ChangePassword = sdk.getComponent("views.settings.ChangePassword");
-        const EmailAddresses = sdk.getComponent("views.settings.account.EmailAddresses");
-        const PhoneNumbers = sdk.getComponent("views.settings.account.PhoneNumbers");
 
         let passwordChangeForm = (
             <ChangePassword
@@ -239,39 +262,6 @@ export default class GeneralUserSettingsTab extends React.Component {
                 onError={this._onPasswordChangeError}
                 onFinished={this._onPasswordChanged} />
         );
-
-        let threepidSection = null;
-
-        // For older homeservers without separate 3PID add and bind methods (MSC2290),
-        // we use a combo add with bind option API which requires an identity server to
-        // validate 3PID ownership even if we're just adding to the homeserver only.
-        // For newer homeservers with separate 3PID add and bind methods (MSC2290),
-        // there is no such concern, so we can always show the HS account 3PIDs.
-        if (SettingsStore.getValue(UIFeature.ThirdPartyID) &&
-            (this.state.haveIdServer || this.state.serverSupportsSeparateAddAndBind === true)
-        ) {
-            const emails = this.state.loading3pids
-                ? <Spinner />
-                : <EmailAddresses
-                    emails={this.state.emails}
-                    onEmailsChange={this._onEmailsChange}
-                />;
-            const msisdns = this.state.loading3pids
-                ? <Spinner />
-                : <PhoneNumbers
-                    msisdns={this.state.msisdns}
-                    onMsisdnsChange={this._onMsisdnsChange}
-                />;
-            threepidSection = <div>
-                <span className="mx_SettingsTab_subheading">{_t("Email addresses")}</span>
-                {emails}
-
-                <span className="mx_SettingsTab_subheading">{_t("Phone numbers")}</span>
-                {msisdns}
-            </div>;
-        } else if (this.state.serverSupportsSeparateAddAndBind === null) {
-            threepidSection = <Spinner />;
-        }
 
         let passwordChangeText = _t("Set a new account password...");
         if (!this.state.canChangePassword) {
@@ -283,11 +273,19 @@ export default class GeneralUserSettingsTab extends React.Component {
         return (
             <div className="mx_SettingsTab_section mx_GeneralUserSettingsTab_accountSection">
                 <span className="mx_SettingsTab_subheading">{_t("Account")}</span>
+                <LabelledToggleSwitch value={this.state.redListOption} onChange={this._onRedListOptionChange}
+                                      label={_t('Register my account on the red list')} />
+                <p className="mx_SettingsTab_subsectionText">
+                    ({_t("Other users will not be able to discover my account on their searches")})
+                </p>
+                <br />
                 <p className="mx_SettingsTab_subsectionText">
                     {passwordChangeText}
+                    <img className="tc_PasswordHelper" src={require('../../../../../../res/img/tchap/question_mark.svg')}
+                        width={25} height={25}
+                        title={ _t("Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.") } alt={""} />
                 </p>
                 {passwordChangeForm}
-                {threepidSection}
             </div>
         );
     }
@@ -299,55 +297,6 @@ export default class GeneralUserSettingsTab extends React.Component {
                 <span className="mx_SettingsTab_subheading">{_t("Language and region")}</span>
                 <LanguageDropdown className="mx_GeneralUserSettingsTab_languageInput"
                                   onOptionChange={this._onLanguageChange} value={this.state.language} />
-            </div>
-        );
-    }
-
-    _renderDiscoverySection() {
-        const SetIdServer = sdk.getComponent("views.settings.SetIdServer");
-
-        if (this.state.requiredPolicyInfo.hasTerms) {
-            const InlineTermsAgreement = sdk.getComponent("views.terms.InlineTermsAgreement");
-            const intro = <span className="mx_SettingsTab_subsectionText">
-                {_t(
-                    "Agree to the identity server (%(serverName)s) Terms of Service to " +
-                    "allow yourself to be discoverable by email address or phone number.",
-                    {serverName: this.state.idServerName},
-                )}
-            </span>;
-            return (
-                <div>
-                    <InlineTermsAgreement
-                        policiesAndServicePairs={this.state.requiredPolicyInfo.policiesAndServices}
-                        agreedUrls={this.state.requiredPolicyInfo.agreedUrls}
-                        onFinished={this.state.requiredPolicyInfo.resolve}
-                        introElement={intro}
-                    />
-                    { /* has its own heading as it includes the current ID server */ }
-                    <SetIdServer missingTerms={true} />
-                </div>
-            );
-        }
-
-        const EmailAddresses = sdk.getComponent("views.settings.discovery.EmailAddresses");
-        const PhoneNumbers = sdk.getComponent("views.settings.discovery.PhoneNumbers");
-
-        const emails = this.state.loading3pids ? <Spinner /> : <EmailAddresses emails={this.state.emails} />;
-        const msisdns = this.state.loading3pids ? <Spinner /> : <PhoneNumbers msisdns={this.state.msisdns} />;
-
-        const threepidSection = this.state.haveIdServer ? <div className='mx_GeneralUserSettingsTab_discovery'>
-            <span className="mx_SettingsTab_subheading">{_t("Email addresses")}</span>
-            {emails}
-
-            <span className="mx_SettingsTab_subheading">{_t("Phone numbers")}</span>
-            {msisdns}
-        </div> : null;
-
-        return (
-            <div className="mx_SettingsTab_section">
-                {threepidSection}
-                { /* has its own heading as it includes the current ID server */ }
-                <SetIdServer />
             </div>
         );
     }
@@ -395,22 +344,12 @@ export default class GeneralUserSettingsTab extends React.Component {
             </>;
         }
 
-        let discoverySection;
-        if (SettingsStore.getValue(UIFeature.IdentityServer)) {
-            discoverySection = <>
-                <div className="mx_SettingsTab_heading">{discoWarning} {_t("Discovery")}</div>
-                {this._renderDiscoverySection()}
-            </>;
-        }
-
         return (
             <div className="mx_SettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("General")}</div>
                 {this._renderProfileSection()}
                 {this._renderAccountSection()}
                 {this._renderLanguageSection()}
-                { discoverySection }
-                {this._renderIntegrationManagerSection() /* Has its own title */}
                 { accountManagementSection }
             </div>
         );

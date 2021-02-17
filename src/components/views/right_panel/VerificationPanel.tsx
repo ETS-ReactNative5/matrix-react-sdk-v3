@@ -116,7 +116,7 @@ export default class VerificationPanel extends React.PureComponent<IProps, IStat
                 <div className='mx_VerificationPanel_QRPhase_betweenText'>{_t("or")}</div> : null;
             return (
                 <div>
-                    {_t("Verify this session by completing one of the following:")}
+                    {_t("Verify this device by completing one of the following:")}
                     <div className='mx_VerificationPanel_QRPhase_startOptions'>
                         {qrBlockDialog}
                         {or}

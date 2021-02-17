@@ -27,16 +27,16 @@ export default class ElementPermalinkConstructor extends PermalinkConstructor {
         this._elementUrl = elementUrl;
 
         if (!this._elementUrl.startsWith("http:") && !this._elementUrl.startsWith("https:")) {
-            throw new Error("Element prefix URL does not appear to be an HTTP(S) URL");
+            throw new Error("Tchap prefix URL does not appear to be an HTTP(S) URL");
         }
     }
 
     forEvent(roomId: string, eventId: string, serverCandidates: string[]): string {
-        return `${this._elementUrl}/#/room/${roomId}/${eventId}${this.encodeServerCandidates(serverCandidates)}`;
+        return `${this._elementUrl}/#/room/${roomId}/${eventId}`;
     }
 
     forRoom(roomIdOrAlias: string, serverCandidates: string[]): string {
-        return `${this._elementUrl}/#/room/${roomIdOrAlias}${this.encodeServerCandidates(serverCandidates)}`;
+        return `${this._elementUrl}/#/room/${roomIdOrAlias}`;
     }
 
     forUser(userId: string): string {

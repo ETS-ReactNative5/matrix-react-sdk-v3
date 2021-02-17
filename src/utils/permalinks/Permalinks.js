@@ -126,7 +126,11 @@ export class RoomPermalinkCreator {
     }
 
     forEvent(eventId) {
-        return getPermalinkConstructor().forEvent(this._roomId, eventId, this._serverCandidates);
+        let alias = this._roomId;
+        if (this._room && this._room.getCanonicalAlias()) {
+            alias = this._room.getCanonicalAlias();
+        }
+        return getPermalinkConstructor().forEvent(alias, eventId, this._serverCandidates);
     }
 
     forShareableRoom() {
@@ -141,7 +145,11 @@ export class RoomPermalinkCreator {
     }
 
     forRoom() {
-        return getPermalinkConstructor().forRoom(this._roomId, this._serverCandidates);
+        let alias = this._roomId;
+        if (this._room && this._room.getCanonicalAlias()) {
+            alias = this._room.getCanonicalAlias();
+        }
+        return getPermalinkConstructor().forRoom(alias, this._serverCandidates);
     }
 
     onRoomState(event) {
@@ -331,7 +339,7 @@ export function tryTransformPermalinkToLocalHref(permalink: string): string {
         return permalink;
     }
 
-    const m = permalink.match(matrixLinkify.ELEMENT_URL_PATTERN);
+    const m = permalink.match(matrixLinkify.TCHAP_URL_PATTERN);
     if (m) {
         return m[1];
     }
@@ -343,9 +351,6 @@ export function tryTransformPermalinkToLocalHref(permalink: string): string {
             if (permalinkParts.roomIdOrAlias) {
                 const eventIdPart = permalinkParts.eventId ? `/${permalinkParts.eventId}` : '';
                 permalink = `#/room/${permalinkParts.roomIdOrAlias}${eventIdPart}`;
-                if (permalinkParts.viaServers.length > 0) {
-                    permalink += new SpecPermalinkConstructor().encodeServerCandidates(permalinkParts.viaServers);
-                }
             } else if (permalinkParts.groupId) {
                 permalink = `#/group/${permalinkParts.groupId}`;
             } else if (permalinkParts.userId) {
@@ -365,7 +370,7 @@ export function getPrimaryPermalinkEntity(permalink: string): string {
 
         // If not a permalink, try the vector patterns.
         if (!permalinkParts) {
-            const m = permalink.match(matrixLinkify.ELEMENT_URL_PATTERN);
+            const m = permalink.match(matrixLinkify.TCHAP_URL_PATTERN);
             if (m) {
                 // A bit of a hack, but it gets the job done
                 const handler = new ElementPermalinkConstructor("http://localhost");

@@ -40,7 +40,7 @@ import Notifier from '../../Notifier';
 import Modal from "../../Modal";
 import Tinter from "../../Tinter";
 import * as sdk from '../../index';
-import { showRoomInviteDialog, showStartChatInviteDialog } from '../../RoomInvite';
+import { showRoomInviteDialog, showStartChatInviteDialog, showRoomInviteDialogFromFile } from '../../RoomInvite';
 import * as Rooms from '../../Rooms';
 import linkifyMatrix from "../../linkify-matrix";
 import * as Lifecycle from '../../Lifecycle';
@@ -82,6 +82,8 @@ import {UIFeature} from "../../settings/UIFeature";
 import { CommunityPrototypeStore } from "../../stores/CommunityPrototypeStore";
 import DialPadModal from "../views/voip/DialPadModal";
 import { showToast as showMobileGuideToast } from '../../toasts/MobileGuideToast';
+import Tchap from "../../tchap/Tchap";
+import ExpiredAccountDialog from "../../tchap/components/dialogs/ExpiredAccountDialog";
 
 /** constants for MatrixChat.state.view */
 export enum Views {
@@ -452,8 +454,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             return Lifecycle.loadSession({
                 fragmentQueryParams: this.props.startingFragmentQueryParams,
                 enableGuest: this.props.enableGuest,
-                guestHsUrl: this.getServerProperties().serverConfig.hsUrl,
-                guestIsUrl: this.getServerProperties().serverConfig.isUrl,
+                guestHsUrl: null,
+                guestIsUrl: null,
                 defaultDeviceDisplayName: this.props.defaultDeviceDisplayName,
             });
         }).then((loadedSession) => {
@@ -552,27 +554,6 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
 
         switch (payload.action) {
             case 'MatrixActions.accountData':
-                // XXX: This is a collection of several hacks to solve a minor problem. We want to
-                // update our local state when the ID server changes, but don't want to put that in
-                // the js-sdk as we'd be then dictating how all consumers need to behave. However,
-                // this component is already bloated and we probably don't want this tiny logic in
-                // here, but there's no better place in the react-sdk for it. Additionally, we're
-                // abusing the MatrixActionCreator stuff to avoid errors on dispatches.
-                if (payload.event_type === 'm.identity_server') {
-                    const fullUrl = payload.event_content ? payload.event_content['base_url'] : null;
-                    if (!fullUrl) {
-                        MatrixClientPeg.get().setIdentityServerUrl(null);
-                        localStorage.removeItem("mx_is_access_token");
-                        localStorage.removeItem("mx_is_url");
-                    } else {
-                        MatrixClientPeg.get().setIdentityServerUrl(fullUrl);
-                        localStorage.removeItem("mx_is_access_token"); // clear token
-                        localStorage.setItem("mx_is_url", fullUrl); // XXX: Do we still need this?
-                    }
-
-                    // redispatch the change with a more specific action
-                    dis.dispatch({action: 'id_server_changed'});
-                }
                 break;
             case 'logout':
                 Lifecycle.logout();
@@ -718,6 +699,9 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 break;
             case 'view_invite':
                 showRoomInviteDialog(payload.roomId);
+                break;
+            case 'view_invite_file':
+                showRoomInviteDialogFromFile(payload.roomId);
                 break;
             case 'view_last_screen':
                 // This function does what we want, despite the name. The idea is that it shows
@@ -1077,7 +1061,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 warnings.push((
                     <span className="warning" key="non_public_warning">
                         {' '/* Whitespace, otherwise the sentences get smashed together */ }
-                        { _t("This room is not public. You will not be able to rejoin without an invite.") }
+                        { _t("This room is a not forum. You will not be able to rejoin without an invite.") }
                     </span>
                 ));
             }
@@ -1201,7 +1185,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         } else if (MatrixClientPeg.currentUserIsJustRegistered()) {
             MatrixClientPeg.setJustRegisteredUserId(null);
 
-            if (this.props.config.welcomeUserId && getCurrentLanguage().startsWith("en")) {
+            if (this.props.config.welcomeUserId && getCurrentLanguage().startsWith("fr")) {
                 const welcomeUserRoom = await this.startWelcomeUserChat();
                 if (welcomeUserRoom === null) {
                     // We didn't redirect to the welcome user room, so show
@@ -1312,6 +1296,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         this.firstSyncComplete = false;
         this.firstSyncPromise = defer();
         const cli = MatrixClientPeg.get();
+        let expiredAccount = false;
+        let newEmailRequested = false;
 
         // Allow the JS SDK to reap timeline events. This reduces the amount of
         // memory consumed as the JS SDK stores multiple distinct copies of room
@@ -1336,6 +1322,20 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         });
 
         cli.on('sync', (state, prevState, data) => {
+            Tchap.isUserExpired(cli.getUserId()).then(ei => {
+                if (ei && ei.expired) {
+                    Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
+                        newEmailRequested: newEmailRequested,
+                        onRequestNewEmail: () => {
+                            newEmailRequested = true;
+                            Tchap.requestNewExpiredAccountEmail();
+                        },
+                        onFinished: () => {
+                            newEmailRequested = false;
+                        },
+                    });
+                }
+            });
             // LifecycleStore and others cannot directly subscribe to matrix client for
             // events because flux only allows store state changes during flux dispatches.
             // So dispatch directly from here. Ideally we'd use a SyncStateStore that
@@ -1343,33 +1343,37 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             // its own dispatch).
             dis.dispatch({action: 'sync_state', prevState, state});
 
-            if (state === "ERROR" || state === "RECONNECTING") {
-                if (data.error instanceof InvalidStoreError) {
-                    Lifecycle.handleInvalidStoreError(data.error);
+            if (!expiredAccount) {
+                if (state === "ERROR" || state === "RECONNECTING") {
+                    if (data.error instanceof InvalidStoreError) {
+                        Lifecycle.handleInvalidStoreError(data.error);
+                    }
+                    this.setState({syncError: data.error || true});
+                } else if (this.state.syncError) {
+                    this.setState({syncError: null});
                 }
-                this.setState({syncError: data.error || true});
-            } else if (this.state.syncError) {
-                this.setState({syncError: null});
+
+                this.updateStatusIndicator(state, prevState);
+                if (state === "SYNCING" && prevState === "SYNCING") {
+                    return;
+                }
+                console.info("MatrixClient sync state => %s", state);
+                if (state !== "PREPARED") {
+                    return;
+                }
+
+                this.firstSyncComplete = true;
+                this.firstSyncPromise.resolve();
+
+                if (Notifier.shouldShowPrompt() && !MatrixClientPeg.userRegisteredWithinLastHours(24)) {
+                    showNotificationsToast(false);
+                }
+
+                dis.fire(Action.FocusComposer);
+                this.setState({
+                    ready: true,
+                });
             }
-
-            this.updateStatusIndicator(state, prevState);
-            if (state === "SYNCING" && prevState === "SYNCING") {
-                return;
-            }
-            console.info("MatrixClient sync state => %s", state);
-            if (state !== "PREPARED") { return; }
-
-            this.firstSyncComplete = true;
-            this.firstSyncPromise.resolve();
-
-            if (Notifier.shouldShowPrompt() && !MatrixClientPeg.userRegisteredWithinLastHours(24)) {
-                showNotificationsToast(false);
-            }
-
-            dis.fire(Action.FocusComposer);
-            this.setState({
-                ready: true,
-            });
         });
 
         cli.on('Session.logged_out', function(errObj) {

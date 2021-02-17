@@ -21,6 +21,7 @@ import FlairStore from '../../../stores/FlairStore';
 import { _t } from '../../../languageHandler';
 import {getUserNameColorClass} from '../../../utils/FormattingUtils';
 import MatrixClientContext from "../../../contexts/MatrixClientContext";
+import {MatrixClientPeg} from "../../../MatrixClientPeg";
 
 export default class SenderProfile extends React.Component {
     static propTypes = {
@@ -89,8 +90,20 @@ export default class SenderProfile extends React.Component {
     render() {
         const {mxEvent} = this.props;
         const colorClass = getUserNameColorClass(mxEvent.getSender());
-        const name = mxEvent.sender ? mxEvent.sender.name : mxEvent.getSender();
         const {msgtype} = mxEvent.getContent();
+        let name = "";
+
+        // Set displayname for search results.
+        const user = MatrixClientPeg.get().getUser(mxEvent.getSender());
+        if (user) {
+            name = user.rawDisplayName;
+        } else if (mxEvent.sender) {
+            name = mxEvent.sender.name;
+        } else if (mxEvent.getSender()) {
+            name = mxEvent.getSender();
+        } else {
+            name = "";
+        }
 
         if (msgtype === 'm.emote') {
             return <span />; // emote message must include the name so don't duplicate it

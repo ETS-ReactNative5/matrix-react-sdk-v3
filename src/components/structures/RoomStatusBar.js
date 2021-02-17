@@ -23,6 +23,10 @@ import Resend from '../../Resend';
 import dis from '../../dispatcher/dispatcher';
 import {messageForResourceLimitError, messageForSendError} from '../../utils/ErrorUtils';
 import {Action} from "../../dispatcher/actions";
+import {inviteMultipleToRoom} from "../../RoomInvite";
+import DMRoomMap from "../../utils/DMRoomMap";
+import Tchap from "../../tchap/Tchap";
+import AccessibleButton from "../views/elements/AccessibleButton";
 
 const STATUS_BAR_HIDDEN = 0;
 const STATUS_BAR_EXPANDED = 1;
@@ -124,6 +128,14 @@ export default class RoomStatusBar extends React.Component {
         });
     };
 
+    _onReinviteClick = () => {
+        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        inviteMultipleToRoom(this.props.room.roomId, [dmUserId]).then().catch(err => {
+            console.error("Failed to invite user to the room")
+            console.error(err)
+        });
+    };
+
     // Check whether current size is greater than 0, if yes call props.onVisible
     _checkSize() {
         if (this._getSize()) {
@@ -221,7 +233,6 @@ export default class RoomStatusBar extends React.Component {
                     <a className="mx_RoomStatusBar_resend_link" key="cancel" onClick={this._onCancelAllClick}>{ sub }</a>,
             },
         );
-
         return <div className="mx_RoomStatusBar_connectionLostBar">
             <img src={require("../../../res/img/feather-customised/warning-triangle.svg")} width="24" height="24" title={_t("Warning")} alt="" />
             <div>
@@ -255,6 +266,34 @@ export default class RoomStatusBar extends React.Component {
 
         if (this.state.unsentMessages.length > 0) {
             return this._getUnsentMessageContent();
+        }
+
+        // If you're alone in the room, and have sent a message, suggest to invite someone
+        if (this.props.sentMessageAndIsAlone && !this.props.isPeeking) {
+            //this.props.room
+            //{ _t("There's no one else here!") }
+
+            let warningText = _t("There's no one else here!");
+            const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+            const accessRule = Tchap.getAccessRules(this.props.room.roomId)
+            if (accessRule === "direct" && dmUserId) {
+                const partner = MatrixClientPeg.get().getUser(dmUserId);
+                warningText = _t("%(user)s seems to have left the conversation. Do you want to <btn>invite</btn> him back?", {
+                    user: partner.rawDisplayName
+                }, {
+                    'btn': (sub)=><AccessibleButton
+                        onClick={this._onReinviteClick}
+                        kind={'primary_outline'}
+                        className="tc_RoomStatusBar_reinvite"
+                    >{ sub }</AccessibleButton>,
+                })
+            }
+
+            return (
+                <div className="mx_RoomStatusBar_isAlone">
+                    { warningText }
+                </div>
+            );
         }
 
         return null;

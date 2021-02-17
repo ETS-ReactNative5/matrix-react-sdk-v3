@@ -26,6 +26,8 @@ import FlairStore from "../../../stores/FlairStore";
 import {getPrimaryPermalinkEntity, parseAppLocalLink} from "../../../utils/permalinks/Permalinks";
 import MatrixClientContext from "../../../contexts/MatrixClientContext";
 import {Action} from "../../../dispatcher/actions";
+import Tchap from "../../../tchap/Tchap";
+import {resetSkin} from "../../../index";
 
 class Pill extends React.Component {
     static roomNotifPos(text) {
@@ -212,7 +214,7 @@ class Pill extends React.Component {
                     const member = this.state.member;
                     if (member) {
                         userId = member.userId;
-                        member.rawDisplayName = member.rawDisplayName || '';
+                        member.rawDisplayName = member ? member.rawDisplayName : '';
                         linkText = member.rawDisplayName;
                         if (this.props.shouldShowPillAvatar) {
                             avatar = <MemberAvatar member={member} width={16} height={16} aria-hidden="true" />;
@@ -226,7 +228,7 @@ class Pill extends React.Component {
             case Pill.TYPE_ROOM_MENTION: {
                 const room = this.state.room;
                 if (room) {
-                    linkText = resource;
+                    linkText = Tchap.computeLongRoomNameFromRoom(room);
                     if (this.props.shouldShowPillAvatar) {
                         avatar = <RoomAvatar room={room} width={16} height={16} aria-hidden="true" />;
                     }

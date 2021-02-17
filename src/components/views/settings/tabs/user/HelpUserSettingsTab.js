@@ -150,49 +150,12 @@ export default class HelpUserSettingsTab extends React.Component {
 
     render() {
         const brand = SdkConfig.get().brand;
-
-        let faqText = _t(
-            'For help with using %(brand)s, click <a>here</a>.',
-            {
-                brand,
-            },
-            {
-                'a': (sub) => <a
-                    href="https://element.io/help"
-                    rel="noreferrer noopener"
-                    target="_blank"
-                >
-                    {sub}
-                </a>,
-            },
-        );
-        if (SdkConfig.get().welcomeUserId && getCurrentLanguage().startsWith('en')) {
-            faqText = (
-                <div>
-                    {_t(
-                        'For help with using %(brand)s, click <a>here</a> or start a chat with our ' +
-                        'bot using the button below.',
-                        {
-                            brand,
-                        },
-                        {
-                            'a': (sub) => <a
-                                href="https://element.io/help"
-                                rel='noreferrer noopener'
-                                target='_blank'
-                            >
-                                {sub}
-                            </a>,
-                        },
-                    )}
-                    <div>
-                        <AccessibleButton onClick={this._onStartBotChat} kind='primary'>
-                            {_t("Chat with %(brand)s Bot", { brand })}
-                        </AccessibleButton>
-                    </div>
-                </div>
-            );
-        }
+        const baseUrl = SdkConfig.get().base_host_url;
+        const faqLink = SdkConfig.get().generic_endpoints.faq;
+        let faqText = _t('For help with using %(brand)s, click <a>here</a>.', { brand }, {
+            'a': (sub) =>
+                <a href={baseUrl + faqLink} rel="noreferrer nofollow noopener" target="_blank">{sub}</a>,
+        });
 
         const appVersion = this.state.appVersion || 'unknown';
 
@@ -210,28 +173,17 @@ export default class HelpUserSettingsTab extends React.Component {
                 <div className="mx_SettingsTab_section">
                     <span className='mx_SettingsTab_subheading'>{_t('Bug reporting')}</span>
                     <div className='mx_SettingsTab_subsectionText'>
-                        {
-                            _t( "If you've submitted a bug via GitHub, debug logs can help " +
-                                "us track down the problem. Debug logs contain application " +
-                                "usage data including your username, the IDs or aliases of " +
-                                "the rooms or groups you have visited and the usernames of " +
-                                "other users. They do not contain messages.",
-                            )
-                        }
+                        {_t(
+                            "You have encountered an error and you want to help us ? " +
+                            "Please describe the error encountered. There will be no direct answer, " +
+                            "but your report will help us to improve Tchap. What have you done ? " +
+                            "What was the expected behavior ? What really happened ?"
+                        )}
                         <div className='mx_HelpUserSettingsTab_debugButton'>
                             <AccessibleButton onClick={this._onBugReport} kind='primary'>
-                                {_t("Submit debug logs")}
+                                {_t("Report an error")}
                             </AccessibleButton>
                         </div>
-                        {
-                            _t( "To report a Matrix-related security issue, please read the Matrix.org " +
-                                "<a>Security Disclosure Policy</a>.", {},
-                                {
-                                    'a': (sub) =>
-                                        <a href="https://matrix.org/security-disclosure-policy/"
-                                           rel="noreferrer noopener" target="_blank">{sub}</a>,
-                                })
-                        }
                     </div>
                 </div>
             );

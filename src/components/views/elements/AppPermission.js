@@ -127,7 +127,6 @@ export default class AppPermission extends React.Component {
                 <div className='mx_AppPermissionWarning_row'>
                     {avatar}
                     <h4 className='mx_AppPermissionWarning_bolder'>{displayName}</h4>
-                    <div className='mx_AppPermissionWarning_smallText'>{userId}</div>
                 </div>
                 <div className='mx_AppPermissionWarning_row mx_AppPermissionWarning_smallText'>
                     {warning}

@@ -97,18 +97,18 @@ export default class ThemeWatcher {
         // controller that honours the same flag, although probablt better would be to
         // have the theme logic in one place rather than split between however many
         // different places.
-        if (ThemeController.isLogin) return 'light';
+        if (ThemeController.isLogin) return 'tchap';
 
         // If the user has specifically enabled the system matching option (excluding default),
         // then use that over anything else. We pick the lowest possible level for the setting
         // to ensure the ordering otherwise works.
-        const systemThemeExplicit = SettingsStore.getValueAt(
+/*        const systemThemeExplicit = SettingsStore.getValueAt(
             SettingLevel.DEVICE, "use_system_theme", null, false, true);
         if (systemThemeExplicit) {
             console.log("returning explicit system theme");
             if (this.preferDark.matches) return 'dark';
             if (this.preferLight.matches) return 'light';
-        }
+        }*/
 
         // If the user has specifically enabled the theme (without the system matching option being
         // enabled specifically and excluding the default), use that theme. We pick the lowest possible
@@ -122,10 +122,10 @@ export default class ThemeWatcher {
 
         // If the user hasn't really made a preference in either direction, assume the defaults of the
         // settings and use those.
-        if (SettingsStore.getValue('use_system_theme')) {
+/*        if (SettingsStore.getValue('use_system_theme')) {
             if (this.preferDark.matches) return 'dark';
             if (this.preferLight.matches) return 'light';
-        }
+        }*/
         console.log("returning theme value");
         return SettingsStore.getValue('theme');
     }

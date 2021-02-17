@@ -25,6 +25,7 @@ import { _t } from './languageHandler';
 import {KIND_DM, KIND_INVITE} from "./components/views/dialogs/InviteDialog";
 import CommunityPrototypeInviteDialog from "./components/views/dialogs/CommunityPrototypeInviteDialog";
 import {CommunityPrototypeStore} from "./stores/CommunityPrototypeStore";
+import InviteFromFileDialog from "./tchap/components/dialogs/InviteFromFileDialog";
 
 /**
  * Invites multiple addresses to a room
@@ -73,6 +74,28 @@ export function showCommunityInviteDialog(communityId) {
     } else {
         throw new Error("Failed to locate appropriate room to start an invite in");
     }
+}
+
+export function showRoomInviteDialogFromFile(roomId) {
+    Modal.createTrackedDialog('Room Invite From File', '', InviteFromFileDialog, {
+        title: _t('Invite new room members from a file'),
+        roomId: roomId,
+        onFinished: (shouldInvite, addrs) => {
+            if (!shouldInvite) return;
+            if (!addrs || addrs.length <= 0) {
+                const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
+                Modal.createTrackedDialog('Failed to invite users to the room', '', ErrorDialog, {
+                    title: _t("Failed to invite users to the room:", {roomName: ""}),
+                    description: _t("Invalid Email Address"),
+                });
+                return;
+            }
+            inviteUsersToRoom(roomId, addrs).then().catch(err => {
+                console.error("Failed to invite user to the room")
+                console.error(err)
+            });
+        }
+    });
 }
 
 /**

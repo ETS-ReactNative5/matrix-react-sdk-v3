@@ -39,6 +39,7 @@ import { OwnProfileStore } from "../../stores/OwnProfileStore";
 import { MatrixClientPeg } from "../../MatrixClientPeg";
 import RoomListNumResults from "../views/rooms/RoomListNumResults";
 import LeftPanelWidget from "./LeftPanelWidget";
+import SdkConfig from "../../SdkConfig";
 
 interface IProps {
     isMinimized: boolean;
@@ -395,6 +396,28 @@ export default class LeftPanel extends React.Component<IProps, IState> {
             </div>
         );
 
+        let bottomPanel;
+        if (!this.props.isMinimized) {
+            bottomPanel = (
+                <div className="tc_LeftPanel_Bottom">
+                    <div className="tc_LeftPanel_Bottom_logo">
+                        <img src={require('../../../res/img/tchap/logo_rep_fr.svg')} alt="logo_rep_fr" />
+                    </div>
+                    <div className="tc_LeftPanel_Bottom_links">
+                        <a href={SdkConfig.get().base_host_url + SdkConfig.get().generic_endpoints.faq} rel='noreferrer nofollow noopener' target='_blank'>{_t('FAQ')}</a>&nbsp;·&nbsp;
+                        <a href={SdkConfig.get().base_host_url + SdkConfig.get().generic_endpoints.tac} rel='noreferrer nofollow noopener' target='_blank'>{_t('TAC')}</a>&nbsp;·&nbsp;
+                        <a href={SdkConfig.get().base_host_url + SdkConfig.get().generic_endpoints.user_guide} rel='noreferrer nofollow noopener' target='_blank'>{_t('User Guide')}</a>
+                    </div>
+                </div>
+            );
+        } else {
+            bottomPanel = (
+                <div className="tc_LeftPanel_Bottom_logo_collapsed">
+                    <img src={require('../../../res/img/tchap/logo_rep_fr.svg')} alt="logo_rep_fr" />
+                </div>
+            );
+        }
+
         const roomList = <RoomList
             onKeyDown={this.onKeyDown}
             resizeNotifier={null}
@@ -436,6 +459,7 @@ export default class LeftPanel extends React.Component<IProps, IState> {
                         </div>
                     </div>
                     { !this.props.isMinimized && <LeftPanelWidget onResize={this.onResize} /> }
+                    { bottomPanel }
                 </aside>
             </div>
         );

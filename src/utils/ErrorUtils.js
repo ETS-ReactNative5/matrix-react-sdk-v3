@@ -76,6 +76,10 @@ export function messageForSyncError(err) {
             <div>{limitError}</div>
             <div>{adminContact}</div>
         </div>;
+    } else if (err.errcode === 'ORG_MATRIX_EXPIRED_ACCOUNT') {
+        return <div>
+            { _t("Your account's validity period has expired. Awaiting renewal validation...") }
+        </div>;
     } else {
         return <div>
             {_t("Unable to connect to Homeserver. Retrying...")}

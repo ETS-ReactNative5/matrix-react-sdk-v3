@@ -61,6 +61,7 @@ import ConfirmUserActionDialog from "../dialogs/ConfirmUserActionDialog";
 import InfoDialog from "../dialogs/InfoDialog";
 import { EventType } from "matrix-js-sdk/src/@types/event";
 import {SetRightPanelPhasePayload} from "../../../dispatcher/payloads/SetRightPanelPhasePayload";
+import Tchap from "../../../tchap/Tchap";
 
 interface IDevice {
     deviceId: string;
@@ -411,7 +412,7 @@ const UserOptionsSection: React.FC<{
     );
 
     let directMessageButton;
-    if (!isMe) {
+    if (!isMe && !Tchap.isCurrentUserExtern()) {
         directMessageButton = (
             <AccessibleButton onClick={() => openDMForUser(cli, member.userId)} className="mx_UserInfo_field">
                 { _t('Direct message') }
@@ -1018,7 +1019,7 @@ const PowerLevelSection: React.FC<{
     roomPermissions: IRoomPermissions;
     powerLevels: IPowerLevelsContent;
 }> = ({user, room, roomPermissions, powerLevels}) => {
-    if (roomPermissions.canEdit) {
+    if (roomPermissions.canEdit && !Tchap.isUserExtern(user.userId)) {
         return (<PowerLevelEditor user={user} room={room} roomPermissions={roomPermissions} />);
     } else {
         const powerLevelUsersDefault = powerLevels.users_default || 0;
@@ -1374,15 +1375,21 @@ const BasicUserInfo: React.FC<{
         </div>
     );
 
+    let userOptionSection = null;
+    if (!isMe) {
+        userOptionSection = (
+            <UserOptionsSection
+                devices={devices}
+                canInvite={roomPermissions.canInvite}
+                isIgnored={isIgnored}
+                member={member} />
+        );
+    }
+
     return <React.Fragment>
         { memberDetails }
 
-        { securitySection }
-        <UserOptionsSection
-            canInvite={roomPermissions.canInvite}
-            isIgnored={isIgnored}
-            member={member} />
-
+        { userOptionSection }
         { adminToolsContainer }
 
         { spinner }
@@ -1449,6 +1456,7 @@ const UserInfoHeader: React.FC<{
         showPresence = enablePresenceByHsUrl[cli.baseUrl];
     }
 
+    // Presence is disabled for the moment.
     let presenceLabel = null;
     if (showPresence) {
         presenceLabel = (
@@ -1465,6 +1473,8 @@ const UserInfoHeader: React.FC<{
         statusLabel = <span className="mx_UserInfo_statusMessage">{ statusMessage }</span>;
     }
 
+    // e2e icon is related to key backup and x sign.
+    // We dont want it for the moment.
     let e2eIcon;
     if (e2eStatus) {
         e2eIcon = <E2EIcon size={18} status={e2eStatus} isUser={true} />;

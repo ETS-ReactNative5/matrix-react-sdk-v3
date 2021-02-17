@@ -16,9 +16,12 @@ limitations under the License.
 */
 
 import React, {forwardRef} from "react";
+import {_t} from "../../../languageHandler"
+import Tchap from "../../../tchap/Tchap";
 
 export default forwardRef(({mxEvent}, ref) => {
-    const text = mxEvent.getContent().body;
+    let text = mxEvent.getContent().body;
+    text = Tchap.transformServerErrors(text);
     return (
         <span className="mx_UnknownBody" ref={ref}>
             { text }

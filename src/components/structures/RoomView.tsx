@@ -467,15 +467,21 @@ export default class RoomView extends React.Component<IProps, IState> {
                     // Stop peeking if anything went wrong
                     this.setState({
                         isPeeking: false,
+                        peekLoading: false,
                     });
 
                     // This won't necessarily be a MatrixError, but we duck-type
                     // here and say if it's got an 'errcode' key with the right value,
                     // it means we can't peek.
-                    if (err.errcode === "M_GUEST_ACCESS_FORBIDDEN" || err.errcode === 'M_FORBIDDEN') {
+                    if (err.errcode === "M_GUEST_ACCESS_FORBIDDEN") {
                         // This is fine: the room just isn't peekable (we assume).
                         this.setState({
                             peekLoading: false,
+                        });
+                    } else if (err.errcode === 'M_FORBIDDEN' && Tchap.isCurrentUserExtern()) {
+                        this.setState({
+                            peekLoading: false,
+                            roomLoadError: err,
                         });
                     } else {
                         throw err;

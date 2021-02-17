@@ -21,10 +21,12 @@ import * as sdk from '../../../index';
 import SdkConfig from '../../../SdkConfig';
 import withValidation from '../elements/Validation';
 import { _t } from '../../../languageHandler';
-import {MatrixClientPeg} from '../../../MatrixClientPeg';
 import {Key} from "../../../Keyboard";
 import {privateShouldBeEncrypted} from "../../../createRoom";
 import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
+import {MatrixClientPeg} from "../../../MatrixClientPeg";
+import Tchap from "../../../tchap/Tchap";
+import AccessibleButton from "../elements/AccessibleButton";
 
 export default class CreateRoomDialog extends React.Component {
     static propTypes = {
@@ -43,9 +45,15 @@ export default class CreateRoomDialog extends React.Component {
             topic: "",
             alias: "",
             detailsOpen: false,
-            noFederate: config.default_federate === false,
+            noFederate: true,
             nameIsValid: false,
-            canChangeEncryption: true,
+            externAllowed: false,
+            externAllowedSwitchDisabled: this.props.defaultPublic || false,
+            roomOption: this.props.defaultPublic ? "public" : "private",
+            classesRoomOptionPrivate: "tc_CreateRoomDialog_RoomOption_private",
+            classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
+            classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
+            canChangeEncryption: false,
         };
 
         MatrixClientPeg.get().doesServerForceEncryptionForPreset("private")
@@ -64,6 +72,9 @@ export default class CreateRoomDialog extends React.Component {
             const localPart = alias.substr(1, alias.indexOf(":") - 1);
             createOpts['room_alias_name'] = localPart;
         }
+        if (this.state.externAllowed && !this.state.isPublic) {
+            createOpts.access_rules = "unrestricted"
+        }
         if (this.state.topic) {
             createOpts.topic = this.state.topic;
         }
@@ -72,30 +83,19 @@ export default class CreateRoomDialog extends React.Component {
         }
 
         if (!this.state.isPublic) {
-            if (this.state.canChangeEncryption) {
-                opts.encryption = this.state.isEncrypted;
-            } else {
-                // the server should automatically do this for us, but for safety
-                // we'll demand it too.
-                opts.encryption = true;
-            }
-        }
-
-        if (CommunityPrototypeStore.instance.getSelectedCommunityId()) {
-            opts.associatedWithCommunity = CommunityPrototypeStore.instance.getSelectedCommunityId();
+            opts.encryption = this.state.isEncrypted;
         }
 
         return opts;
     }
 
     componentDidMount() {
-        this._detailsRef.addEventListener("toggle", this.onDetailsToggled);
-        // move focus to first field when showing dialog
         this._nameFieldRef.focus();
+        // TCHAP SEE
+        this.setUpRoomOptions(this.state.roomOption);
     }
 
     componentWillUnmount() {
-        this._detailsRef.removeEventListener("toggle", this.onDetailsToggled);
     }
 
     _onKeyDown = event => {
@@ -147,15 +147,12 @@ export default class CreateRoomDialog extends React.Component {
     };
 
     onPublicChange = isPublic => {
-        this.setState({isPublic});
-    };
-
-    onEncryptedChange = isEncrypted => {
-        this.setState({isEncrypted});
-    };
-
-    onAliasChange = alias => {
-        this.setState({alias});
+        this.setState({
+            isPublic,
+            externAllowedSwitchDisabled: isPublic,
+            externAllowed: false,
+            noFederate: isPublic
+        });
     };
 
     onDetailsToggled = ev => {
@@ -166,6 +163,12 @@ export default class CreateRoomDialog extends React.Component {
         this.setState({noFederate});
     };
 
+    onExternAllowedSwitchChange = ev => {
+        this.setState({
+            externAllowed: ev
+        });
+    }
+
     collectDetailsRef = ref => {
         this._detailsRef = ref;
     };
@@ -175,6 +178,53 @@ export default class CreateRoomDialog extends React.Component {
         this.setState({nameIsValid: result.valid});
         return result;
     };
+
+    onRoomOptionChange = ev => {
+        ev.preventDefault();
+        const selected = ev.target.getAttribute("aria-name")
+        this.setUpRoomOptions(selected);
+    }
+
+    setUpRoomOptions = selected => {
+        switch (selected) {
+            case "private": {
+                this.setState({
+                    isPublic: false,
+                    externAllowed: false,
+                    noFederate: false,
+                    roomOption: selected,
+                    classesRoomOptionPrivate: this.state.classesRoomOptionPrivate + " tc_CreateRoomDialog_RoomOption_selected",
+                    classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
+                    classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
+                })
+                break;
+            }
+            case "external": {
+                this.setState({
+                    isPublic: false,
+                    externAllowed: true,
+                    noFederate: false,
+                    roomOption: selected,
+                    classesRoomOptionExternal: this.state.classesRoomOptionExternal + " tc_CreateRoomDialog_RoomOption_selected",
+                    classesRoomOptionPrivate: "tc_CreateRoomDialog_RoomOption_private",
+                    classesRoomOptionPublic: "tc_CreateRoomDialog_RoomOption_public",
+                })
+                break;
+            }
+            case "public": {
+                this.setState({
+                    isPublic: true,
+                    externAllowed: false,
+                    noFederate: true,
+                    roomOption: selected,
+                    classesRoomOptionPublic: this.state.classesRoomOptionPublic + " tc_CreateRoomDialog_RoomOption_selected",
+                    classesRoomOptionPrivate: "tc_CreateRoomDialog_RoomOption_private",
+                    classesRoomOptionExternal: "tc_CreateRoomDialog_RoomOption_external",
+                })
+                break;
+            }
+        }
+    }
 
     static _validateRoomName = withValidation({
         rules: [
@@ -191,72 +241,44 @@ export default class CreateRoomDialog extends React.Component {
         const DialogButtons = sdk.getComponent('views.elements.DialogButtons');
         const Field = sdk.getComponent('views.elements.Field');
         const LabelledToggleSwitch = sdk.getComponent('views.elements.LabelledToggleSwitch');
-        const RoomAliasField = sdk.getComponent('views.elements.RoomAliasField');
 
-        let aliasField;
-        if (this.state.isPublic) {
-            const domain = MatrixClientPeg.get().getDomain();
-            aliasField = (
-                <div className="mx_CreateRoomDialog_aliasContainer">
-                    <RoomAliasField ref={ref => this._aliasFieldRef = ref} onChange={this.onAliasChange} domain={domain} value={this.state.alias} />
-                </div>
-            );
-        }
-
-        let publicPrivateLabel = <p>{_t(
-            "Private rooms can be found and joined by invitation only. Public rooms can be " +
-            "found and joined by anyone.",
-        )}</p>;
-        if (CommunityPrototypeStore.instance.getSelectedCommunityId()) {
-            publicPrivateLabel = <p>{_t(
-                "Private rooms can be found and joined by invitation only. Public rooms can be " +
-                "found and joined by anyone in this community.",
-            )}</p>;
-        }
-
-        let e2eeSection;
-        if (!this.state.isPublic) {
-            let microcopy;
-            if (privateShouldBeEncrypted()) {
-                if (this.state.canChangeEncryption) {
-                    microcopy = _t("You can’t disable this later. Bridges & most bots won’t work yet.");
-                } else {
-                    microcopy = _t("Your server requires encryption to be enabled in private rooms.");
-                }
-            } else {
-                microcopy = _t("Your server admin has disabled end-to-end encryption by default " +
-                    "in private rooms & Direct Messages.");
-            }
-            e2eeSection = <React.Fragment>
-                <LabelledToggleSwitch
-                    label={ _t("Enable end-to-end encryption")}
-                    onChange={this.onEncryptedChange}
-                    value={this.state.isEncrypted}
-                    className='mx_CreateRoomDialog_e2eSwitch' // for end-to-end tests
-                    disabled={!this.state.canChangeEncryption}
-                />
-                <p>{ microcopy }</p>
-            </React.Fragment>;
-        }
-
-        let federateLabel = _t(
-            "You might enable this if the room will only be used for collaborating with internal " +
-            "teams on your homeserver. This cannot be changed later.",
+        let roomOptions = (
+            <div className={"tc_CreateRoomDialog_RoomOption"}>
+                <AccessibleButton className={this.state.classesRoomOptionPrivate} onClick={this.onRoomOptionChange} aria-name={"private"}>
+                    { _t("Private room") }
+                    <div className={"tc_CreateRoomDialog_RoomOption_descr"} onClick={this.onRoomOptionChange} aria-name={"private"}>
+                        { _t("Accessible to all users by invitation from an administrator.") }
+                    </div>
+                </AccessibleButton>
+                <AccessibleButton className={this.state.classesRoomOptionExternal} onClick={this.onRoomOptionChange} aria-name={"external"}>
+                    { _t("Private room opened to externals") }
+                    <div className={"tc_CreateRoomDialog_RoomOption_descr"} onClick={this.onRoomOptionChange} aria-name={"external"}>
+                        { _t("Accessible to all users and to external guests by invitation of an administrator.") }
+                    </div>
+                </AccessibleButton>
+                <AccessibleButton className={this.state.classesRoomOptionPublic} onClick={this.onRoomOptionChange} aria-name={"public"}>
+                    { _t("Forum room") }
+                    <div className={"tc_CreateRoomDialog_RoomOption_descr"} onClick={this.onRoomOptionChange} aria-name={"public"}>
+                        { _t("Accessible to all users from the directory or from a shared link.") }
+                    </div>
+                    <div className={"tc_CreateRoomDialog_RoomOption_suboption"}>
+                        <LabelledToggleSwitch label={ _t('Limit access to this room to domain members "%(domain)s"',
+                            {domain: Tchap.getShortDomain()}) }
+                            onChange={this.onNoFederateChange} value={this.state.noFederate} />
+                    </div>
+                </AccessibleButton>
+            </div>
         );
-        if (SdkConfig.get().default_federate === false) {
-            // We only change the label if the default setting is different to avoid jarring text changes to the
-            // user. They will have read the implications of turning this off/on, so no need to rephrase for them.
-            federateLabel = _t(
-                "You might disable this if the room will be used for collaborating with external " +
-                "teams who have their own homeserver. This cannot be changed later.",
-            );
+
+        let title = "";
+        if (this.state.isPublic) {
+            title = _t('Create a forum room')
+        } else if (!this.state.isPublic && this.state.externAllowed) {
+            title = _t('Create a private room opened to externals')
+        } else {
+            title = _t('Create a private room')
         }
 
-        let title = this.state.isPublic ? _t('Create a public room') : _t('Create a private room');
-        if (CommunityPrototypeStore.instance.getSelectedCommunityId()) {
-            const name = CommunityPrototypeStore.instance.getSelectedCommunityName();
-            title = _t("Create a room in %(communityName)s", {communityName: name});
-        }
         return (
             <BaseDialog className="mx_CreateRoomDialog" onFinished={this.props.onFinished}
                 title={title}
@@ -265,22 +287,7 @@ export default class CreateRoomDialog extends React.Component {
                     <div className="mx_Dialog_content">
                         <Field ref={ref => this._nameFieldRef = ref} label={ _t('Name') } onChange={this.onNameChange} onValidate={this.onNameValidate} value={this.state.name} className="mx_CreateRoomDialog_name" />
                         <Field label={ _t('Topic (optional)') } onChange={this.onTopicChange} value={this.state.topic} className="mx_CreateRoomDialog_topic" />
-                        <LabelledToggleSwitch label={ _t("Make this room public")} onChange={this.onPublicChange} value={this.state.isPublic} />
-                        { publicPrivateLabel }
-                        { e2eeSection }
-                        { aliasField }
-                        <details ref={this.collectDetailsRef} className="mx_CreateRoomDialog_details">
-                            <summary className="mx_CreateRoomDialog_details_summary">{ this.state.detailsOpen ? _t('Hide advanced') : _t('Show advanced') }</summary>
-                            <LabelledToggleSwitch
-                                label={_t(
-                                    "Block anyone not part of %(serverName)s from ever joining this room.",
-                                    {serverName: MatrixClientPeg.getHomeserverName()},
-                                )}
-                                onChange={this.onNoFederateChange}
-                                value={this.state.noFederate}
-                            />
-                            <p>{federateLabel}</p>
-                        </details>
+                        { roomOptions }
                     </div>
                 </form>
                 <DialogButtons primaryButton={_t('Create Room')}

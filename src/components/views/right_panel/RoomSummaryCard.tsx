@@ -45,9 +45,13 @@ import {ChevronFace, ContextMenuTooltipButton, useContextMenu} from "../../struc
 import WidgetContextMenu from "../context_menus/WidgetContextMenu";
 import {useRoomMemberCount} from "../../../hooks/useRoomMembers";
 import { Container, MAX_PINNED, WidgetLayoutStore } from "../../../stores/widgets/WidgetLayoutStore";
+import {MatrixClientPeg} from "../../../MatrixClientPeg";
+import DMRoomMap from "../../../utils/DMRoomMap";
+import Tchap from "../../../tchap/Tchap";
 
 interface IProps {
     room: Room;
+    joinRules: string;
     onClose(): void;
 }
 
@@ -68,6 +72,13 @@ const Button: React.FC<IButtonProps> = ({ children, className, onClick }) => {
         { children }
     </AccessibleButton>;
 };
+
+enum Icon {
+    // Note: the names here are used in CSS class names
+    None = "NONE", // ... except this one
+    Encrypted = "ENCRYPTED",
+    Forum = "FORUM",
+}
 
 export const useWidgets = (room: Room) => {
     const [apps, setApps] = useState<IApp[]>(WidgetStore.instance.getApps(room.roomId));

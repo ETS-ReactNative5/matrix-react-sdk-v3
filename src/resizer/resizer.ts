@@ -140,6 +140,9 @@ export default class Resizer<C extends IConfig = IConfig> {
             if (this.classNames.resizing) {
                 this.container.classList.remove(this.classNames.resizing);
             }
+            if (this.config.onResizeStop) {
+                this.config.onResizeStop();
+            }
             distributor.finish();
             if (this.config.onResizeStop) {
                 this.config.onResizeStop();

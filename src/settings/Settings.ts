@@ -264,19 +264,19 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "showJoinLeaves": {
         supportedLevels: LEVELS_ROOM_SETTINGS_WITH_ROOM,
         displayName: _td('Show join/leave messages (invites/kicks/bans unaffected)'),
-        default: true,
+        default: false,
         invertedSettingName: 'hideJoinLeaves',
     },
     "showAvatarChanges": {
         supportedLevels: LEVELS_ROOM_SETTINGS_WITH_ROOM,
         displayName: _td('Show avatar changes'),
-        default: true,
+        default: false,
         invertedSettingName: 'hideAvatarChanges',
     },
     "showDisplaynameChanges": {
         supportedLevels: LEVELS_ROOM_SETTINGS_WITH_ROOM,
         displayName: _td('Show display name changes'),
-        default: true,
+        default: false,
         invertedSettingName: 'hideDisplaynameChanges',
     },
     "showReadReceipts": {
@@ -293,7 +293,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "alwaysShowTimestamps": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td('Always show message timestamps'),
-        default: false,
+        default: true,
     },
     "autoplayGifsAndVideos": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
@@ -303,7 +303,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "enableSyntaxHighlightLanguageDetection": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td('Enable automatic language detection for syntax highlighting'),
-        default: false,
+        default: true,
     },
     "expandCodeByDefault": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
@@ -369,14 +369,14 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "TagPanel.enableTagPanel": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td('Enable Community Filter Panel'),
-        default: true,
+        default: false,
         invertedSettingName: 'TagPanel.disableTagPanel',
         // We force the value to true because the invertedSettingName causes it to flip
         controller: new UIFeatureController(UIFeature.Communities, true),
     },
     "theme": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
-        default: "light",
+        default: "tchap",
         controller: new ThemeController(),
     },
     "custom_themes": {
@@ -385,7 +385,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "use_system_theme": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
-        default: true,
+        default: false,
         displayName: _td("Match system theme"),
     },
     "useSystemFont": {
@@ -420,7 +420,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "language": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG,
-        default: "en",
+        default: "fr",
     },
     "breadcrumb_rooms": {
         // not really a setting
@@ -452,7 +452,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "showCookieBar": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG,
-        default: true,
+        default: false,
     },
     "autocompleteDelay": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG,
@@ -506,7 +506,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "notificationsEnabled": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
-        default: false,
+        default: true,
         controller: new NotificationsEnabledController(),
     },
     "notificationSound": {
@@ -534,7 +534,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "promptBeforeInviteUnknownUsers": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td('Prompt before sending invites to potentially invalid matrix IDs'),
-        default: true,
+        default: false,
     },
     "showDeveloperTools": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
@@ -563,7 +563,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "breadcrumbs": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td("Show shortcuts to recently viewed rooms above the room list"),
-        default: true,
+        default: false,
     },
     "showHiddenEventsInTimeline": {
         displayName: _td("Show hidden events in timeline"),

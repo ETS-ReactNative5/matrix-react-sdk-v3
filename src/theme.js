@@ -17,15 +17,14 @@ limitations under the License.
 
 import {_t} from "./languageHandler";
 
-export const DEFAULT_THEME = "light";
+export const DEFAULT_THEME = "tchap";
 import Tinter from "./Tinter";
 import SettingsStore from "./settings/SettingsStore";
 import ThemeWatcher from "./settings/watchers/ThemeWatcher";
 
 export function enumerateThemes() {
     const BUILTIN_THEMES = {
-        "light": _t("Light"),
-        "dark": _t("Dark"),
+        "tchap": _t("Tchap"),
     };
     const customThemes = SettingsStore.getValue("custom_themes");
     const customThemeNames = {};

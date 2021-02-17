@@ -78,7 +78,7 @@ export default class RoomUpgradeWarningDialog extends React.Component {
             );
         }
 
-        const title = this.state.isPrivate ? _t("Upgrade private room") : _t("Upgrade public room");
+        const title = this.state.isPrivate ? _t("Upgrade private room") : _t("Upgrade forum");
 
         return (
             <BaseDialog

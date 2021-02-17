@@ -33,6 +33,7 @@ import MatrixClientContext from "../../contexts/MatrixClientContext";
 import MiniAvatarUploader, {AVATAR_SIZE} from "../views/elements/MiniAvatarUploader";
 import Analytics from "../../Analytics";
 import CountlyAnalytics from "../../CountlyAnalytics";
+import Tchap from "../../tchap/Tchap";
 
 const onClickSendDm = () => {
     Analytics.trackEvent('home_page', 'button', 'dm');
@@ -94,6 +95,7 @@ const UserWelcomeTop = () => {
 const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
     const config = SdkConfig.get();
     const pageUrl = getHomePageUrl(config);
+    const AccessibleButton = sdk.getComponent("elements.AccessibleButton");
 
     if (pageUrl) {
         const EmbeddedPage = sdk.getComponent('structures.EmbeddedPage');
@@ -105,33 +107,34 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
         introSection = <UserWelcomeTop />;
     } else {
         const brandingConfig = config.branding;
-        let logoUrl = "themes/element/img/logos/element-logo.svg";
+        let logoUrl = "themes/tchap/img/logos/tchap-logo.svg";
         if (brandingConfig && brandingConfig.authHeaderLogoUrl) {
             logoUrl = brandingConfig.authHeaderLogoUrl;
         }
 
-        introSection = <React.Fragment>
-            <img src={logoUrl} alt={config.brand} />
-            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand }) }</h1>
-            <h4>{ _t("Liberate your communication") }</h4>
-        </React.Fragment>;
-    }
-
-
-    return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
-        <div className="mx_HomePage_default_wrapper">
-            { introSection }
+    let defaultButtons = null;
+    if (!Tchap.isCurrentUserExtern()) {
+        defaultButtons  = (
             <div className="mx_HomePage_default_buttons">
                 <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
                     { _t("Send a Direct Message") }
                 </AccessibleButton>
                 <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
-                    { _t("Explore Public Rooms") }
+                    { _t("Explore Forums") }
                 </AccessibleButton>
                 <AccessibleButton onClick={onClickNewRoom} className="mx_HomePage_button_createGroup">
                     { _t("Create a Group Chat") }
                 </AccessibleButton>
             </div>
+        );
+    }
+
+    return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
+        <div className="mx_HomePage_default_wrapper">
+            <img src={logoUrl} alt={config.brand || "Element"} />
+            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand || "Element" }) }</h1>
+            <h4>{ _t("State instant messaging") }</h4>
+            { defaultButtons }
         </div>
     </AutoHideScrollbar>;
 };

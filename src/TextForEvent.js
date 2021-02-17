@@ -20,14 +20,20 @@ import {isValid3pidInvite} from "./RoomInvite";
 import SettingsStore from "./settings/SettingsStore";
 import {ALL_RULE_TYPES, ROOM_RULE_TYPES, SERVER_RULE_TYPES, USER_RULE_TYPES} from "./mjolnir/BanList";
 import {WIDGET_LAYOUT_EVENT_TYPE} from "./stores/widgets/WidgetLayoutStore";
+import Tchap from "./tchap/Tchap";
 
 function textForMemberEvent(ev) {
     // XXX: SYJS-16 "sender is sometimes null for join messages"
     const senderName = ev.sender ? ev.sender.name : ev.getSender();
-    const targetName = ev.target ? ev.target.name : ev.getStateKey();
+    let targetName = ev.target ? ev.target.name : ev.getStateKey();
     const prevContent = ev.getPrevContent();
     const content = ev.getContent();
 
+    if (Tchap.looksLikeMxId(targetName)) {
+        targetName = Tchap.computeDisplayNameFromUserId(targetName);
+    }
+
+    const ConferenceHandler = CallHandler.getConferenceHandler();
     const reason = content.reason ? (_t('Reason') + ': ' + content.reason) : '';
     switch (content.membership) {
         case 'invite': {
@@ -138,7 +144,7 @@ function textForJoinRulesEvent(ev) {
     const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
     switch (ev.getContent().join_rule) {
         case "public":
-            return _t('%(senderDisplayName)s made the room public to whoever knows the link.', {senderDisplayName});
+            return _t('%(senderDisplayName)s made the room accessible to whoever knows the link.', {senderDisplayName});
         case "invite":
             return _t('%(senderDisplayName)s made the room invite only.', {senderDisplayName});
         default:
@@ -420,6 +426,7 @@ function textForPowerEvent(event) {
     const diff = [];
     // XXX: This is also surely broken for i18n
     users.forEach((userId) => {
+        const displayName = MatrixClientPeg.get().getUser(userId).rawDisplayName;
         // Previous power level
         const from = event.getPrevContent().users[userId];
         // Current power level
@@ -427,7 +434,7 @@ function textForPowerEvent(event) {
         if (to !== from) {
             diff.push(
                 _t('%(userId)s from %(fromPowerLevel)s to %(toPowerLevel)s', {
-                    userId,
+                    userId: displayName,
                     fromPowerLevel: Roles.textualPowerLevel(from, userDefault),
                     toPowerLevel: Roles.textualPowerLevel(to, userDefault),
                 }),
@@ -449,7 +456,7 @@ function textForPinnedEvent(event) {
 }
 
 function textForWidgetEvent(event) {
-    const senderName = event.getSender();
+    const senderName = event.sender ? event.sender.rawDisplayName : event.getSender();
     const {name: prevName, type: prevType, url: prevUrl} = event.getPrevContent();
     const {name, type, url} = event.getContent() || {};
 
