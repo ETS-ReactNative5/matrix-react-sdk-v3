@@ -34,7 +34,6 @@ export default class PreferencesUserSettingsTab extends React.Component {
         'MessageComposerInput.suggestEmoji',
         'sendTypingNotifications',
         'MessageComposerInput.ctrlEnterToSend',
-        'MessageComposerInput.showStickersButton',
     ];
 
     static TIMELINE_SETTINGS = [
@@ -191,29 +190,6 @@ export default class PreferencesUserSettingsTab extends React.Component {
                 <div className="mx_SettingsTab_section">
                     <span className="mx_SettingsTab_subheading">{_t("Timeline")}</span>
                     {this._renderGroup(PreferencesUserSettingsTab.TIMELINE_SETTINGS)}
-                </div>
-
-                <div className="mx_SettingsTab_section">
-                    <span className="mx_SettingsTab_subheading">{_t("General")}</span>
-                    {this._renderGroup(PreferencesUserSettingsTab.GENERAL_SETTINGS)}
-                    {minimizeToTrayOption}
-                    {autoHideMenuOption}
-                    {autoLaunchOption}
-                    <Field
-                        label={_t('Autocomplete delay (ms)')}
-                        type='number'
-                        value={this.state.autocompleteDelay}
-                        onChange={this._onAutocompleteDelayChange} />
-                    <Field
-                        label={_t('Read Marker lifetime (ms)')}
-                        type='number'
-                        value={this.state.readMarkerInViewThresholdMs}
-                        onChange={this._onReadMarkerInViewThresholdMs} />
-                    <Field
-                        label={_t('Read Marker off-screen lifetime (ms)')}
-                        type='number'
-                        value={this.state.readMarkerOutOfViewThresholdMs}
-                        onChange={this._onReadMarkerOutOfViewThresholdMs} />
                 </div>
             </div>
         );

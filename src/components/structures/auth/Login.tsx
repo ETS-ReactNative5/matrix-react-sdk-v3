@@ -127,61 +127,21 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
         this.stepRendererMap = {
             'm.login.password': this.renderPasswordStep,
         };
-        const randomHS = Tchap.getRandomHSUrlFromList();
-
-        this._initLoginLogic(randomHS, randomHS);
         CountlyAnalytics.instance.track("onboarding_login_begin");
     }
 
-    // TODO: [REACT-WARNING] Replace with appropriate lifecycle event
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillMount() {
-        this.initLoginLogic(this.props.serverConfig);
+    componentDidMount() {
+        const randomHS = Tchap.getRandomHSUrlFromList();
+        this.initLoginLogic(randomHS, randomHS);
     }
 
     componentWillUnmount() {
         this.unmounted = true;
     }
 
-    // TODO: [REACT-WARNING] Replace with appropriate lifecycle event
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillReceiveProps(newProps) {
-        if (newProps.serverConfig.hsUrl === this.props.serverConfig.hsUrl &&
-            newProps.serverConfig.isUrl === this.props.serverConfig.isUrl) return;
-
-        // Ensure that we end up actually logging in to the right place
-        this.initLoginLogic(newProps.serverConfig);
-    }
-
     isBusy = () => this.state.busy || this.props.busy;
 
     onPasswordLogin = async (username, phoneCountry, phoneNumber, password) => {
-        if (!this.state.serverIsAlive) {
-            this.setState({busy: true});
-            // Do a quick liveliness check on the URLs
-            let aliveAgain = true;
-            try {
-                await AutoDiscoveryUtils.validateServerConfigWithStaticUrls(
-                    this.props.serverConfig.hsUrl,
-                    this.props.serverConfig.isUrl,
-                );
-                this.setState({serverIsAlive: true, errorText: ""});
-            } catch (e) {
-                const componentState = AutoDiscoveryUtils.authComponentStateForError(e);
-                this.setState({
-                    busy: false,
-                    busyLoggingIn: false,
-                    ...componentState,
-                });
-                aliveAgain = !componentState.serverErrorIsFatal;
-            }
-
-            // Prevent people from submitting their password when something isn't right.
-            if (!aliveAgain) {
-                return;
-            }
-        }
-
         this.setState({
             busy: true,
             busyLoggingIn: true,
@@ -198,7 +158,7 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
                 this.setState({serverIsAlive: true}); // it must be, we logged in.
                 this.props.onLoggedIn(data, password);
             }, (error) => {
-                if (this._unmounted) {
+                if (this.unmounted) {
                     return;
                 }
                 let errorText;
@@ -314,9 +274,7 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
         }
 
         if (err.cors === 'rejected') {
-            errorText = <span>
-                { _t("Homeserver unreachable.") }
-            </span>;
+            errorText = _t("Homeserver unreachable.");
         }
 
         return errorText;

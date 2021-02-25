@@ -245,19 +245,15 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
     const isRoomEncrypted = useIsEncrypted(cli, room);
     const roomContext = useContext(RoomContext);
     const e2eStatus = roomContext.e2eStatus;
+    const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
+    const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
+    const isForumRoom = Tchap.isRoomForum(room.roomId);
+    const joinRule = Tchap.getJoinRules(room.roomId);
 
     const alias = room.getCanonicalAlias() || room.getAltAliases()[0] || "";
     const header = <React.Fragment>
         <div className="mx_RoomSummaryCard_avatar" role="presentation">
             <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
-            <TextWithTooltip
-                tooltip={isRoomEncrypted ? _t("Encrypted") : _t("Not encrypted")}
-                class={classNames("mx_RoomSummaryCard_e2ee", {
-                    mx_RoomSummaryCard_e2ee_normal: isRoomEncrypted,
-                    mx_RoomSummaryCard_e2ee_warning: isRoomEncrypted && e2eStatus === E2EStatus.Warning,
-                    mx_RoomSummaryCard_e2ee_verified: isRoomEncrypted && e2eStatus === E2EStatus.Verified,
-                })}
-            />
         </div>
 
         <h2 title={room.name}>{ room.name }</h2>
@@ -268,6 +264,26 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
 
     const memberCount = useRoomMemberCount(room);
 
+    let roomShare;
+    if (!isDMRoom) {
+        if (isForumRoom || joinRule === "public") {
+            roomShare = (
+                <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
+                    {_t("Share room")}
+                </Button>
+            );
+        }
+    }
+
+    let roomSettings;
+    if (!isDMRoom) {
+        roomSettings = (
+            <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
+                {_t("Room settings")}
+            </Button>
+        );
+    }
+
     return <BaseCard header={header} className="mx_RoomSummaryCard" onClose={onClose}>
         <Group title={_t("About")} className="mx_RoomSummaryCard_aboutGroup">
             <Button className="mx_RoomSummaryCard_icon_people" onClick={onRoomMembersClick}>
@@ -276,15 +292,9 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
             <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
                 {_t("Show files")}
             </Button>
-            <Button className="mx_RoomSummaryCard_icon_share" onClick={onShareRoomClick}>
-                {_t("Share room")}
-            </Button>
-            <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
-                {_t("Room settings")}
-            </Button>
+            {roomShare}
+            {roomSettings}
         </Group>
-
-        { SettingsStore.getValue(UIFeature.Widgets) && <AppsSection room={room} /> }
     </BaseCard>;
 };
 

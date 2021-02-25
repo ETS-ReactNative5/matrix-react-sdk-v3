@@ -70,11 +70,12 @@ const TAG_ORDER: TagID[] = [
 
     // -- Custom Tags Placeholder --
 
-    DefaultTagID.LowPriority,
     DefaultTagID.ServerNotice,
-    DefaultTagID.Archived,
+    // [Tchap] Hide LowPriority and Archived from room list
+    // DefaultTagID.LowPriority,
+    // DefaultTagID.Archived,
 ];
-const CUSTOM_TAGS_BEFORE_TAG = DefaultTagID.LowPriority;
+const CUSTOM_TAGS_BEFORE_TAG = DefaultTagID.Untagged;
 const ALWAYS_VISIBLE_TAGS: TagID[] = [
     DefaultTagID.DM,
     DefaultTagID.Untagged,

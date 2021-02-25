@@ -319,26 +319,6 @@ export default class AppearanceUserSettingsTab extends React.Component<IProps, I
                 />
                 <div className="mx_AppearanceUserSettingsTab_fontSlider_largeText">Aa</div>
             </div>
-
-            <SettingsFlag
-                name="useCustomFontSize"
-                level={SettingLevel.ACCOUNT}
-                onChange={(checked) => this.setState({useCustomFontSize: checked})}
-                useCheckbox={true}
-            />
-
-            <Field
-                type="number"
-                label={_t("Font size")}
-                autoComplete="off"
-                placeholder={this.state.fontSize.toString()}
-                value={this.state.fontSize.toString()}
-                id="font_size_field"
-                onValidate={this.onValidateFontSize}
-                onChange={(value) => this.setState({fontSize: value.target.value})}
-                disabled={!this.state.useCustomFontSize}
-                className="mx_SettingsTab_customFontSizeField"
-            />
         </div>;
     }
 
@@ -398,50 +378,22 @@ export default class AppearanceUserSettingsTab extends React.Component<IProps, I
         </div>;
 
         let advanced: React.ReactNode;
-
-        if (this.state.showAdvanced) {
-            const tooltipContent = _t(
-                "Set the name of a font installed on your system & %(brand)s will attempt to use it.",
-                { brand },
-            );
-            advanced = <>
-                <SettingsFlag
-                    name="useCompactLayout"
-                    level={SettingLevel.DEVICE}
-                    useCheckbox={true}
-                    disabled={this.state.useIRCLayout}
-                />
-                <SettingsFlag
-                    name="useIRCLayout"
-                    level={SettingLevel.DEVICE}
-                    useCheckbox={true}
-                    onChange={(checked) => this.setState({useIRCLayout: checked})}
-                />
-                <SettingsFlag
-                    name="useSystemFont"
-                    level={SettingLevel.DEVICE}
-                    useCheckbox={true}
-                    onChange={(checked) => this.setState({useSystemFont: checked})}
-                />
-                <Field
-                    className="mx_AppearanceUserSettingsTab_systemFont"
-                    label={SettingsStore.getDisplayName("systemFont")}
-                    onChange={(value) => {
-                        this.setState({
-                            systemFont: value.target.value,
-                        });
-
-                        SettingsStore.setValue("systemFont", null, SettingLevel.DEVICE, value.target.value);
-                    }}
-                    tooltipContent={tooltipContent}
-                    forceTooltipVisible={true}
-                    disabled={!this.state.useSystemFont}
-                    value={this.state.systemFont}
-                />
-            </>;
-        }
+        advanced = <>
+            <span className="mx_SettingsTab_subheading">{_t("Advanced")}</span>
+            <SettingsFlag
+                name="useCompactLayout"
+                level={SettingLevel.DEVICE}
+                useCheckbox={true}
+                disabled={this.state.useIRCLayout}
+            />
+            <SettingsFlag
+                name="useIRCLayout"
+                level={SettingLevel.DEVICE}
+                useCheckbox={true}
+                onChange={(checked) => this.setState({useIRCLayout: checked})}
+            />
+        </>;
         return <div className="mx_SettingsTab_section mx_AppearanceUserSettingsTab_Advanced">
-            {toggle}
             {advanced}
         </div>;
     }
@@ -455,7 +407,6 @@ export default class AppearanceUserSettingsTab extends React.Component<IProps, I
                 <div className="mx_SettingsTab_SubHeading">
                     {_t("Appearance Settings only affect this %(brand)s session.", { brand })}
                 </div>
-                {this.renderThemeSection()}
                 {this.renderFontSection()}
                 {this.renderAdvancedSection()}
             </div>

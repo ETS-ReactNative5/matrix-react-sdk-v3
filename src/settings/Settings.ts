@@ -243,7 +243,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     "MessageComposerInput.showStickersButton": {
         supportedLevels: LEVELS_ACCOUNT_SETTINGS,
         displayName: _td('Show stickers button'),
-        default: true,
+        default: false,
     },
     // TODO: Wire up appropriately to UI (FTUE notifications)
     "Notifications.alwaysShowBadgeCounts": {
@@ -438,7 +438,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "integrationProvisioning": {
         supportedLevels: [SettingLevel.ACCOUNT],
-        default: true,
+        default: false,
     },
     "allowedWidgets": {
         supportedLevels: [SettingLevel.ROOM_ACCOUNT, SettingLevel.ROOM_DEVICE],
@@ -485,7 +485,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
             "room-account": _td("Enable URL previews for this room (only affects you)"),
             "room": _td("Enable URL previews by default for participants in this room"),
         },
-        default: true,
+        default: false,
         controller: new UIFeatureController(UIFeature.URLPreviews),
     },
     "urlPreviewsEnabled_e2ee": {
@@ -511,7 +511,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "notificationSound": {
         supportedLevels: LEVELS_ROOM_OR_ACCOUNT,
-        default: false,
+        default: true,
     },
     "notificationBodyEnabled": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
@@ -592,7 +592,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     "showRightPanelInRoom": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
-        default: false,
+        default: true,
     },
     "showRightPanelInGroup": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
@@ -675,11 +675,11 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.URLPreviews]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.Widgets]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.Voip]: {
         supportedLevels: LEVELS_UI_FEATURE,
@@ -711,7 +711,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.IdentityServer]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
         // Identity Server (Discovery) Settings make no sense if 3PIDs in general are hidden
         controller: new UIFeatureController(UIFeature.ThirdPartyID),
     },
@@ -721,13 +721,13 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.Flair]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
         // Disable Flair when Communities are disabled
         controller: new UIFeatureController(UIFeature.Communities),
     },
     [UIFeature.Communities]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.AdvancedSettings]: {
         supportedLevels: LEVELS_UI_FEATURE,

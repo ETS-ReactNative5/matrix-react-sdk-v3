@@ -134,28 +134,6 @@ export default class GeneralRoomSettingsTab extends React.Component {
             urlPreviewSettings = null;
         }
 
-        let urlPreviewSettings = <>
-            <span className='mx_SettingsTab_subheading'>{_t("URL Previews")}</span>
-            <div className='mx_SettingsTab_section'>
-                <UrlPreviewSettings room={room} />
-            </div>
-        </>;
-        if (!SettingsStore.getValue(UIFeature.URLPreviews)) {
-            urlPreviewSettings = null;
-        }
-
-        let flairSection;
-        if (SettingsStore.getValue(UIFeature.Flair)) {
-            flairSection = <>
-                <span className='mx_SettingsTab_subheading'>{_t("Flair")}</span>
-                <div className='mx_SettingsTab_section mx_SettingsTab_subsectionText'>
-                    <RelatedGroupSettings roomId={room.roomId}
-                                          canSetRelatedGroups={canChangeGroups}
-                                          relatedGroupsEvent={groupsEvent} />
-                </div>
-            </>;
-        }
-
         return (
             <div className="mx_SettingsTab mx_GeneralRoomSettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("General")}</div>
@@ -165,11 +143,8 @@ export default class GeneralRoomSettingsTab extends React.Component {
                 <div className="mx_SettingsTab_heading">{_t("Access")}</div>
                 <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
                     <RoomAccessSettings roomId={this.props.roomId} />
+                    { roomPublishChange }
                 </div>
-                <div className="mx_SettingsTab_heading">{_t("Other")}</div>
-                { roomPublishChange }
-                { flairSection }
-                { urlPreviewSettings }
 
                 <span className='mx_SettingsTab_subheading'>{_t("Leave room")}</span>
                 <div className='mx_SettingsTab_section'>

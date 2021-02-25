@@ -31,7 +31,6 @@ import CountlyAnalytics from "../../../CountlyAnalytics";
 const FIELD_OLD_PASSWORD = 'field_old_password';
 const FIELD_NEW_PASSWORD = 'field_new_password';
 const FIELD_NEW_PASSWORD_CONFIRM = 'field_new_password_confirm';
-import sessionStore from '../../../stores/SessionStore';
 import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
 const PASSWORD_MIN_SCORE = 3; // safely unguessable: moderate protection from offline slow-hash scenario.

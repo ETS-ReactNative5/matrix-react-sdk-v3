@@ -552,7 +552,6 @@ export default class RoomDirectory extends React.Component {
                     onClick={ (ev) => { ev.stopPropagation(); } }
                     dangerouslySetInnerHTML={{ __html: topic }}
                 />
-                <div className="mx_RoomDirectory_alias">{ get_display_alias_for_room(room) }</div>
             </div>,
             <div key={ `${room.room_id}_memberCount` }
                 onClick={(ev) => this.onRoomClicked(room, ev)}
@@ -642,9 +641,6 @@ export default class RoomDirectory extends React.Component {
             // we still show the scrollpanel, at least for now, because
             // otherwise we don't fetch more because we don't get a fill
             // request from the scrollpanel because there isn't one
-            cells.sort((a, b) => {
-                return b.num_joined_members - a.num_joined_members;
-            });
 
             let spinner;
             if (this.state.loading) {

@@ -230,6 +230,11 @@ export default class RoomPreviewBar extends React.Component {
         }
     }
 
+    _communityProfile() {
+        if (this.props.room) return CommunityPrototypeStore.instance.getInviteProfile(this.props.room.roomId);
+        return {displayName: null, avatarMxc: null};
+    }
+
     _roomName(atStart = false) {
         if (this.props.room) {
             return this.props.room.name;

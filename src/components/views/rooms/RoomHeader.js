@@ -33,6 +33,8 @@ import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
 import DMRoomMap from '../../../utils/DMRoomMap';
 import Tchap from "../../../tchap/Tchap";
 import TextWithTooltip from "../elements/TextWithTooltip";
+import Modal from "../../../Modal";
+import ShareDialog from "../dialogs/ShareDialog";
 
 const Icon = Object.freeze({
     // Note: the names here are used in CSS class names
@@ -144,6 +146,12 @@ export default class RoomHeader extends React.Component {
         this.forceUpdate();
     };
 
+    _onShareRoomClick = () => {
+        Modal.createTrackedDialog('share room dialog', '', ShareDialog, {
+            target: this.props.room,
+        });
+    };
+
     _hasUnreadPins() {
         const currentPinEvent = this.props.room.currentState.getStateEvents("m.room.pinned_events", '');
         if (!currentPinEvent) return false;
@@ -210,14 +218,16 @@ export default class RoomHeader extends React.Component {
             <E2EIcon status={this.props.e2eStatus} /> :
             undefined;
 
-        const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
-        const joinRules = this.props.room && this.props.room.currentState.getStateEvents("m.room.join_rules", "");
-        const joinRule = joinRules && joinRules.getContent().join_rule;
-        let privateIcon;
+        const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
+        const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(this.props.room.roomId));
+        const joinRule = Tchap.getJoinRules(this.props.room.roomId)
+        const isForumRoom = Tchap.isRoomForum(this.props.room.roomId);
+
+/*        let privateIcon;
         // Don't show an invite-only icon for DMs. Users know they're invite-only.
         if (!dmUserId && joinRule === "invite") {
             privateIcon = <InviteOnlyIcon />;
-        }
+        }*/
 
         if (this.props.onCancelClick) {
             cancelButton = <CancelButton onClick={this.props.onCancelClick} />;
@@ -320,13 +330,15 @@ export default class RoomHeader extends React.Component {
         }
 
         let shareRoomButton;
-        if (this.props.inRoom) {
-            shareRoomButton =
-                <AccessibleTooltipButton className="mx_RoomHeader_button mx_RoomHeader_shareButton"
-                    onClick={this.onShareRoomClick}
+        if (this.props.inRoom && !isDMRoom) {
+            if (isForumRoom || joinRule === "public") {
+                shareRoomButton =
+                  <AccessibleTooltipButton className="mx_RoomHeader_button mx_RoomSummaryCard_icon_share"
+                    onClick={this._onShareRoomClick}
                     title={_t('Share room')}
-                >
-                </AccessibleTooltipButton>;
+                  >
+                  </AccessibleTooltipButton>;
+            }
         }
 
         const rightRow =

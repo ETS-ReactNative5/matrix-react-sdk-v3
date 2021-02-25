@@ -426,7 +426,6 @@ const UserOptionsSection: React.FC<{
             <div>
                 { directMessageButton }
                 { readReceiptButton }
-                { shareUserButton }
                 { insertPillButton }
                 { inviteUserButton }
                 { ignoreButton }
@@ -1379,7 +1378,6 @@ const BasicUserInfo: React.FC<{
     if (!isMe) {
         userOptionSection = (
             <UserOptionsSection
-                devices={devices}
                 canInvite={roomPermissions.canInvite}
                 isIgnored={isIgnored}
                 member={member} />
@@ -1451,12 +1449,12 @@ const UserInfoHeader: React.FC<{
     }
 
     const enablePresenceByHsUrl = SdkConfig.get()["enable_presence_by_hs_url"];
-    let showPresence = true;
+    // [Tchap] Disable presence for the moment
+    let showPresence = false;
     if (enablePresenceByHsUrl && enablePresenceByHsUrl[cli.baseUrl] !== undefined) {
         showPresence = enablePresenceByHsUrl[cli.baseUrl];
     }
 
-    // Presence is disabled for the moment.
     let presenceLabel = null;
     if (showPresence) {
         presenceLabel = (
@@ -1473,7 +1471,7 @@ const UserInfoHeader: React.FC<{
         statusLabel = <span className="mx_UserInfo_statusMessage">{ statusMessage }</span>;
     }
 
-    // e2e icon is related to key backup and x sign.
+    // [Tchap] e2e icon is related to key backup and x sign.
     // We dont want it for the moment.
     let e2eIcon;
     if (e2eStatus) {
@@ -1494,7 +1492,6 @@ const UserInfoHeader: React.FC<{
                         </span>
                     </h2>
                 </div>
-                <div>{ member.userId }</div>
                 <div className="mx_UserInfo_profileStatus">
                     {presenceLabel}
                     {statusLabel}

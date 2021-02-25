@@ -7,48 +7,38 @@
 
 
 // Room Directory
-.tc_RoomDirectory_roomPreview {
-    padding: 7px 4px 7px 4px !important;
+.mx_RoomDirectory_table {
+    row-gap: 10px;
+    margin: 10px auto 10px auto;
 }
 
-.mx_RoomDirectory_preview {
-    width: 60px;
-}
-
-.mx_RoomDirectory_join {
-    width: 93px;
+.mx_RoomDirectory_name {
+    font-size: 1.8rem;
+    font-weight: 500;
+    padding-top: 6px;
 }
 
 
 // Access Rules Big Event
-.mx_accessRulesEvent {
-    display: grid;
-    grid-template-columns: 24px minmax(0, 1fr) min-content;
-    &.mx_accessRulesEvent_icon::after {
-        grid-column: 1;
-        grid-row: 1 / 3;
-        width: 16px;
-        height: 16px;
-        content: "";
-        background-image: url("$(res)/img/tchap/feather-customised/user.svg");
-        background-repeat: no-repeat;
-        background-size: 100%;
-        margin-top: 4px;
+.tc_accessRulesEvent {
+    &.tc_accessRulesEvent_icon::before {
+        background-color: #ffffff;
+        mask-image: url('$(res)/img/tchap/feather-customised/user.svg');
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: 90%;
     }
-    .mx_accessRulesEvent_title, .mx_accessRulesEvent_subtitle {
-        overflow-wrap: break-word;
+
+    &.tc_accessRulesEvent_icon::after {
+        mask-image: url('$(res)/img/tchap/feather-customised/user.svg');
+        background-color: $composer-e2e-icon-color;
     }
-    .mx_accessRulesEvent_title {
-        font-weight: 600;
-        font-size: $font-15px;
-        grid-column: 2;
-        grid-row: 1;
-    }
-    .mx_accessRulesEvent_subtitle {
-        grid-column: 2;
-        grid-row: 2;
-        font-size: $font-12px;
-    }
+}
+
+
+// Room Intro
+.mx_NewRoomIntro > p {
+    color: $light-fg-color;
 }
 
 
@@ -230,16 +220,8 @@
 
 
 // Left Panel
-.mx_RoomSearch.mx_RoomSearch_focused > input,
-.mx_RoomSearch.mx_RoomSearch_hasQuery > input {
-    color: $secondary-fg-color !important;
-}
-
-.mx_RoomSearch.mx_RoomSearch_focused, .mx_RoomSearch.mx_RoomSearch_hasQuery {
-    background-color: $accent-bg-color;
-    -webkit-box-shadow: 0 0 2px 2px $accent-secondary;
-    box-shadow: 0 0 2px 2px $accent-secondary;
-    border-color: $tertiary-fg-color;
+.mx_RoomSublist {
+    margin-left: 0;
 }
 
 .mx_RoomSublist_resizeBox {
@@ -259,6 +241,27 @@
 }
 
 
+// Left Panel > Header
+.mx_RoomSearch {
+    border-radius: 4px;
+}
+.mx_RoomSearch.mx_RoomSearch_focused > input,
+.mx_RoomSearch.mx_RoomSearch_hasQuery > input {
+    color: $secondary-fg-color !important;
+}
+
+.mx_RoomSearch.mx_RoomSearch_focused, .mx_RoomSearch.mx_RoomSearch_hasQuery {
+    background-color: $accent-bg-color;
+    -webkit-box-shadow: 0 0 2px 2px $accent-secondary;
+    box-shadow: 0 0 2px 2px $accent-secondary;
+    border-color: $tertiary-fg-color;
+}
+
+.mx_LeftPanel_exploreButton {
+    border-radius: 4px !important;
+}
+
+
 // Left Panel > Room List
 .mx_LeftPanel_roomListContainer {
     background-color: $accent-color !important;
@@ -266,16 +269,21 @@
 }
 
 .mx_RoomTile {
+    height: 45px;
+
+    .mx_DecoratedRoomAvatar {
+        margin-left: 12px;
+        margin-top: 3px;
+    }
     &.mx_RoomTile_selected {
         background-color: $accent-secondary;
+        border-radius: unset;
     }
     &:hover,
     &:focus-within,
     &.mx_RoomTile_hasMenuOpen {
         background-color: $accent-bg-color;
-        .tc_RoomTile_roomType {
-            display: none;
-        }
+        border-radius: unset;
     }
     .mx_RoomTile_menuButton::before {
         mask-image: url('$(res)/img/tchap/roomlist/context-menu.svg');
@@ -302,11 +310,41 @@
 }
 
 
+.mx_NotificationBadge {
+    &.mx_NotificationBadge_visible {
+        background-color: $roomtile-default-badge-bg-color;
+        &.mx_NotificationBadge_highlighted {
+            .mx_NotificationBadge_count {
+                color: $roomtile-default-badge-bg-color;
+            }
+        }
+        .mx_NotificationBadge_count {
+            color: #162d58;
+            font-weight: bold;
+        }
+        &.mx_NotificationBadge_dot {
+            background-color: $primary-fg-color; // increased visibility
+            width: 22px;
+            border-radius: 8px;
+        }
+
+        &.mx_NotificationBadge_2char {
+            width: 22px;
+            border-radius: 8px;
+        }
+
+        &.mx_NotificationBadge_3char {
+            width: 22px;
+            border-radius: 8px;
+        }
+    }
+}
+
 // Left Panel > Room List > Room Type Word
 .tc_RoomTile_roomType {
     position: relative;
     right: 0;
-    padding: 7px 10px 0 8px;
+    padding: 15px 10px 0 8px;
     font-size: 12px;
 }
 .tc_Room_roomType_direct {
@@ -329,14 +367,14 @@
 }
 
 .tc_RoomTile_avatar_hexa {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
     z-index: 1;
 }
 
 .tc_RoomTile_avatar_hexa img {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
     border-radius: 0;
 }
 
@@ -344,6 +382,7 @@
     background-image: url('$(res)/img/cccccc.png');
     background-position: center;
     padding: 2px;
+    height: 34px;
 }
 
 
@@ -357,10 +396,11 @@
 .mx_DecoratedRoomAvatar_icon {
     position: absolute;
     margin-top: -1px;
-    left: 29px;
+    left: 46px;
     border-radius: 0;
     z-index: 2;
 }
+
 .mx_DecoratedRoomAvatar_icon::before {
     content: '';
     width: 12px;
@@ -384,15 +424,25 @@
 }
 
 
+// Left Panel > Room List > Header
+.mx_RoomSublist_headerText {
+    text-transform: uppercase;
+    font-size: $font-14px !important;
+}
+
 // Left Panel > Room List > Message Preview
 .mx_RoomTile .mx_RoomTile_nameContainer .mx_RoomTile_messagePreview {
-    color: $roomtile2-preview-color;
+    color: $tertiary-fg-color;
     font-size: $font-12px;
     line-height: $font-12px;
 }
 
 
 // Room Header
+.mx_RoomHeader_wrapper {
+    height: 64px;
+}
+
 .mx_DecoratedRoomHeaderAvatar_icon {
     position: relative;
     top: -18px;
@@ -400,6 +450,7 @@
     border-radius: 0;
     z-index: 2;
 }
+
 .mx_DecoratedRoomHeaderAvatar_icon::before {
     content: '';
     width: 12px;
@@ -414,6 +465,7 @@
     -webkit-transform: translateX(2px);
     transform: translateX(2px);
 }
+
 .mx_DecoratedRoomHeaderAvatar_icon_encrypted::before {
     background-repeat: no-repeat;
     background-size: contain;
@@ -434,19 +486,23 @@
     display: grid;
     width: 100%;
 }
+
 .mx_RoomHeader_name {
     grid-column: 1;
     grid-row: 1;
     margin-bottom: -2px;
 }
+
 .mx_RoomHeader_topic {
     grid-column: 2;
     grid-row: 1 / 3;
 }
+
 .tc_RoomHeader_roomSubline {
     grid-column: 1;
     grid-row: 2;
     display: flex;
+
     &>div[class^='tc_Room_roomType_'] {
         font-size: 14px;
         margin-left: 6px;
@@ -458,6 +514,7 @@
         margin-left: 4px;
     }
 }
+
 .tc_RoomHeader_button {
     display: inline-flex;
 }
@@ -493,22 +550,29 @@
 }
 
 
+// Right Panel
+.mx_RightPanel {
+    background-color: white !important;
+    border-radius: 2px;
+}
+
+
 // Right Panel > Room Summary Card
 .tc_RoomSummaryCard_avatar_hexa_unrestricted {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
     background-image: url('$(res)/img/cccccc.png');
     background-position: center;
     padding: 2px;
     img {
         border-radius: 0;
-        -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+        clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
     }
 }
 .tc_RoomSummaryCard_avatar_hexa {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
     .mx_BaseAvatar_image {
         border-radius: 0;
     }
@@ -558,6 +622,31 @@
 .mx_BasicMessageComposer_input {
     &:focus {
         border-color: $accent-secondary !important;
+    }
+}
+
+
+// Timeline
+.mx_RoomView .mx_MainSplit {
+    background-color: #E8EDF2;
+}
+
+
+// Timeline > New Room Intro > Mini Avatar Uploader
+.mx_MiniAvatarUploader {
+    &::before {
+        background-color: $primary-bg-color;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    &::after {
+        background-color: $primary-fg-color;
+        mask-position: center;
+        mask-repeat: no-repeat;
+        mask-image: url('$(res)/img/element-icons/camera.svg');
+        mask-size: 16px;
+        z-index: 2;
     }
 }
 
@@ -651,313 +740,8 @@
 }
 
 
-/*
-.tc_LeftPanel_Button_cross {
-    margin-right: 19px;
-    margin-top: -76px;
-    z-index: 1;
-}
 
-.tc_LeftPanel_Button_cross_btn {
-    width: 58px;
-    height: 58px;
-    background-image: url('$(res)/img/tchap/btn-cross_blue.svg');
-    background-repeat: no-repeat;
-    background-position: top;
-}
-
-.mx_RoomList > .mx_RoomSubList:last-child {
-    margin-bottom: 90px;
-}
-
-.mx_RoomTile_labelContainer {
-    min-width: initial !important;
-}
-
-.mx_UserMenu_contextMenu_name {
-    width: 100% !important;
-}
-
-
-// Room List / SubList
-/*.mx_RoomSubList_label > span {
-    color: $focus-bg-color;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.mx_RoomList {
-    overflow-y: scroll;
-}
-
-.mx_RoomList > .mx_ResizeHandle > div {
-    background: $accent-secondary;
-}
-
-.mx_RoomList > .mx_ResizeHandle.mx_ResizeHandle_vertical {
-    padding-top: 4px;
-}
-
-.mx_RoomSubList_scroll {
-    padding: 0;
-}
-
-.mx_RoomSubList {
-    height: auto !important;
-}
-
-.mx_RoomSubList_labelContainer {
-    padding-top: 10px;
-    border-radius: 4px;
-}*/
-
-
-
-
-
-
-
-
-
-// Room Tile
-/*.mx_RoomTile {
-    min-height: 60px;
-    margin-top: -1px;
-    &:focus {
-        background-color: $accent-color;
-    }
-    &::after {
-        content: "";
-        position: absolute;
-        left: 10%;
-        bottom: 0;
-        height: 1px;
-        width: 80%;
-        border-bottom: 1px solid $accent-secondary;
-    }
-}
-
-.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar .mx_BaseAvatar_image,
-.mx_RoomTile_avatar_room .mx_RoomTile_avatar_container .mx_BaseAvatar_image {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    vertical-align: top;
-    background-color: $avatar-bg-color;
-    border-radius: 0;
-}
-
-.tc_RoomTile_firstLine {
-    color: $focus-bg-color;
-    padding-left: 10px;
-}
-
-.mx_RoomTile_name {
-    font-size: medium;
-    color: inherit;
-    display: inline-flex;
-}
-
-.tc_RoomTile_roomType {
-    display: inline-flex;
-    position: absolute;
-    right: 0;
-    background-color: $accent-color;
-    padding: 4px 24px 0 8px;
-    font-size: 12px;
-}
-
-.mx_RoomTile_selected .tc_RoomTile_roomType {
-    background-color: $accent-secondary;
-}
-
-.mx_RoomTile_menuButton {
-    z-index: 1;
-}
-
-.mx_RoomTile_selected {
-    border-radius: 0;
-    background-color: $accent-secondary;
-    &:focus {
-        background-color: $accent-secondary;
-    }
-}
-
-.mx_RoomTile_unread .mx_RoomTile_name, .mx_RoomTile_highlight .mx_RoomTile_name {
-    color: $focus-bg-color;
-    font-weight: bold;
-}
-
-.tc_RoomTile_badge {
-    display: inline-flex;
-    padding: 0 7px 0 8px;
-    background-color: $focus-bg-color !important;
-    color: $accent-color !important;
-    font-weight: bold;
-    margin: 3px 6px 3px 0;
-}
-
-.tc_RoomSubList_badge > div {
-    padding: 0 7px 0 8px;
-    background-color: $focus-bg-color !important;
-    color: $accent-color !important;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.mx_RoomTile_invite .tc_RoomTile_badge {
-    padding: 0 9px 0 9px;
-}
-
-.mx_RoomTile_forum {
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 45px;
-    z-index: 2;
-    top: 13px;
-}
-
-
-.mx_RoomTile_avatar_unrestricted {
-    background-image: url('$(res)/img/cccccc.png');
-    background-position: center;
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    margin-left: 4px;
-    margin-right: -4px;
-    padding: 2px 8px 2px 2px;
-}
-
-@-moz-document url-prefix() {
-    .mx_RoomTile_avatar_unrestricted {
-        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        margin-right: 4px;
-        padding: 2px;
-    }
-}
-
-.mx_RoomTile_avatar {
-    flex: 0;
-    vertical-align: middle;
-}
-
-.mx_RoomTile_dm {
-    left: 40px;
-    top: 12px;
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-}*/
-
-
-
-
-
-
-
-
-
-
-
-// Context Menus
-/*.mx_ContextualMenu_top {
-    -webkit-box-shadow: 2px 2px 2px 0 #dddddd;
-    box-shadow: 2px 2px 2px 0 #dddddd;
-}
-
-.mx_ContextualMenu.mx_ContextualMenu_withChevron_left {
-    background-color: $accent-bg-color;
-    color: $focus-bg-color;
-}
-
-.mx_RoomTileContextMenu_notif_field.mx_AccessibleButton,
-.mx_RoomTileContextMenu_tag_field.mx_AccessibleButton,
-.mx_RoomTileContextMenu_leave.mx_AccessibleButton {
-    &:hover {
-        background-color: $accent-secondary;
-    }
-}
-
-.mx_ContextualMenu_chevron_left {
-    border-right: 8px solid $accent-bg-color;
-}
-
-.mx_RoomTileContextMenu_separator {
-    border-color: $accent-secondary;
-}*/
-
-
-
-
-
-
-
-
-
-
-// Room Header
-/*.mx_RoomHeader_wrapper {
-    height: 72px;
-}
-
-.mx_RoomHeader_avatar_room .mx_BaseAvatar .mx_BaseAvatar_image,
-.mx_RoomHeader_avatar_room .mx_BaseAvatar_image {
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    border-radius: 0;
-}
-
-.mx_RoomHeader_avatar_unrestricted {
-    background-image: url('$(res)/img/cccccc.png');
-    background-position: center;
-    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    flex: unset;
-    padding: 2px;
-}
-
-.mx_RoomHeader_accessibility {
-    color: $event-redacted-border-color;
-    font-weight: 400;
-    font-size: 13px;
-    margin: 0 7px;
-    margin-top: 4px; // to align baseline of topic with room name
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid transparent;
-    line-height: 1.2em;
-    max-height: 2.4em;
-    font-style: italic;
-}
-
-.tc_RoomHeader_encryptionInfos {
-    position: relative;
-    right: 16px;
-    bottom: 14px;
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-}
-
-.tc_RoomHeader_forumInfos {
-    position: relative;
-    right: 12px;
-    bottom: 15px;
-}
-
-.mx_RoomHeader_name:hover div:not(.mx_RoomHeader_editable) {
-    cursor: initial;
-    color: $roomheader-color;
-}
-
-
-
-*/
-
-
-
-
-
-
-
-
+/* + PLUS CONTEXT MENU */
 
 /*.tc_PlusContextMenu {
     height: 104px;
@@ -1007,3 +791,162 @@
     }
 }*/
 
+
+
+/* BUBBLE TCHAT */
+
+/*
+// Bigger headers
+.mx_RoomHeader_wrapper {
+    height: 70px;
+}
+.mx_LeftPanel_userHeader {
+    height: 45px;
+    border-bottom: 1px solid #ffffff2e;
+    margin-bottom: 10px;
+}
+
+// Change discussion background
+ol.mx_RoomView_MessageList {
+    background-color: #E8EDF2;
+}
+::-webkit-scrollbar {
+    width: 5px;
+    height: 6px;
+    background-color: #E8EDF2 !important;
+}
+
+// Draw white bubbles
+ol.mx_RoomView_MessageList li .mx_EventTile {
+    background-color: white;
+    margin: 10px;
+    padding: 7px;
+    width: 50%;
+    min-width: 300px;
+    max-width: 600px;
+    margin-left: 50px;
+    border-radius: 0px 5px 5px 5px;
+}
+
+// Add poity edge to bubble
+ol.mx_RoomView_MessageList li .mx_EventTile:before {
+    content: " ";
+    display : inline-block;
+    height : 0;
+    width : 0;
+    border-top : 13px solid white;
+    border-left : 10px solid transparent;
+    position: absolute;
+    left: -10px;
+    top: 0px
+}
+
+//Move avatar outside the bubble
+.mx_EventTile img.mx_BaseAvatar_image {
+    padding-top: 0px;
+    margin-left: -50px;
+    margin-top: -12px;
+}
+.mx_EventTile .mx_BaseAvatar_initial {
+    left: -50px;
+    top: -12px
+}
+
+// Don't apply bubble style to events (simple centered text)
+div.mx_EventTile.mx_EventTile_info.mx_EventTile_continuation .mx_BaseAvatar_initial, div.mx_EventTile.mx_EventTile_info.mx_EventTile_continuation img.mx_BaseAvatar_image, li.mx_EventListSummary img.mx_BaseAvatar_image {
+    display: none;
+}
+div.mx_EventTile.mx_EventTile_info.mx_EventTile_continuation:before {
+    display: none;;
+}
+div.mx_EventListSummary div.mx_EventTile.mx_EventTile_info.mx_EventTile_continuation, li.mx_EventListSummary  {
+    background-color: transparent;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+
+// Style bubble text content
+span.mx_SenderProfile_name {
+    color: #124A9D;
+    font-weight: bold;
+    display: block;
+    padding-top: 3px;
+}
+div.mx_SenderProfile, div.mx_EventTile_line {
+    padding-left: 5px;
+    line-height: 1.4;
+}
+
+.mx_EventListSummary .mx_EventTile_line, .mx_RoomView_timeline_rr_enabled .mx_EventTile_line {
+    margin-right: 0px;
+}
+.mx_EventTile_content {
+    margin-right: 6px;
+}
+
+span.mx_MessageTimestamp {
+    display: block;
+    width: 99.6%;
+    text-align: right;
+    position: absolute;
+    top: -26px;
+}
+
+div.mx_EventTile_line {
+    padding-top: 0;
+}
+
+.mx_EventTile_msgOption {
+    float: right;
+    text-align: right;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: 0;
+    bottom: 2px;
+    margin-right: 10px;
+    display: block;
+}
+.mx_EventTile_readAvatars {
+    position: relative;
+    display: block;
+    right: -2px;
+    top: 12px;
+    float: right;
+    clear: both;
+}
+.mx_EventTile_readAvatars img.mx_AccessibleButton.mx_BaseAvatar.mx_BaseAvatar_image {
+    margin-top: -10px;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+
+// Other fixes on left and right pannels
+.mx_UserMenu .mx_UserMenu_row {
+    height: 45px;
+}
+.mx_EventTile_bubbleContainer.mx_EventTile {
+    display: none;
+}
+.tc_RoomTile_avatar_hexa, .tc_RoomTile_avatar_hexa img {
+    -webkit-clip-path: polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+    clip-path: polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+    width: 35px;
+    height: 34px;
+    margin-left: -1px;
+}
+span.mx_BaseAvatar_initial.tc_RoomTile_avatar_hexa {
+    height: 34px;
+    line-height: 34px;
+}
+.dark-panel {
+    background-color: #f2f6fa;
+}
+.mx_MainSplit>.mx_RightPanel_ResizeWrapper {
+    padding: 0px;
+    margin-left: 0px;
+}
+*/

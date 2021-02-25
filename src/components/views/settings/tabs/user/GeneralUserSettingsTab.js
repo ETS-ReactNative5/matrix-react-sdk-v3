@@ -40,6 +40,7 @@ import {SettingLevel} from "../../../../../settings/SettingLevel";
 import {UIFeature} from "../../../../../settings/UIFeature";
 import LabelledToggleSwitch from "../../../elements/LabelledToggleSwitch";
 import Tchap from '../../../../../tchap/Tchap';
+import TextWithTooltip from "../../../elements/TextWithTooltip";
 
 export default class GeneralUserSettingsTab extends React.Component {
     static propTypes = {
@@ -270,6 +271,12 @@ export default class GeneralUserSettingsTab extends React.Component {
             passwordChangeForm = null;
         }
 
+        const passwordHelperText = (
+          <div>
+              { _t("Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.") }
+          </div>
+        );
+
         return (
             <div className="mx_SettingsTab_section mx_GeneralUserSettingsTab_accountSection">
                 <span className="mx_SettingsTab_subheading">{_t("Account")}</span>
@@ -281,9 +288,11 @@ export default class GeneralUserSettingsTab extends React.Component {
                 <br />
                 <p className="mx_SettingsTab_subsectionText">
                     {passwordChangeText}
-                    <img className="tc_PasswordHelper" src={require('../../../../../../res/img/tchap/question_mark.svg')}
-                        width={25} height={25}
-                        title={ _t("Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.") } alt={""} />
+                    <TextWithTooltip tooltip={passwordHelperText} tooltipClass='mx_Tooltip_dark'>
+                        <img className="tc_PasswordHelper" src={require('../../../../../../res/img/tchap/question_mark.svg')}
+                          width={25} height={25}
+                          alt={"Password Complexity Helper"} />
+                    </TextWithTooltip>
                 </p>
                 {passwordChangeForm}
             </div>

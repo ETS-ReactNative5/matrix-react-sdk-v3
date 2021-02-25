@@ -33,6 +33,7 @@ import {User} from "matrix-js-sdk/src/models/user";
 import {Group} from "matrix-js-sdk/src/models/group";
 import {RoomMember} from "matrix-js-sdk/src/models/room-member";
 import {MatrixEvent} from "matrix-js-sdk/src/models/event";
+import TextWithTooltip from "../elements/TextWithTooltip";
 
 // TODO: Merge with ProfileSettings?
 export default class RoomAccessSettings extends React.Component {
@@ -294,13 +295,20 @@ export default class RoomAccessSettings extends React.Component {
             );
         }
 
+        const linkSharingSwitchLabelTooltip = (
+          <div>
+              {_t("Users can join this room with the following link:")}
+          </div>
+        );
+
         let linkSharingSwitchLabel = (
             <div>
                 { _t("Activate link access to this room") }
-                <img className="tc_LinkSharing_Helper" src={require('../../../../res/img/tchap/question_mark.svg')}
-                    width={20} height={20}
-                    title={ _t("Users can join this room with the following link:") }
-                    alt={ _t("Room information") } />
+                <TextWithTooltip tooltip={linkSharingSwitchLabelTooltip} tooltipClass='mx_Tooltip_dark'>
+                    <img className="tc_LinkSharing_Helper" src={require('../../../../res/img/tchap/question_mark.svg')}
+                      width={20} height={20}
+                      alt={ _t("Room information") } />
+                </TextWithTooltip>
             </div>
         );
 

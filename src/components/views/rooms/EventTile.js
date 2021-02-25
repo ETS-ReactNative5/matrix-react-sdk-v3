@@ -45,6 +45,7 @@ const eventTileTypes = {
     'm.key.verification.cancel': 'messages.MKeyVerificationConclusion',
     'm.key.verification.done': 'messages.MKeyVerificationConclusion',
     'm.room.encryption': 'messages.EncryptionEvent',
+    'im.vector.room.access_rules': 'messages.AccessRulesEvent',
     'm.call.invite': 'messages.TextualEvent',
     'm.call.answer': 'messages.TextualEvent',
     'm.call.hangup': 'messages.TextualEvent',
@@ -653,7 +654,8 @@ export default class EventTile extends React.Component {
             (eventType === EventType.RoomMessage && msgtype && msgtype.startsWith("m.key.verification")) ||
             (eventType === EventType.RoomCreate) ||
             (eventType === EventType.RoomEncryption) ||
-            (tileHandler === "messages.MJitsiWidgetEvent");
+            (tileHandler === "messages.MJitsiWidgetEvent") ||
+            (this.props.mxEvent.getType() === "im.vector.room.access_rules" && this.props.mxEvent.getContent().rule === "unrestricted");
         let isInfoMessage = (
             !isBubbleMessage && eventType !== EventType.RoomMessage &&
             eventType !== EventType.Sticker && eventType !== EventType.RoomCreate
@@ -783,14 +785,19 @@ export default class EventTile extends React.Component {
         }
 
         const MessageActionBar = sdk.getComponent('messages.MessageActionBar');
-        const actionBar = !isEditing ? <MessageActionBar
-            mxEvent={this.props.mxEvent}
-            reactions={this.state.reactions}
-            permalinkCreator={this.props.permalinkCreator}
-            getTile={this.getTile}
-            getReplyThread={this.getReplyThread}
-            onFocusChange={this.onActionBarFocusChange}
-        /> : undefined;
+        let actionBar;
+        if (!this.props.mxEvent.isState()) {
+            if (!isEditing) {
+                actionBar = <MessageActionBar
+                  mxEvent={this.props.mxEvent}
+                  reactions={this.state.reactions}
+                  permalinkCreator={this.props.permalinkCreator}
+                  getTile={this.getTile}
+                  getReplyThread={this.getReplyThread}
+                  onFocusChange={this.onActionBarFocusChange}
+                />;
+            }
+        }
 
         const timestamp = this.props.mxEvent.getTs() ?
             <MessageTimestamp showTwelveHour={this.props.isTwelveHour} ts={this.props.mxEvent.getTs()} /> : null;
@@ -995,7 +1002,7 @@ export function haveTileForEvent(e) {
     if (e.isRelation("m.replace")) return false;
 
     if (e.getType() === "im.vector.room.access_rules" && e.event.content.rule === "restricted") {
-            return false;
+        return false;
     }
 
 

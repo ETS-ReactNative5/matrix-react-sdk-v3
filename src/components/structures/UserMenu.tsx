@@ -272,42 +272,6 @@ export default class UserMenu extends React.Component<IProps, IState> {
 
         const prototypeCommunityName = CommunityPrototypeStore.instance.getSelectedCommunityName();
 
-        let topSection;
-        const hostSignupConfig: IHostSignupConfig = SdkConfig.get().hostSignup;
-        if (MatrixClientPeg.get().isGuest()) {
-            topSection = (
-                <div className="mx_UserMenu_contextMenu_header mx_UserMenu_contextMenu_guestPrompts">
-                    {_t("Got an account? <a>Sign in</a>", {}, {
-                        a: sub => (
-                            <AccessibleButton kind="link" onClick={this.onSignInClick}>
-                                {sub}
-                            </AccessibleButton>
-                        ),
-                    })}
-                    {_t("New here? <a>Create an account</a>", {}, {
-                        a: sub => (
-                            <AccessibleButton kind="link" onClick={this.onRegisterClick}>
-                                {sub}
-                            </AccessibleButton>
-                        ),
-                    })}
-                </div>
-            )
-        } else if (hostSignupConfig) {
-            if (hostSignupConfig && hostSignupConfig.url) {
-                // If hostSignup.domains is set to a non-empty array, only show
-                // dialog if the user is on the domain or a subdomain.
-                const hostSignupDomains = hostSignupConfig.domains || [];
-                const mxDomain = MatrixClientPeg.get().getDomain();
-                const validDomains = hostSignupDomains.filter(d => (d === mxDomain || mxDomain.endsWith(`.${d}`)));
-                if (!hostSignupConfig.domains || validDomains.length > 0) {
-                    topSection = <div onClick={this.onCloseMenu}>
-                        <HostSignupAction />
-                    </div>;
-                }
-            }
-        }
-
         let homeButton = null;
         if (this.hasHomePage) {
             homeButton = (
@@ -319,22 +283,10 @@ export default class UserMenu extends React.Component<IProps, IState> {
             );
         }
 
-        let feedbackButton;
-        if (SettingsStore.getValue(UIFeature.Feedback)) {
-            feedbackButton = <IconizedContextMenuOption
-                iconClassName="mx_UserMenu_iconMessage"
-                label={_t("Feedback")}
-                onClick={this.onProvideFeedback}
-            />;
-        }
-
         let primaryHeader = (
             <div className="mx_UserMenu_contextMenu_name">
                 <span className="mx_UserMenu_contextMenu_displayName">
                     {OwnProfileStore.instance.displayName}
-                </span>
-                <span className="mx_UserMenu_contextMenu_userId">
-                    {MatrixClientPeg.get().getUserId()}
                 </span>
             </div>
         );
@@ -362,7 +314,6 @@ export default class UserMenu extends React.Component<IProps, IState> {
                         label={_t("Archived rooms")}
                         onClick={this.onShowArchived}
                     /> */}
-                    { feedbackButton }
                 </IconizedContextMenuOptionList>
                 <IconizedContextMenuOptionList red>
                     <IconizedContextMenuOption
@@ -374,94 +325,6 @@ export default class UserMenu extends React.Component<IProps, IState> {
             </React.Fragment>
         );
         let secondarySection = null;
-
-        if (prototypeCommunityName) {
-            const communityId = CommunityPrototypeStore.instance.getSelectedCommunityId();
-            primaryHeader = (
-                <div className="mx_UserMenu_contextMenu_name">
-                    <span className="mx_UserMenu_contextMenu_displayName">
-                        {prototypeCommunityName}
-                    </span>
-                </div>
-            );
-            let settingsOption;
-            let inviteOption;
-            if (CommunityPrototypeStore.instance.canInviteTo(communityId)) {
-                inviteOption = (
-                    <IconizedContextMenuOption
-                        iconClassName="mx_UserMenu_iconInvite"
-                        label={_t("Invite")}
-                        onClick={this.onCommunityInviteClick}
-                    />
-                );
-            }
-            if (CommunityPrototypeStore.instance.isAdminOf(communityId)) {
-                settingsOption = (
-                    <IconizedContextMenuOption
-                        iconClassName="mx_UserMenu_iconSettings"
-                        label={_t("Settings")}
-                        aria-label={_t("Community settings")}
-                        onClick={this.onCommunitySettingsClick}
-                    />
-                );
-            }
-            primaryOptionList = (
-                <IconizedContextMenuOptionList>
-                    {settingsOption}
-                    <IconizedContextMenuOption
-                        iconClassName="mx_UserMenu_iconMembers"
-                        label={_t("Members")}
-                        onClick={this.onCommunityMembersClick}
-                    />
-                    {inviteOption}
-                </IconizedContextMenuOptionList>
-            );
-            secondarySection = (
-                <React.Fragment>
-                    <hr />
-                    <div className="mx_UserMenu_contextMenu_header">
-                        <div className="mx_UserMenu_contextMenu_name">
-                            <span className="mx_UserMenu_contextMenu_displayName">
-                                {OwnProfileStore.instance.displayName}
-                            </span>
-                            <span className="mx_UserMenu_contextMenu_userId">
-                                {MatrixClientPeg.get().getUserId()}
-                            </span>
-                        </div>
-                    </div>
-                    <IconizedContextMenuOptionList>
-                        <IconizedContextMenuOption
-                            iconClassName="mx_UserMenu_iconSettings"
-                            label={_t("Settings")}
-                            aria-label={_t("User settings")}
-                            onClick={(e) => this.onSettingsOpen(e, null)}
-                        />
-                        { feedbackButton }
-                    </IconizedContextMenuOptionList>
-                    <IconizedContextMenuOptionList red>
-                        <IconizedContextMenuOption
-                            iconClassName="mx_UserMenu_iconSignOut"
-                            label={_t("Sign out")}
-                            onClick={this.onSignOutClick}
-                        />
-                    </IconizedContextMenuOptionList>
-                </React.Fragment>
-            )
-        } else if (MatrixClientPeg.get().isGuest()) {
-            primaryOptionList = (
-                <React.Fragment>
-                    <IconizedContextMenuOptionList>
-                        { homeButton }
-                        <IconizedContextMenuOption
-                            iconClassName="mx_UserMenu_iconSettings"
-                            label={_t("Settings")}
-                            onClick={(e) => this.onSettingsOpen(e, null)}
-                        />
-                        { feedbackButton }
-                    </IconizedContextMenuOptionList>
-                </React.Fragment>
-            );
-        }
 
         const classes = classNames({
             "mx_UserMenu_contextMenu": true,
@@ -478,19 +341,7 @@ export default class UserMenu extends React.Component<IProps, IState> {
         >
             <div className="mx_UserMenu_contextMenu_header">
                 {primaryHeader}
-                <AccessibleTooltipButton
-                    className="mx_UserMenu_contextMenu_themeButton"
-                    onClick={this.onSwitchThemeClick}
-                    title={this.state.isDarkTheme ? _t("Switch to light mode") : _t("Switch to dark mode")}
-                >
-                    <img
-                        src={require("../../../res/img/element-icons/roomlist/dark-light-mode.svg")}
-                        alt={_t("Switch theme")}
-                        width={16}
-                    />
-                </AccessibleTooltipButton>
             </div>
-            {topSection}
             {primaryOptionList}
             {secondarySection}
         </IconizedContextMenu>;

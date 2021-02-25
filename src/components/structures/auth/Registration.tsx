@@ -27,8 +27,6 @@ import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import AuthPage from "../../views/auth/AuthPage";
 import Login, {ISSOFlow} from "../../../Login";
 import dis from "../../../dispatcher/dispatcher";
-import SSOButtons from "../../views/elements/SSOButtons";
-import ServerPicker from '../../views/elements/ServerPicker';
 import Tchap from "../../../tchap/Tchap";
 import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
@@ -63,7 +61,6 @@ interface IProps {
     }): void;
     // registration shouldn't know or care how login is done.
     onLoginClick(): void;
-    onServerConfigChange(config: ValidatedServerConfig): void;
 }
 
 interface IState {
@@ -104,9 +101,6 @@ interface IState {
     // if a different user ID to the one we just registered is logged in,
     // this is the user ID that's logged in.
     differentLoggedInUserId?: string;
-    // the SSO flow definition, this is fetched from /login as that's the only
-    // place it is exposed.
-    ssoFlow?: ISSOFlow;
 }
 
 export default class Registration extends React.Component<IProps, IState> {
@@ -140,7 +134,7 @@ export default class Registration extends React.Component<IProps, IState> {
         this.replaceClient();
     }
 
-    private async replaceClient(hsUrl) {
+    private async replaceClient(hsUrl = null) {
         this.setState({
             errorText: null,
             serverDeadError: null,
@@ -160,20 +154,8 @@ export default class Registration extends React.Component<IProps, IState> {
             idBaseUrl: serverUrl,
         });
 
-        this.loginLogic.setHomeserverUrl(serverUrl);
-        this.loginLogic.setIdentityServerUrl(serverUrl);
-
-        let ssoFlow: ISSOFlow;
-        try {
-            const loginFlows = await this.loginLogic.getFlows();
-            ssoFlow = loginFlows.find(f => f.type === "m.login.sso" || f.type === "m.login.cas") as ISSOFlow;
-        } catch (e) {
-            console.error("Failed to get login flows to check for SSO support", e);
-        }
-
         this.setState({
             matrixClient: cli,
-            ssoFlow,
             busy: false,
         });
         const showGenericError = (e) => {
@@ -209,20 +191,18 @@ export default class Registration extends React.Component<IProps, IState> {
             TchapStrongPassword.validatePassword(hs, formVals.password).then(isPasswdValid => {
                 if (!isPasswdValid) {
                     this.setState({
-                        hsUrl: hs,
                         errorText: _t('This password is too weak. It must include a lower-case letter, an upper-case letter, ' +
                             'a number and a symbol and be at a minimum 8 characters in length.'),
                     });
                 } else {
                     this.setState({
-                        hsUrl: hs,
                         errorText: "",
                         busy: true,
                         formVals: formVals,
                         doingUIAuth: true,
                     });
                 }
-                this._replaceClient(hs);
+                this.replaceClient(hs);
             });
         }).catch(err => {
             console.warn(err);

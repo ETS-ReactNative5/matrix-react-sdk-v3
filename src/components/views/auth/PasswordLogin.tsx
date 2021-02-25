@@ -70,8 +70,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     static defaultProps = {
         onUsernameChanged: function() {},
         onUsernameBlur: function() {},
-        onPhoneCountryChanged: function() {},
-        onPhoneNumberChanged: function() {},
         loginIncorrect: false,
         disableSubmit: false,
     };
@@ -101,22 +99,9 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             return;
         }
 
-        let username = ''; // XXX: Synapse breaks if you send null here:
-        let phoneCountry = null;
-        let phoneNumber = null;
+        let username = this.props.username; // XXX: Synapse breaks if you send null here:
 
-        switch (this.state.loginType) {
-            case LoginField.Email:
-            case LoginField.MatrixId:
-                username = this.props.username;
-                break;
-            case LoginField.Phone:
-                phoneCountry = this.props.phoneCountry;
-                phoneNumber = this.props.phoneNumber;
-                break;
-        }
-
-        this.props.onSubmit(username, phoneCountry, phoneNumber, this.state.password);
+        this.props.onSubmit(username, null, null, this.state.password);
     };
 
     private onUsernameChanged = ev => {

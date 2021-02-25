@@ -286,7 +286,7 @@ class DMRoomTile extends React.PureComponent<IDMRoomTileProps> {
 
         const caption = this.props.member.isEmail
             ? _t("Invite by email")
-            : this._highlightName(this.props.member.userId);
+            : null;
 
         return (
             <div className='mx_InviteDialog_roomTile' onClick={onClickParam}>

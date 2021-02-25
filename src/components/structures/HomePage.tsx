@@ -108,9 +108,12 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
     } else {
         const brandingConfig = config.branding;
         let logoUrl = "themes/tchap/img/logos/tchap-logo.svg";
-        if (brandingConfig && brandingConfig.authHeaderLogoUrl) {
-            logoUrl = brandingConfig.authHeaderLogoUrl;
-        }
+        introSection = <React.Fragment>
+            <img src={logoUrl} alt={config.brand} />
+            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand }) }</h1>
+            <h4>{ _t("State instant messaging") }</h4>
+        </React.Fragment>;
+    }
 
     let defaultButtons = null;
     if (!Tchap.isCurrentUserExtern()) {
@@ -131,9 +134,7 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
 
     return <AutoHideScrollbar className="mx_HomePage mx_HomePage_default">
         <div className="mx_HomePage_default_wrapper">
-            <img src={logoUrl} alt={config.brand || "Element"} />
-            <h1>{ _t("Welcome to %(appName)s", { appName: config.brand || "Element" }) }</h1>
-            <h4>{ _t("State instant messaging") }</h4>
+            { introSection }
             { defaultButtons }
         </div>
     </AutoHideScrollbar>;

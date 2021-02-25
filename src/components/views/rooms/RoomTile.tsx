@@ -478,9 +478,9 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
             const isFavorite = roomTags.includes(DefaultTagID.Favourite);
             const favouriteLabel = isFavorite ? _t("Favourited") : _t("Favourite");
 
-            let multiRoomOpts = null;
+            let roomOpts = null;
             if (!isDMRoom) {
-                multiRoomOpts = (<IconizedContextMenuOption
+                roomOpts = (<IconizedContextMenuOption
                     onClick={this.onOpenRoomSettings}
                     label={_t("Settings")}
                     iconClassName="mx_RoomTile_iconSettings"
@@ -500,18 +500,9 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
                         label={favouriteLabel}
                         iconClassName="mx_RoomTile_iconStar"
                     />
-                    <IconizedContextMenuCheckbox
-                        onClick={(e) => this.onTagRoom(e, DefaultTagID.LowPriority)}
-                        active={isLowPriority}
-                        label={lowPriorityLabel}
-                        iconClassName="mx_RoomTile_iconArrowDown"
-                    />
 
-                    <IconizedContextMenuOption
-                        onClick={this.onOpenRoomSettings}
-                        label={_t("Settings")}
-                        iconClassName="mx_RoomTile_iconSettings"
-                    />
+                    {roomOpts}
+
                 </IconizedContextMenuOptionList>
                 <IconizedContextMenuOptionList red>
                     <IconizedContextMenuOption
@@ -589,7 +580,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
 
         const roomAvatar = <DecoratedRoomAvatar
             room={this.props.room}
-            avatarSize={32}
+            avatarSize={38}
             tag={this.props.tag}
             displayBadge={this.props.isMinimized}
             oobData={({avatarUrl: roomProfile.avatarMxc})}

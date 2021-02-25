@@ -163,12 +163,6 @@ export default class ProfileSettings extends React.Component {
                 <div className="mx_ProfileSettings_profile">
                     <div className="mx_ProfileSettings_controls">
                         <span className="mx_SettingsTab_subheading">{_t("Profile")}</span>
-                        <Field
-                            label={_t("Display Name")}
-                            type="text" value={this.state.displayName}
-                            autoComplete="off"
-                            onChange={this._onDisplayNameChanged}
-                        />
                         <p>
                             {this.state.displayName}
                         </p>

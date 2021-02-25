@@ -33,7 +33,6 @@ function textForMemberEvent(ev) {
         targetName = Tchap.computeDisplayNameFromUserId(targetName);
     }
 
-    const ConferenceHandler = CallHandler.getConferenceHandler();
     const reason = content.reason ? (_t('Reason') + ': ' + content.reason) : '';
     switch (content.membership) {
         case 'invite': {
@@ -580,19 +579,12 @@ const handlers = {
 };
 
 const stateHandlers = {
-    'm.room.canonical_alias': textForCanonicalAliasEvent,
     'm.room.name': textForRoomNameEvent,
     'm.room.topic': textForTopicEvent,
     'm.room.member': textForMemberEvent,
     'm.room.third_party_invite': textForThreePidInviteEvent,
-    'm.room.history_visibility': textForHistoryVisibilityEvent,
     'm.room.power_levels': textForPowerEvent,
-    'm.room.pinned_events': textForPinnedEvent,
-    'm.room.server_acl': textForServerACLEvent,
-    'm.room.tombstone': textForTombstoneEvent,
     'm.room.join_rules': textForJoinRulesEvent,
-    'm.room.guest_access': textForGuestAccessEvent,
-    'm.room.related_groups': textForRelatedGroupsEvent,
 
     // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
     'im.vector.modular.widgets': textForWidgetEvent,
