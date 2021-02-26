@@ -5,6 +5,12 @@
     }
 }
 
+.mx_AccessibleButton_hasKind,
+.mx_TabbedView_tabLabel,
+.mx_Dialog button {
+    border-radius: 4px;
+}
+
 
 // Room Directory
 .mx_RoomDirectory_table {
@@ -241,10 +247,26 @@
 }
 
 
-// Left Panel > Header
+// Left Panel > Header > UserHeader
+.mx_LeftPanel .mx_LeftPanel_roomListContainer .mx_LeftPanel_userHeader {
+    padding-top: 16px;
+    height: 50px;
+}
+
+.mx_UserMenu_userName {
+    margin-top: 11px;
+}
+
+.mx_UserMenu_headerButtons {
+    margin-top: 12px;
+}
+
+
+// Left Panel > Header > Search
 .mx_RoomSearch {
     border-radius: 4px;
 }
+
 .mx_RoomSearch.mx_RoomSearch_focused > input,
 .mx_RoomSearch.mx_RoomSearch_hasQuery > input {
     color: $secondary-fg-color !important;
@@ -411,16 +433,12 @@
 .mx_DecoratedRoomAvatar_icon_forum::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/padlock-forum_mono_light.svg');
-    -webkit-transform: translateX(2px);
-    transform: translateX(2px);
+    background-image: url('$(res)/img/tchap/room-type/symbol-forum.svg');
 }
 .mx_DecoratedRoomAvatar_icon_encrypted::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-blue.svg');
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
+    background-image: url('$(res)/img/tchap/room-type/symbol-private.svg');
 }
 
 
@@ -440,7 +458,7 @@
 
 // Room Header
 .mx_RoomHeader_wrapper {
-    height: 64px;
+    height: 70px;
 }
 
 .mx_DecoratedRoomHeaderAvatar_icon {
@@ -461,7 +479,7 @@
 .mx_DecoratedRoomHeaderAvatar_icon_forum::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/padlock-forum_mono_dark.svg');
+    background-image: url('$(res)/img/tchap/room-type/padlock-forum_mono_dark.svg');
     -webkit-transform: translateX(2px);
     transform: translateX(2px);
 }
@@ -469,7 +487,7 @@
 .mx_DecoratedRoomHeaderAvatar_icon_encrypted::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-white.svg');
+    background-image: url('$(res)/img/tchap/room-type/padlock-encrypted_bordered-white.svg');
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
 }
@@ -589,14 +607,14 @@
 .tc_DecoratedRoomSummaryCard_icon_forum::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/padlock-forum_mono_dark.svg');
+    background-image: url('$(res)/img/tchap/room-type/padlock-forum_mono_dark.svg');
     -webkit-transform: translateX(2px);
     transform: translateX(2px);
 }
 .tc_DecoratedRoomSummaryCard_icon_encrypted::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/padlock-encrypted_bordered-white.svg');
+    background-image: url('$(res)/img/tchap/room-type/padlock-encrypted_bordered-white.svg');
     -webkit-transform: scaleX(-1);
     transform: scaleX(-1);
 }
@@ -627,8 +645,16 @@
 
 
 // Timeline
-.mx_RoomView .mx_MainSplit {
+.mx_RoomView_body .mx_RoomView_timeline {
     background-color: #E8EDF2;
+}
+
+.mx_MainSplit {
+    margin-left: 1px;
+}
+
+.mx_EventTile:hover.mx_EventTile_unknown .mx_EventTile_line {
+    border: none;
 }
 
 

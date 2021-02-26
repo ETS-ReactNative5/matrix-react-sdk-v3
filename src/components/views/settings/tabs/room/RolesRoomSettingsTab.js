@@ -28,11 +28,6 @@ const plEventsToLabels = {
     "m.room.name": _td("Change room name"),
     "m.room.power_levels": _td("Change permissions"),
     "m.room.topic": _td("Change topic"),
-    "m.room.tombstone": _td("Upgrade the room"),
-    "m.room.encryption": _td("Enable room encryption"),
-
-    // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
-    "im.vector.modular.widgets": _td("Modify widgets"),
 };
 
 const plEventsToShow = {
@@ -41,11 +36,6 @@ const plEventsToShow = {
     "m.room.name": {isState: true},
     "m.room.power_levels": {isState: true},
     "m.room.topic": {isState: true},
-    "m.room.tombstone": {isState: true},
-    "m.room.encryption": {isState: true},
-
-    // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
-    "im.vector.modular.widgets": {isState: true},
 };
 
 // parse a string as an integer; if the input is undefined, or cannot be parsed
@@ -372,9 +362,16 @@ export default class RolesRoomSettingsTab extends React.Component {
         });
 
         // hide the power level selector for enabling E2EE if it the room is already encrypted
-        if (client.isRoomEncrypted(this.props.roomId)) {
+        /*if (client.isRoomEncrypted(this.props.roomId)) {
             delete eventsLevels["m.room.encryption"];
-        }
+        }*/
+        // [Tchap] Remove unwanted event selector
+        delete eventsLevels["m.room.encryption"];
+        delete eventsLevels["im.vector.modular.widgets"];
+        delete eventsLevels["m.room.canonical_alias"];
+        delete eventsLevels["m.room.history_visibility"];
+        delete eventsLevels["m.room.server_acl"];
+        delete eventsLevels["m.room.tombstone"];
 
         const eventPowerSelectors = Object.keys(eventsLevels).map((eventType, i) => {
             let label = plEventsToLabels[eventType];

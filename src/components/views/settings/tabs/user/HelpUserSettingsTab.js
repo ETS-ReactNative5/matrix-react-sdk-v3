@@ -120,14 +120,6 @@ export default class HelpUserSettingsTab extends React.Component {
                 <span className='mx_SettingsTab_subheading'>{_t("Credits")}</span>
                 <ul>
                     <li>
-                        The <a href="themes/element/img/backgrounds/lake.jpg" rel="noreferrer noopener" target="_blank">
-                        default cover photo</a> is ©&nbsp;
-                        <a href="https://www.flickr.com/golan" rel="noreferrer noopener" target="_blank">Jesús Roncero</a>{' '}
-                        used under the terms of&nbsp;
-                        <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noreferrer noopener" target="_blank">
-                        CC-BY-SA 4.0</a>.
-                    </li>
-                    <li>
                         The <a href="https://github.com/matrix-org/twemoji-colr" rel="noreferrer noopener"
                                target="_blank"> twemoji-colr</a> font is ©&nbsp;
                         <a href="https://mozilla.org" rel="noreferrer noopener" target="_blank">Mozilla Foundation</a>{' '}
@@ -215,13 +207,6 @@ export default class HelpUserSettingsTab extends React.Component {
                 <div className='mx_SettingsTab_section mx_HelpUserSettingsTab_versions'>
                     <span className='mx_SettingsTab_subheading'>{_t("Advanced")}</span>
                     <div className='mx_SettingsTab_subsectionText'>
-                        {_t("Homeserver is")} <code>{MatrixClientPeg.get().getHomeserverUrl()}</code><br />
-                        {_t("Identity Server is")} <code>{MatrixClientPeg.get().getIdentityServerUrl()}</code><br />
-                        {_t("Access Token:") + ' '}
-                        <AccessibleButton element="span" onClick={this._showSpoiler}
-                                          data-spoiler={MatrixClientPeg.get().getAccessToken()}>
-                            &lt;{ _t("click to reveal") }&gt;
-                        </AccessibleButton>
                         <div className='mx_HelpUserSettingsTab_debugButton'>
                             <AccessibleButton onClick={this._onClearCacheAndReload} kind='danger'>
                                 {_t("Clear cache and reload")}

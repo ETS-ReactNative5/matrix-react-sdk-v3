@@ -64,7 +64,7 @@ export default class MemberAvatar extends React.Component<IProps, IState> {
         if (props.member && props.member.name) {
             return {
                 name: props.member.name,
-                title: props.title || props.member.userId,
+                title: props.title || props.member.name || "",
                 imageUrl: props.member.getAvatarUrl(
                     MatrixClientPeg.get().getHomeserverUrl(),
                     Math.floor(props.width * window.devicePixelRatio),
@@ -96,6 +96,11 @@ export default class MemberAvatar extends React.Component<IProps, IState> {
                 });
             };
         }
+
+        console.error("MELMBER AVATAR")
+        console.error(this.state.name)
+        console.error(this.state.title)
+        console.error(userId)
 
         return (
             <BaseAvatar {...otherProps} name={this.state.name} title={this.state.title}

@@ -57,7 +57,6 @@ const NewRoomIntro = () => {
             <p>{_t("This is the beginning of your direct message history with <displayName/>.", {}, {
                 displayName: () => <b>{ displayName }</b>,
             })}</p>
-            { caption && <p>{ caption }</p> }
         </React.Fragment>;
     } else {
         const inRoom = room && room.getMyMembership() === "join";
