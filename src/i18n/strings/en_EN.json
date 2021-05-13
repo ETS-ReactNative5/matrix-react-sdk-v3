@@ -2889,5 +2889,8 @@
     "If your other devices do not have the key for this message you will not be able to decrypt them.": "If your other devices do not have the key for this message you will not be able to decrypt them.",
     "Request in progress…": "Request in progress…",
     "Use a valid email address": "Use a valid email address",
-    "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.": "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited."
+    "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.": "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.",
+    "Infos": "Infos",
+    "An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.": "An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.",
+    "Please check your email to continue registration.": "Please check your email to continue registration."
 }

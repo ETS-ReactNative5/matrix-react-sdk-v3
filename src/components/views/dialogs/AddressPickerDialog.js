@@ -33,6 +33,7 @@ import { abbreviateUrl } from '../../../utils/UrlUtils';
 import {sleep} from "../../../utils/promise";
 import {Key} from "../../../Keyboard";
 import {Action} from "../../../dispatcher/actions";
+import Tchap from "../../../tchap/Tchap";
 
 const TRUNCATE_QUERY_LIST = 40;
 const QUERY_USER_DIRECTORY_DEBOUNCE_MS = 200;
@@ -536,15 +537,11 @@ export default class AddressPickerDialog extends React.Component {
         if (cancelled) return null;
 
         try {
-            const authClient = new IdentityAuthClient();
-            const identityAccessToken = await authClient.getAccessToken();
             if (cancelled) return null;
 
             const lookup = await Tchap.lookupThreePid(
                 medium,
                 address,
-                undefined /* callback */,
-                identityAccessToken,
             );
             if (cancelled || lookup === null || !lookup.mxid) return null;
 

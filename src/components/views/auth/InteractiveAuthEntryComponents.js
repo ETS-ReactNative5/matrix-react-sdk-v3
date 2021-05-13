@@ -421,7 +421,7 @@ export class EmailIdentityAuthEntry extends React.Component {
         } else {
             return (
                 <div className="mx_InteractiveAuthEntryComponents_emailWrapper">
-                    <p>{ _t("An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it",
+                    <p>{ _t("An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.",
                         { emailAddress: (sub) => <b>{ this.props.inputs.emailAddress }</b> },
                     ) }
                     </p>

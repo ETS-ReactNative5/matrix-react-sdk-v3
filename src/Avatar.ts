@@ -21,6 +21,8 @@ import {Room} from "matrix-js-sdk/src/models/room";
 
 import {MatrixClientPeg} from './MatrixClientPeg';
 import DMRoomMap from './utils/DMRoomMap';
+import Tchap from './tchap/Tchap';
+import ContentScanner from './tchap/utils/ContentScanner';
 
 export type ResizeMethod = "crop" | "scale";
 
@@ -43,7 +45,7 @@ export function avatarUrlForMember(member: RoomMember, width: number, height: nu
         // the inviter.
         url = defaultAvatarUrlForString(member ? member.userId : '');
     }
-    return url;
+    return ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(url)}, true);
 }
 
 export function avatarUrlForUser(user: User, width: number, height: number, resizeMethod?: ResizeMethod) {
@@ -56,7 +58,7 @@ export function avatarUrlForUser(user: User, width: number, height: number, resi
     if (!url || url.length === 0) {
         return null;
     }
-    return url;
+    return ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(url)}, true);
 }
 
 function isValidHexColor(color: string): boolean {
@@ -162,7 +164,7 @@ export function avatarUrlForRoom(room: Room, width: number, height: number, resi
         false,
     );
     if (explicitRoomAvatar) {
-        return explicitRoomAvatar;
+        return ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(explicitRoomAvatar)}, true);
     }
 
     let otherMember = null;
@@ -175,13 +177,14 @@ export function avatarUrlForRoom(room: Room, width: number, height: number, resi
         otherMember = room.getAvatarFallbackMember();
     }
     if (otherMember) {
-        return otherMember.getAvatarUrl(
+        const u = otherMember.getAvatarUrl(
             MatrixClientPeg.get().getHomeserverUrl(),
             width,
             height,
             resizeMethod,
             false,
         );
+        return u ? ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(u)}, true) : null;
     }
     return null;
 }

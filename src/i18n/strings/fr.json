@@ -286,7 +286,6 @@
     "Add User": "Ajouter l'utilisateur",
     "Custom Server Options": "Options de serveur personnalisées",
     "Dismiss": "Ignorer",
-    "Please check your email to continue registration.": "Merci de vérifier votre e-mail afin de continuer votre inscription.",
     "Token incorrect": "Jeton incorrect",
     "Please enter the code it contains:": "Merci de saisir le code qu'il contient :",
     "powered by Matrix": "propulsé par Matrix",
@@ -2117,7 +2116,7 @@
     "Send a Direct Message": "Envoyez un message direct",
     "Explore Forums": "Explorez les forums",
     "Explore forums": "Explorez les forums",
-    "Create a Group Chat": "Créez une discussion de groupe",
+    "Create a Group Chat": "Créez une discussion",
     "%(name)s is requesting verification": "%(name)s demande une vérification",
     "well formed": "bien formée",
     "unexpected type": "type inattendu",
@@ -3067,5 +3066,9 @@
     "Request in progress…": "Demande en cours…",
     "Use a valid email address": "Utilisez une adresse e-mail valide",
     "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.": "<b>Information</b> : Le domaine de votre adresse email n'est pas déclaré dans Tchap. Si vous avez reçu une invitation, vous allez pouvoir créer un compte Tchap \"invité\", permettant uniquement de participer aux échanges privés auxquels vous êtes convié.",
-    "You have no visible notifications.": "Vous n'avez aucune notification."
+    "You have no visible notifications.": "Vous n'avez aucune notification.",
+    "Forgot password?": "Mot de passe oublié ?",
+    "Infos": "Infos",
+    "An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.": "Un e-mail a été envoyé à %(emailAddress)s, sauf si un compte Tchap lui a déjà été associé.",
+    "Please check your email to continue registration.": "Merci de vérifier votre e-mail afin de continuer votre inscription."
 }

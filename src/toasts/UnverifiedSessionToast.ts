@@ -19,6 +19,7 @@ import { MatrixClientPeg } from '../MatrixClientPeg';
 import Modal from '../Modal';
 import DeviceListener from '../DeviceListener';
 import NewSessionReviewDialog from '../components/views/dialogs/NewSessionReviewDialog';
+import VerificationRequestDialog from '../components/views/dialogs/VerificationRequestDialog';
 import ToastStore from "../stores/ToastStore";
 import GenericToast from "../components/views/toasts/GenericToast";
 
@@ -30,16 +31,26 @@ export const showToast = (deviceId: string) => {
     const cli = MatrixClientPeg.get();
 
     const onAccept = () => {
-        Modal.createTrackedDialog('New Session Review', 'Starting dialog', NewSessionReviewDialog, {
+
+        const requestPromise = cli.requestVerification(
+            cli.getUserId(),
+            [deviceId],
+        );
+        Modal.createTrackedDialog('New Session Verification', 'Starting dialog', VerificationRequestDialog, {
+            verificationRequestPromise: requestPromise,
+            member: cli.getUser(cli.getUserId()),
+        });
+
+        /*Modal.createTrackedDialog('New Session Review', 'Starting dialog', NewSessionReviewDialog, {
             userId: cli.getUserId(),
             device: cli.getStoredDevice(cli.getUserId(), deviceId),
             onFinished: (r) => {
                 if (!r) {
-                    /* This'll come back false if the user clicks "this wasn't me" and saw a warning dialog */
+                    /!* This'll come back false if the user clicks "this wasn't me" and saw a warning dialog *!/
                     DeviceListener.sharedInstance().dismissUnverifiedSessions([deviceId]);
                 }
             },
-        }, null, /* priority = */ false, /* static = */ true);
+        }, null, /!* priority = *!/ false, /!* static = *!/ true);*/
     };
 
     const onReject = () => {

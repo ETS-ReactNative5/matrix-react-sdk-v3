@@ -28,6 +28,7 @@ import IdentityAuthClient from '../../../IdentityAuthClient';
 import {CommunityPrototypeStore} from "../../../stores/CommunityPrototypeStore";
 import {UPDATE_EVENT} from "../../../stores/AsyncStore";
 import Tchap from "../../../tchap/Tchap";
+import {isReactElementAlike} from "enzyme/src/Utils";
 
 const MessageCase = Object.freeze({
     NotLoggedIn: "NotLoggedIn",
@@ -461,10 +462,16 @@ export default class RoomPreviewBar extends React.Component {
             }
             case MessageCase.Invite: {
                 const RoomAvatar = sdk.getComponent("views.avatars.RoomAvatar");
+                const isDM = this._isDMInvite();
+                const isNotice = Tchap.isRoomNotice(this.props.room);
                 const oobData = Object.assign({}, this.props.oobData, {
                     avatarUrl: this._communityProfile().avatarMxc,
                 });
-                const avatar = <RoomAvatar room={this.props.room} oobData={oobData} />;
+                let classes = "";
+                if (!isDM && !isNotice) {
+                    classes += " tc_RoomTile_avatar_hexa";
+                }
+                const avatar = <RoomAvatar className={classes} room={this.props.room} oobData={oobData} />;
 
                 const inviteMember = this._getInviteMember();
                 let inviterElement;
@@ -478,7 +485,6 @@ export default class RoomPreviewBar extends React.Component {
                     inviterElement = (<span className="mx_RoomPreviewBar_inviter">{this.props.inviterName}</span>);
                 }
 
-                const isDM = this._isDMInvite();
                 if (isDM) {
                     title = _t("Do you want to chat with %(user)s?",
                         { user: inviteMember.name });

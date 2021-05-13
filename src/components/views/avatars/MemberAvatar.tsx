@@ -97,11 +97,6 @@ export default class MemberAvatar extends React.Component<IProps, IState> {
             };
         }
 
-        console.error("MELMBER AVATAR")
-        console.error(this.state.name)
-        console.error(this.state.title)
-        console.error(userId)
-
         return (
             <BaseAvatar {...otherProps} name={this.state.name} title={this.state.title}
                 idName={userId} url={this.state.imageUrl} onClick={onClick} />

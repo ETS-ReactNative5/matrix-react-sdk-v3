@@ -208,7 +208,8 @@ export default class DeviceListener {
     async _recheck() {
         const cli = MatrixClientPeg.get();
 
-        if (!await cli.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) return;
+        // [Tchap] KeyBackup & cross-signing are disabled
+        //if (!await cli.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) return;
 
         if (!cli.isCryptoEnabled()) return;
         // don't recheck until the initial sync is complete: lots of account data events will fire
@@ -220,7 +221,9 @@ export default class DeviceListener {
         const secretStorageReady = await cli.isSecretStorageReady();
         const allSystemsReady = crossSigningReady && secretStorageReady;
 
-        if (this.dismissedThisDeviceToast || allSystemsReady) {
+        hideSetupEncryptionToast();
+        // [Tchap] KeyBackup & cross-signing are disabled
+        /*if (this.dismissedThisDeviceToast || allSystemsReady) {
             hideSetupEncryptionToast();
         } else if (this.shouldShowSetupEncryptionToast()) {
             // make sure our keys are finished downloading
@@ -251,7 +254,7 @@ export default class DeviceListener {
                     }
                 }
             }
-        }
+        }*/
 
         // This needs to be done after awaiting on downloadKeys() above, so
         // we make sure we get the devices after the fetch is done.
@@ -265,9 +268,10 @@ export default class DeviceListener {
         // Unverified devices that have appeared since then
         const newUnverifiedDeviceIds = new Set<string>();
 
+        // [Tchap] KeyBackup & cross-signing are disabled
         // as long as cross-signing isn't ready,
         // you can't see or dismiss any device toasts
-        if (crossSigningReady) {
+        /*if (crossSigningReady) {
             const devices = cli.getStoredDevicesForUser(cli.getUserId());
             for (const device of devices) {
                 if (device.deviceId === cli.deviceId) continue;
@@ -281,14 +285,29 @@ export default class DeviceListener {
                     }
                 }
             }
+        }*/
+
+        const devices = cli.getStoredDevicesForUser(cli.getUserId());
+        for (const device of devices) {
+            if (device.deviceId === cli.deviceId) continue;
+
+            const deviceTrust = await cli.checkDeviceTrust(cli.getUserId(), device.deviceId);
+            if (!this.dismissed.has(device.deviceId)) {
+                if (this.ourDeviceIdsAtStart.has(device.deviceId)) {
+                    oldUnverifiedDeviceIds.add(device.deviceId);
+                } else {
+                    newUnverifiedDeviceIds.add(device.deviceId);
+                }
+            }
         }
 
+        // [Tchap] KeyBackup & cross-signing are disabled
         // Display or hide the batch toast for old unverified sessions
-        if (oldUnverifiedDeviceIds.size > 0) {
+        /*if (oldUnverifiedDeviceIds.size > 0) {
             showBulkUnverifiedSessionsToast(oldUnverifiedDeviceIds);
         } else {
             hideBulkUnverifiedSessionsToast();
-        }
+        }*/
 
         // Show toasts for new unverified devices if they aren't already there
         for (const deviceId of newUnverifiedDeviceIds) {

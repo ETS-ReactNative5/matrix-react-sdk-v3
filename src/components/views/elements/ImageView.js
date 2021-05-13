@@ -26,6 +26,8 @@ import Modal from "../../../Modal";
 import * as sdk from "../../../index";
 import {Key} from "../../../Keyboard";
 import FocusLock from "react-focus-lock";
+import ContentScanner from "../../../tchap/utils/ContentScanner";
+import Tchap from "../../../tchap/Tchap";
 
 export default class ImageView extends React.Component {
     static propTypes = {
@@ -182,6 +184,7 @@ export default class ImageView extends React.Component {
 
         const rotationDegrees = this.state.rotationDegrees;
         const effectiveStyle = {transform: `rotate(${rotationDegrees}deg)`, ...style};
+        const scImageUrl = ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(this.props.src)});
 
         return (
             <FocusLock
@@ -195,7 +198,7 @@ export default class ImageView extends React.Component {
                 <div className="mx_ImageView_lhs">
                 </div>
                 <div className="mx_ImageView_content">
-                    <img src={this.props.src} title={this.props.name} style={effectiveStyle} className="mainImage" />
+                    <img src={scImageUrl} title={this.props.name} style={effectiveStyle} className="mainImage" />
                     <div className="mx_ImageView_labelWrapper">
                         <div className="mx_ImageView_label">
                             <AccessibleButton className="mx_ImageView_rotateCounterClockwise" title={_t("Rotate Left")} onClick={ this.rotateCounterClockwise }>
@@ -213,7 +216,7 @@ export default class ImageView extends React.Component {
                                 { this.getName() }
                             </div>
                             { eventMeta }
-                            <a className="mx_ImageView_link" href={ this.props.src } download={ this.props.name } target="_blank" rel="noopener">
+                            <a className="mx_ImageView_link" href={ scImageUrl } download={ this.props.name } target="_blank" rel="noopener">
                                 <div className="mx_ImageView_download">
                                         { _t('Download this file') }<br />
                                          <span className="mx_ImageView_size">{ sizeRes }</span>

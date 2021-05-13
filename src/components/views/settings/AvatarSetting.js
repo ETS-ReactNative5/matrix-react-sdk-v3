@@ -19,6 +19,8 @@ import PropTypes from "prop-types";
 import {_t} from "../../../languageHandler";
 import AccessibleButton from "../elements/AccessibleButton";
 import classNames from "classnames";
+import ContentScanner from "../../../tchap/utils/ContentScanner";
+import Tchap from "../../../tchap/Tchap";
 
 const AvatarSetting = ({avatarUrl, avatarAltText, avatarName, uploadAvatar, removeAvatar}) => {
     const [isHovering, setIsHovering] = useState(false);
@@ -34,10 +36,14 @@ const AvatarSetting = ({avatarUrl, avatarAltText, avatarName, uploadAvatar, remo
         {...hoveringProps}
     />;
     if (avatarUrl) {
+        let scImageUrl = avatarUrl;
+        if (!avatarUrl.startsWith("data:")) {
+            scImageUrl = ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(avatarUrl)}, true);
+        }
         avatarElement = (
             <AccessibleButton
                 element="img"
-                src={avatarUrl}
+                src={scImageUrl}
                 alt={avatarAltText}
                 aria-label={avatarAltText}
                 onClick={uploadAvatar}

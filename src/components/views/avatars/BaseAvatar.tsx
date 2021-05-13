@@ -25,6 +25,8 @@ import AccessibleButton from '../elements/AccessibleButton';
 import MatrixClientContext from "../../../contexts/MatrixClientContext";
 import {useEventEmitter} from "../../../hooks/useEventEmitter";
 import {toPx} from "../../../utils/units";
+import Tchap from "../../../tchap/Tchap";
+import ContentScanner from "../../../tchap/utils/ContentScanner";
 
 interface IProps {
     name: string; // The name (first initial used as default)
@@ -167,12 +169,14 @@ const BaseAvatar = (props: IProps) => {
         }
     }
 
+    const scImageUrl = ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(imageUrl)}, true);
+
     if (onClick) {
         return (
             <AccessibleButton
                 className={classNames("mx_BaseAvatar mx_BaseAvatar_image", className)}
                 element='img'
-                src={imageUrl}
+                src={scImageUrl}
                 onClick={onClick}
                 onError={onError}
                 style={{
@@ -187,7 +191,7 @@ const BaseAvatar = (props: IProps) => {
         return (
             <img
                 className={classNames("mx_BaseAvatar mx_BaseAvatar_image", className)}
-                src={imageUrl}
+                src={scImageUrl}
                 onError={onError}
                 style={{
                     width: toPx(width),

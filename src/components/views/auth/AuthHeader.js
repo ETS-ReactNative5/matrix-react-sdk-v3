@@ -30,6 +30,7 @@ export default class AuthHeader extends React.Component {
 
         return (
             <div className="mx_AuthHeader">
+                <span className="tc_LoginView_Header_text">TCHAP</span>
                 <AuthHeaderLogo />
                 <LanguageSelector disabled={this.props.disableLanguageSelector} />
             </div>

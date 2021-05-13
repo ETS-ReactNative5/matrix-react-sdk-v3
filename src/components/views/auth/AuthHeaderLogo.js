@@ -21,7 +21,7 @@ import React from 'react';
 export default class AuthHeaderLogo extends React.PureComponent {
     render() {
         return <div className="mx_AuthHeaderLogo">
-            Matrix
+            Tchap
         </div>;
     }
 }

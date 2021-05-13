@@ -173,14 +173,17 @@ export default class PreferencesUserSettingsTab extends React.Component {
                 label={_t('Show tray icon and minimize window to it on close')} />;
         }
 
+        /*
+        // [Tchap] Room list settings are disabled for the moment.
+         <div className="mx_SettingsTab_section">
+            <span className="mx_SettingsTab_subheading">{_t("Room list")}</span>
+            {this._renderGroup(PreferencesUserSettingsTab.ROOM_LIST_SETTINGS)}
+        </div>
+        */
+
         return (
             <div className="mx_SettingsTab mx_PreferencesUserSettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("Preferences")}</div>
-
-                <div className="mx_SettingsTab_section">
-                    <span className="mx_SettingsTab_subheading">{_t("Room list")}</span>
-                    {this._renderGroup(PreferencesUserSettingsTab.ROOM_LIST_SETTINGS)}
-                </div>
 
                 <div className="mx_SettingsTab_section">
                     <span className="mx_SettingsTab_subheading">{_t("Composer")}</span>

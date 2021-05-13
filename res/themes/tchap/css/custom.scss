@@ -5,12 +5,6 @@
     }
 }
 
-.mx_AccessibleButton_hasKind,
-.mx_TabbedView_tabLabel,
-.mx_Dialog button {
-    border-radius: 4px;
-}
-
 
 // Room Directory
 .mx_RoomDirectory_table {
@@ -19,7 +13,7 @@
 }
 
 .mx_RoomDirectory_name {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 500;
     padding-top: 6px;
 }
@@ -147,7 +141,7 @@
 // Room Creation UI
 .tc_CreateRoomDialog_RoomOption > div {
     background-color: $secondary-accent-color;
-    border-radius: 6px;
+    border-radius: 4px;
     margin: 8px 0 8px 0;
     padding: 4px;
     font-weight: bold;
@@ -263,10 +257,6 @@
 
 
 // Left Panel > Header > Search
-.mx_RoomSearch {
-    border-radius: 4px;
-}
-
 .mx_RoomSearch.mx_RoomSearch_focused > input,
 .mx_RoomSearch.mx_RoomSearch_hasQuery > input {
     color: $secondary-fg-color !important;
@@ -277,10 +267,6 @@
     -webkit-box-shadow: 0 0 2px 2px $accent-secondary;
     box-shadow: 0 0 2px 2px $accent-secondary;
     border-color: $tertiary-fg-color;
-}
-
-.mx_LeftPanel_exploreButton {
-    border-radius: 4px !important;
 }
 
 
@@ -381,6 +367,9 @@
 .tc_Room_roomType_forum {
     color: $room-type-forum;
 }
+.tc_Room_roomType_infos {
+    color: $room-type-infos;
+}
 
 
 // Left Panel > Room List > Room Type Avatar
@@ -417,28 +406,33 @@
 
 .mx_DecoratedRoomAvatar_icon {
     position: absolute;
-    margin-top: -1px;
-    left: 46px;
+    margin-top: 5px;
+    left: 47px;
     border-radius: 0;
     z-index: 2;
 }
 
 .mx_DecoratedRoomAvatar_icon::before {
     content: '';
-    width: 12px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
     position: absolute;
 }
 
 .mx_DecoratedRoomAvatar_icon_forum::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/room-type/symbol-forum.svg');
+    background-image: url('$(res)/img/tchap/room-type/symbol-forum-bg.svg');
+}
+.mx_DecoratedRoomAvatar_icon_unrestricted::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url('$(res)/img/tchap/room-type/symbol-private-external-bg.svg');
 }
 .mx_DecoratedRoomAvatar_icon_encrypted::before {
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url('$(res)/img/tchap/room-type/symbol-private.svg');
+    background-image: url('$(res)/img/tchap/room-type/symbol-private-bg.svg');
 }
 
 
@@ -457,8 +451,20 @@
 
 
 // Room Header
+.mx_RoomHeader {
+    border-bottom: 1px solid #C1C6CD;
+}
+
 .mx_RoomHeader_wrapper {
     height: 70px;
+}
+
+
+.mx_RoomHeader_avatar .tc_RoomTile_avatar_unrestricted {
+    background-image: url('$(res)/img/cccccc.png');
+    background-position: center;
+    padding: 2px;
+    height: 44px;
 }
 
 .mx_DecoratedRoomHeaderAvatar_icon {
@@ -476,22 +482,6 @@
     position: absolute;
 }
 
-.mx_DecoratedRoomHeaderAvatar_icon_forum::before {
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url('$(res)/img/tchap/room-type/padlock-forum_mono_dark.svg');
-    -webkit-transform: translateX(2px);
-    transform: translateX(2px);
-}
-
-.mx_DecoratedRoomHeaderAvatar_icon_encrypted::before {
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url('$(res)/img/tchap/room-type/padlock-encrypted_bordered-white.svg');
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-}
-
 .mx_RoomHeader_name,
 .mx_RoomHeader_avatar,
 .mx_RoomHeader_avatarPicker,
@@ -503,6 +493,9 @@
 .tc_RoomHeader_infos {
     display: grid;
     width: 100%;
+    margin-left: 10px;
+    grid-gap: 4px;
+    margin-top: 2px;
 }
 
 .mx_RoomHeader_name {
@@ -520,16 +513,44 @@
     grid-column: 1;
     grid-row: 2;
     display: flex;
+    margin-left: 8px;
 
     &>div[class^='tc_Room_roomType_'] {
-        font-size: 14px;
-        margin-left: 6px;
-        margin-right: 6px;
+        font-size: 13px;
+    }
+    .tc_Room_roomType_text {
+        font-weight: 500;
+        margin-left: 4px;
+    }
+    .tc_RoomHeader_middot {
+        font-size: 18px;
+        font-weight: bold;
+        position: relative;
+        top: -3px;
+        color: #828282;
+        margin: auto 6px;
     }
     .tc_RoomHeader_memberCount {
-        font-size: 12px;
-        margin-top: 2px;
-        margin-left: 4px;
+        font-size: 13px;
+        .tc_RoomHeader_memberCount_value {
+            position: relative;
+            top: -3px;
+            margin-left: 4px;
+            color: #828282;
+            font-weight: 500;
+        }
+    }
+    .tc_RoomHeader_retention {
+        position: relative;
+        top: 1px;
+        .tc_RoomHeader_retention_value {
+            font-size: 12px;
+            position: relative;
+            top: -3px;
+            margin-left: 3px;
+            color: #828282;
+            font-weight: 500;
+        }
     }
 }
 
@@ -596,27 +617,10 @@
     }
 }
 
-.tc_DecoratedRoomSummaryCard_icon::before {
-    content: '';
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    margin-left: 43px;
-    z-index: 1;
-}
-.tc_DecoratedRoomSummaryCard_icon_forum::before {
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url('$(res)/img/tchap/room-type/padlock-forum_mono_dark.svg');
-    -webkit-transform: translateX(2px);
-    transform: translateX(2px);
-}
-.tc_DecoratedRoomSummaryCard_icon_encrypted::before {
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url('$(res)/img/tchap/room-type/padlock-encrypted_bordered-white.svg');
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
+.tc_RoomSummaryCard_topic {
+    font-size: 13px;
+    overflow-x: hidden;
+    max-height: 400px;
 }
 
 
@@ -646,13 +650,14 @@
 
 // Timeline
 .mx_RoomView_body .mx_RoomView_timeline {
-    background-color: #E8EDF2;
+    //background-color: #E8EDF2;
 }
 
 .mx_MainSplit {
     margin-left: 1px;
 }
 
+.mx_EventTile:hover.mx_EventTile_verified .mx_EventTile_line,
 .mx_EventTile:hover.mx_EventTile_unknown .mx_EventTile_line {
     border: none;
 }
@@ -764,6 +769,41 @@
 .tc_RegistrationForm_extern_warning {
     margin-bottom: 20px;
 }
+
+
+
+// Border Radius changes
+.mx_AccessibleButton_hasKind,
+.mx_TabbedView_tabLabel,
+.mx_Dialog button,
+.mx_Dialog,
+.mx_RoomSearch,
+.mx_LeftPanel_exploreButton,
+.mx_BaseCard .mx_BaseCard_Group .mx_BaseCard_Button,
+.mx_ContextualMenu,
+.mx_Field,
+.mx_Field input,
+.mx_Field select,
+.mx_Field textarea,
+.mx_AppearanceUserSettingsTab_fontSlider_preview,
+.mx_Tooltip,
+.mx_AuthPage_modal,
+.mx_AuthPage_modalContent,
+.mx_Login_submit
+{
+    border-radius: 3px !important;
+}
+
+
+// Login view
+// Login view > Header
+.tc_LoginView_Header_text {
+    font-weight: bolder;
+    text-align: center;
+    color: #2e2f32;
+    font-size: larger;
+}
+
 
 
 

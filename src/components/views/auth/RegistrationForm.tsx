@@ -70,10 +70,10 @@ interface IState {
     phoneCountry: string;
     username: string;
     email: string;
-    phoneNumber: string;
     password: string;
     passwordConfirm: string;
     passwordComplexity?: number;
+    isExtern: boolean;
 }
 
 /*
@@ -114,7 +114,7 @@ export default class RegistrationForm extends React.PureComponent<IProps, IState
             return;
         }
 
-        this._doSubmit(ev);
+        this.doSubmit(ev);
     };
 
     private doSubmit(ev) {
@@ -243,7 +243,7 @@ export default class RegistrationForm extends React.PureComponent<IProps, IState
             {
                 key: "required",
                 test(this: RegistrationForm, { value, allowEmpty }) {
-                    return allowEmpty || !this.authStepIsRequired('m.login.email.identity') || !!value;
+                    return allowEmpty || !!value;
                 },
                 invalid: () => _t("Enter email address"),
             },

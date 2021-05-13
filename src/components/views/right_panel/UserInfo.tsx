@@ -420,6 +420,10 @@ const UserOptionsSection: React.FC<{
         );
     }
 
+    const room = cli.getRoom(member.roomId);
+    const isNotice = Tchap.isRoomNotice(room);
+    if (isNotice && !isMe) return null;
+
     return (
         <div className="mx_UserInfo_container">
             <h3>{ _t("Options") }</h3>
@@ -1486,7 +1490,6 @@ const UserInfoHeader: React.FC<{
             <div className="mx_UserInfo_profile">
                 <div>
                     <h2>
-                        { e2eIcon }
                         <span title={displayName} aria-label={displayName}>
                             { displayName }
                         </span>

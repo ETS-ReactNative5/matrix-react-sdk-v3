@@ -77,6 +77,7 @@ enum Icon {
     None = "NONE", // ... except this one
     Encrypted = "ENCRYPTED",
     Forum = "FORUM",
+    Unrestricted = "UNRESTRICTED"
 }
 
 const tooltipText = (variant: Icon) => {
@@ -84,7 +85,9 @@ const tooltipText = (variant: Icon) => {
         case Icon.Forum:
             return _t("Forum room");
         case Icon.Encrypted:
-            return _t("Encrypted room");
+            return _t("Private room");
+        case Icon.Unrestricted:
+            return _t("Private room opened to externals");
     }
 }
 
@@ -182,11 +185,19 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
     }
 
     public componentDidMount() {
+        const isRoomDm = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        const isRoomNotice = Tchap.isRoomNotice(this.props.room);
+        const isRoomUnrestricted = Tchap.getAccessRules(this.props.room.roomId) === "unrestricted";
+
         let icon;
-        if (Tchap.isRoomForum(this.props.room.roomId)) {
-            icon = Icon.Forum
+        if (isRoomDm || isRoomNotice) {
+            icon = Icon.None;
+        } else if (Tchap.isRoomForum(this.props.room.roomId)) {
+            icon = Icon.Forum;
+        } else if (isRoomUnrestricted) {
+            icon = Icon.Unrestricted;
         } else {
-            icon = Icon.Encrypted
+            icon = Icon.Encrypted;
         }
         this.setState({icon})
 
@@ -533,6 +544,9 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
         if (Tchap.isRoomForum(this.props.room.roomId)) {
             classes += " tc_Room_roomType_forum";
             translation = _t("Forum");
+        } else if (Tchap.isRoomNotice(this.props.room)) {
+            classes += " tc_Room_roomType_infos";
+            translation = _t("Infos");
         } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
             classes += " tc_Room_roomType_restricted";
             translation = _t("Private");

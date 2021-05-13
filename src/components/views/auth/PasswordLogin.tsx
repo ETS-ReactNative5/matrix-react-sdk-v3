@@ -79,7 +79,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         this.state = {
             // Field error codes by field ID
             fieldValid: {},
-            loginType: LoginField.MatrixId,
+            loginType: LoginField.Email,
             password: "",
         };
     }
@@ -443,7 +443,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         return (
             <div>
                 <form onSubmit={this.onSubmitForm}>
-                    {loginType}
                     {loginField}
                     <Field
                         className={pwFieldClass}

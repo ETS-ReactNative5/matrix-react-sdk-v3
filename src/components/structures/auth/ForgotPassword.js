@@ -28,6 +28,7 @@ import CountlyAnalytics from "../../../CountlyAnalytics";
 import ServerPicker from "../../views/elements/ServerPicker";
 import Tchap from "../../../tchap/Tchap";
 import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
+import TextWithTooltip from "../../views/elements/TextWithTooltip";
 
 // Phases
 // Show the forgot password inputs
@@ -223,11 +224,15 @@ export default class ForgotPassword extends React.Component {
                         onBlur={() => CountlyAnalytics.instance.track("onboarding_forgot_password_newPassword2_blur")}
                         autoComplete="new-password"
                     />
-                    <img className="tc_PasswordHelper" src={require('../../../../res/img/tchap/question_mark.svg')}
-                        width={25} height={25}
-                        title={ _t('Your password must include a lower-case letter, ' +
-                            'an upper-case letter, a number and a symbol and be at a ' +
-                            'minimum 8 characters in length.') } alt={""} />
+                    <TextWithTooltip
+                      tooltip={_t('Your password must include a lower-case letter, ' +
+                      'an upper-case letter, a number and a symbol and be at a ' +
+                      'minimum 8 characters in length.')}
+                      tooltipClass='mx_Tooltip_dark'>
+                        <img className="tc_PasswordHelper" src={require('../../../../res/img/tchap/question_mark.svg')}
+                          width={25} height={25}
+                          alt={"Password Complexity Helper"} />
+                    </TextWithTooltip>
                 </div>
                 <span>{_t(
                     'A verification email will be sent to your inbox to confirm ' +

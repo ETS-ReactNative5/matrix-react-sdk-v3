@@ -390,14 +390,16 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             return;
         }
 
-        const crossSigningIsSetUp = cli.getStoredCrossSigningForUser(cli.getUserId());
+        // [Tchap] Disable "Setup Security" screen
+        /*const crossSigningIsSetUp = cli.getStoredCrossSigningForUser(cli.getUserId());
         if (crossSigningIsSetUp) {
             this.setStateForNewView({ view: Views.COMPLETE_SECURITY });
         } else if (await cli.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
             this.setStateForNewView({ view: Views.E2E_SETUP });
         } else {
             this.onLoggedIn();
-        }
+        }*/
+        this.onLoggedIn();
         this.setState({ pendingInitialSync: false });
     }
 
@@ -1061,7 +1063,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
                 warnings.push((
                     <span className="warning" key="non_public_warning">
                         {' '/* Whitespace, otherwise the sentences get smashed together */ }
-                        { _t("This room is a not forum. You will not be able to rejoin without an invite.") }
+                        <br />
+                        { _t("This room is not a forum. You will not be able to rejoin without an invite.") }
                     </span>
                 ));
             }

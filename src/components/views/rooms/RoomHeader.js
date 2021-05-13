@@ -85,14 +85,18 @@ export default class RoomHeader extends React.Component {
 
     componentDidMount() {
         const cli = MatrixClientPeg.get();
+        const isRoomDm = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        const isRoomNotice = Tchap.isRoomNotice(this.props.room);
         cli.on("RoomState.events", this._onRoomStateEvents);
         cli.on("Room.accountData", this._onRoomAccountData);
 
         let icon;
         if (Tchap.isRoomForum(this.props.room.roomId)) {
-            icon = Icon.Forum
+            icon = Icon.Forum;
+        } else if (isRoomDm || isRoomNotice) {
+            icon = Icon.None;
         } else {
-            icon = Icon.Encrypted
+            icon = Icon.Encrypted;
         }
         this.setState({icon})
 
@@ -180,31 +184,64 @@ export default class RoomHeader extends React.Component {
 
     renderRoomSublineElement() {
         const dmUserId = DMRoomMap.shared().getUserIdForRoomId(this.props.room.roomId);
+        const isRoomNotice = Tchap.isRoomNotice(this.props.room);
+        if (dmUserId || isRoomNotice || Tchap.getAccessRules(this.props.room.roomId) === "direct") return null;
+
         let classes = "";
         let translation = "";
+        let roomIcon = require("../../../../res/img/tchap/question_mark.svg");
+
         if (Tchap.isRoomForum(this.props.room.roomId)) {
             classes += "tc_Room_roomType_forum";
             translation = _t("Forum");
+            roomIcon = require("../../../../res/img/tchap/room-type/symbol-forum.svg");
         } else if (Tchap.getAccessRules(this.props.room.roomId) === "restricted") {
             classes += "tc_Room_roomType_restricted";
             translation = _t("Private");
+            roomIcon = require("../../../../res/img/tchap/room-type/symbol-private.svg");
         } else if (Tchap.getAccessRules(this.props.room.roomId) === "unrestricted") {
             classes += "tc_Room_roomType_unrestricted";
             translation = _t("External");
+            roomIcon = require("../../../../res/img/tchap/room-type/symbol-private-external.svg");
         }
 
-        let memberCount = null;
-        if (!dmUserId) {
-            memberCount = (<>
-                <span className="tc_RoomHeader_middot">&middot;</span>
-                <div className="tc_RoomHeader_memberCount">{ `${this.props.room.getJoinedMemberCount()} ${_t("Members")}` }</div></>
-            );
-        }
+        let memberCount = (
+          <>
+              <span className="tc_RoomHeader_middot">&middot;</span>
+              <div className="tc_RoomHeader_memberCount">
+                  <img className={"tc_RoomHeader_memberCount_icon"}
+                    src={require("../../../../res/img/tchap/room/people.svg")}
+                    width="16" height="16" alt={"People"} />
+                  <span className={"tc_RoomHeader_memberCount_value"}>
+                      {this.props.room.getJoinedMemberCount()}
+                  </span>
+              </div>
+          </>
+        );
+
+        let retentionBlock = (
+          <>
+              <span className="tc_RoomHeader_middot">&middot;</span>
+              <div className="tc_RoomHeader_retention">
+                  <img className={"tc_RoomHeader_retention_icon"}
+                    src={require("../../../../res/img/tchap/room/clock.svg")}
+                    width="14" height="14" alt={"Retention time"} />
+                  <span className={"tc_RoomHeader_retention_value"}>
+                      360 j
+                  </span>
+              </div>
+          </>
+        );
+
 
         return (
             <div className="tc_RoomHeader_roomSubline">
-                <div className={classes}>{translation}</div>
+                <div className={classes}>
+                    <img src={roomIcon} className="tc_Room_roomType_restricted" width="12" height="12" alt={translation} />
+                    <span className={"tc_Room_roomType_text"}>{translation}</span>
+                </div>
                 {memberCount}
+                {retentionBlock}
             </div>
         );
     }
@@ -283,7 +320,7 @@ export default class RoomHeader extends React.Component {
         if (this.props.room) {
             roomAvatar = <DecoratedRoomAvatar
                 room={this.props.room}
-                avatarSize={28}
+                avatarSize={48}
                 tag={DefaultTagID.Untagged} // to apply room publicity badging
                 oobData={this.props.oobData}
                 viewAvatarOnClick={true}
@@ -352,21 +389,19 @@ export default class RoomHeader extends React.Component {
 
         //{ roomAccessibility }
 
-        let roomIcon;
+        /*let roomIcon;
         if (this.state.icon !== Icon.None) {
             roomIcon = <TextWithTooltip
                 tooltip={tooltipText(this.state.icon)}
                 class={`mx_DecoratedRoomHeaderAvatar_icon mx_DecoratedRoomHeaderAvatar_icon_${this.state.icon.toLowerCase()}`}
             />;
-        }
+        }*/
         return (
             <div className="mx_RoomHeader light-panel">
                 <div className="mx_RoomHeader_wrapper" aria-owns="mx_RightPanel">
                     <div className="mx_RoomHeader_avatar">{ roomAvatar }</div>
-                    { roomIcon }
                     <div className="tc_RoomHeader_infos">
                         { name }
-                        { topicElement }
                         { this.renderRoomSublineElement() }
                     </div>
                     <div className="tc_RoomHeader_button">

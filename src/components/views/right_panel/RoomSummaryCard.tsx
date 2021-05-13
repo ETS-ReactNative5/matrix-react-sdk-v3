@@ -247,19 +247,27 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
     const e2eStatus = roomContext.e2eStatus;
     const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
     const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(room.roomId));
+    const isRoomNotice = Tchap.isRoomNotice(room);
     const isForumRoom = Tchap.isRoomForum(room.roomId);
     const joinRule = Tchap.getJoinRules(room.roomId);
+    const accessRules = Tchap.getAccessRules(room.roomId);
 
-    const alias = room.getCanonicalAlias() || room.getAltAliases()[0] || "";
+    let avatarSize = 54;
+    let classes = "mx_RoomSummaryCard_avatar";
+
+    if (!isDMRoom && !isRoomNotice) {
+        classes += " tc_RoomSummaryCard_avatar_hexa";
+        if (accessRules === "unrestricted") {
+            classes += " tc_RoomSummaryCard_avatar_hexa_unrestricted";
+            avatarSize = 50;
+        }
+    }
+
     const header = <React.Fragment>
-        <div className="mx_RoomSummaryCard_avatar" role="presentation">
-            <RoomAvatar room={room} height={54} width={54} viewAvatarOnClick />
+        <div className={classes} role="presentation">
+            <RoomAvatar room={room} height={avatarSize} width={avatarSize} viewAvatarOnClick />
         </div>
-
         <h2 title={room.name}>{ room.name }</h2>
-        <div className="mx_RoomSummaryCard_alias" title={alias}>
-            { alias }
-        </div>
     </React.Fragment>;
 
     const memberCount = useRoomMemberCount(room);
@@ -275,23 +283,41 @@ const RoomSummaryCard: React.FC<IProps> = ({ room, onClose }) => {
         }
     }
 
+    let roomTopic;
     let roomSettings;
-    if (!isDMRoom) {
+    if (!isDMRoom && !isRoomNotice) {
         roomSettings = (
             <Button className="mx_RoomSummaryCard_icon_settings" onClick={onRoomSettingsClick}>
                 {_t("Room settings")}
             </Button>
         );
+        const ev = room.currentState.getStateEvents('m.room.topic', '');
+        if (ev) {
+            roomTopic = (
+                <Group title={_t("Room Topic")} className="mx_RoomSummaryCard_aboutGroup">
+                    <div className="tc_RoomSummaryCard_topic">{ev.getContent().topic}</div>
+                </Group>
+            );
+        }
+
+    }
+
+    let showFiles;
+    if (!isRoomNotice) {
+        showFiles = (
+            <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
+                {_t("Show files")}
+            </Button>
+        );
     }
 
     return <BaseCard header={header} className="mx_RoomSummaryCard" onClose={onClose}>
+        {roomTopic}
         <Group title={_t("About")} className="mx_RoomSummaryCard_aboutGroup">
             <Button className="mx_RoomSummaryCard_icon_people" onClick={onRoomMembersClick}>
                 {_t("%(count)s people", { count: memberCount })}
             </Button>
-            <Button className="mx_RoomSummaryCard_icon_files" onClick={onRoomFilesClick}>
-                {_t("Show files")}
-            </Button>
+            {showFiles}
             {roomShare}
             {roomSettings}
         </Group>

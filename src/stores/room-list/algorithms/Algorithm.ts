@@ -543,12 +543,15 @@ export class Algorithm extends EventEmitter {
         // Now process all the joined rooms. This is a bit more complicated
         for (const room of memberships[EffectiveMembership.Join]) {
             const tags = this.getTagsOfJoinedRoom(room);
-
             let inTag = false;
             if (tags.length > 0) {
                 for (const tag of tags) {
                     if (!isNullOrUndefined(newTags[tag])) {
-                        newTags[tag].push(room);
+                        if (tag === DefaultTagID.ServerNotice) {
+                            newTags[DefaultTagID.DM].push(room);
+                        } else {
+                            newTags[tag].push(room);
+                        }
                         inTag = true;
                     }
                 }

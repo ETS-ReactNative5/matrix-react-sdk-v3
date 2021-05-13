@@ -203,6 +203,7 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
         }
 
         const roomType = this.getRealRoomType();
+        const isRoomNotice = Tchap.isRoomNotice(this.props.room);
         let avatarSize = this.props.avatarSize;
         if (roomType === "unrestricted") {
             avatarSize -= 4;
@@ -210,7 +211,7 @@ export default class DecoratedRoomAvatar extends React.PureComponent<IProps, ISt
 
         const classes = classNames("mx_DecoratedRoomAvatar", {
             mx_DecoratedRoomAvatar_cutout: icon,
-            tc_RoomTile_avatar_hexa: roomType !== "direct",
+            tc_RoomTile_avatar_hexa: roomType !== "direct" && !isRoomNotice,
             tc_RoomTile_avatar_unrestricted: roomType === "unrestricted",
         });
 

@@ -40,6 +40,8 @@ import { MatrixClientPeg } from "../../MatrixClientPeg";
 import RoomListNumResults from "../views/rooms/RoomListNumResults";
 import LeftPanelWidget from "./LeftPanelWidget";
 import SdkConfig from "../../SdkConfig";
+import Tchap from "../../tchap/Tchap";
+import ContentScanner from "../../tchap/utils/ContentScanner";
 
 interface IProps {
     isMinimized: boolean;
@@ -122,7 +124,8 @@ export default class LeftPanel extends React.Component<IProps, IState> {
             avatarUrl = MatrixClientPeg.get().mxcUrlToHttp(settingBgMxc, avatarSize, avatarSize);
         }
 
-        const avatarUrlProp = `url(${avatarUrl})`;
+        const scAvatarUrl = ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(avatarUrl)}, true);
+        const avatarUrlProp = `url(${scAvatarUrl})`;
         if (!avatarUrl) {
             document.body.style.removeProperty("--avatar-url");
         } else if (document.body.style.getPropertyValue("--avatar-url") !== avatarUrlProp) {
@@ -367,6 +370,18 @@ export default class LeftPanel extends React.Component<IProps, IState> {
     }
 
     private renderSearchExplore(): React.ReactNode {
+        const userId = MatrixClientPeg.get().getUserId();
+        const isUserExtern = Tchap.isUserExtern(userId);
+
+        let exploreButton = null;
+        if (!isUserExtern) {
+            exploreButton = (<AccessibleTooltipButton
+                className="mx_LeftPanel_exploreButton"
+                onClick={this.onExplore}
+                title={_t("Explore rooms")}
+            />);
+        }
+
         return (
             <div
                 className="mx_LeftPanel_filterContainer"
@@ -379,11 +394,7 @@ export default class LeftPanel extends React.Component<IProps, IState> {
                     onVerticalArrow={this.onKeyDown}
                     onEnter={this.onEnter}
                 />
-                <AccessibleTooltipButton
-                    className="mx_LeftPanel_exploreButton"
-                    onClick={this.onExplore}
-                    title={_t("Explore rooms")}
-                />
+                { exploreButton }
             </div>
         );
     }
@@ -401,7 +412,7 @@ export default class LeftPanel extends React.Component<IProps, IState> {
             bottomPanel = (
                 <div className="tc_LeftPanel_Bottom">
                     <div className="tc_LeftPanel_Bottom_logo">
-                        <img src={require('../../../res/img/tchap/logo_rep_fr.svg')} alt="logo_rep_fr" />
+                        <img src={require('../../../res/img/tchap/logo_rep_fr_v2.svg')} alt="logo_rep_fr" />
                     </div>
                     <div className="tc_LeftPanel_Bottom_links">
                         <a href={SdkConfig.get().base_host_url + SdkConfig.get().generic_endpoints.faq} rel='noreferrer nofollow noopener' target='_blank'>{_t('FAQ')}</a>&nbsp;·&nbsp;
@@ -413,7 +424,7 @@ export default class LeftPanel extends React.Component<IProps, IState> {
         } else {
             bottomPanel = (
                 <div className="tc_LeftPanel_Bottom_logo_collapsed">
-                    <img src={require('../../../res/img/tchap/logo_rep_fr.svg')} alt="logo_rep_fr" />
+                    <img src={require('../../../res/img/tchap/logo_rep_fr_v2.svg')} alt="logo_rep_fr" />
                 </div>
             );
         }

@@ -106,7 +106,7 @@ export default class GeneralUserSettingsTab extends React.Component {
         const cli = MatrixClientPeg.get();
 
         // Check to see if terms need accepting
-        this._checkTerms();
+        //this._checkTerms();
 
         // Need to get 3PIDs generally for Account section and possibly also for
         // Discovery (assuming we have an IS and terms are agreed).

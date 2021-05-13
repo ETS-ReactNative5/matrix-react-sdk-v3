@@ -91,6 +91,16 @@ export default class Tchap {
 
     /**
      *
+     * @returns {string}
+     */
+    static getRandomHSUrlFromList() {
+        const hostBase = TchapApi.hostBase;
+        const randomHs = this._shuffle(SdkConfig.get()['hs_url_list'])[0];
+        return hostBase + randomHs;
+    }
+
+    /**
+     *
      * @param userId
      * @returns {Promise<*>}
      */
@@ -237,15 +247,9 @@ export default class Tchap {
         };
 
         return fetch(url, options).then(res => {
-            if (res.status && res.status !== 200) {
-                console.log("Lookup : Use the MatrixClientPeg lookup");
-                return MatrixClientPeg.get().lookupThreePid(medium, address);
-            } else {
-                return res.json();
-            }
+            return res.json();
         }).catch(err => {
-            console.log("Lookup : Use the MatrixClientPeg lookup");
-            return MatrixClientPeg.get().lookupThreePid(medium, address);
+            console.log(err);
         });
     }
 
@@ -369,10 +373,48 @@ export default class Tchap {
         return finalRoom.roomId !== null ? finalRoom : undefined;
     }
 
-    static getRandomHSUrlFromList() {
-        const hostBase = TchapApi.hostBase;
-        const randomHs = this._shuffle(SdkConfig.get()['hs_url_list'])[0];
-        return hostBase + randomHs;
+    /**
+    * Given a room, return if this room is a "notice room" (system alert).
+    * @param room
+    * @returns {boolean}
+    */
+    static isRoomNotice(room) {
+        return Object.keys(room.tags).includes("m.server_notice");
+    }
+
+    /**
+     *
+     * @param str
+     * @param short
+     * @returns {*}
+     */
+    static transformServerErrors(str, short = false) {
+        let translatedString = str;
+        if (str) {
+            if (str.startsWith("** Unable to decrypt: ")) {
+                translatedString = short ? _t("Decryption fail") : _t("Decryption fail: Please open Tchap on an other connected device to allow key sharing.");
+            }
+        } else {
+            translatedString = _t("Decryption fail");
+        }
+        return translatedString;
+    }
+
+    /**
+     *
+     * @param url
+     * @returns {string|null}
+     */
+    static imgUrlToUri(url) {
+        if (url && url.includes("/thumbnail/")) {
+            const u = url.split("/thumbnail/")[1];
+            return `//${u}`;
+        } else if (url && url.includes("/download/")) {
+            const u = url.split("/download/")[1];
+            return `//${u}`;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -384,34 +426,21 @@ export default class Tchap {
      */
     static _httpRequest(url, opts) {
         const options = opts || {};
-        const timeoutValue = options.timeout || 2000;
+        const timeoutValue = options.timeout || 30000;
         return new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 resolve(new Error("timeout"));
             }, timeoutValue);
             fetch(url, options).then(
-                (res) => {
-                    clearTimeout(timeoutId);
-                    resolve(res.json());
-                },
-                (err) => {
-                    clearTimeout(timeoutId);
-                    resolve({err});
-                });
+              (res) => {
+                  clearTimeout(timeoutId);
+                  resolve(res.json());
+              },
+              (err) => {
+                  clearTimeout(timeoutId);
+                  resolve({err});
+              });
         });
-    }
-
-    static transformServerErrors(str, short = false) {
-        let translatedString = str;
-        if (str) {
-            if (str.includes("** Unable to decrypt: The sender's device has not sent us the keys for this message. **") ||
-                str.includes("** Unable to decrypt: Error: OLM.UNKNOWN_MESSAGE_INDEX **")) {
-                translatedString = short ? _t("Decryption fail") : _t("Decryption fail: Please open Tchap on an other connected device to allow key sharing.");
-            }
-        } else {
-            translatedString = _t("Decryption fail");
-        }
-        return translatedString;
     }
 
     /**

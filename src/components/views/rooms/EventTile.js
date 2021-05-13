@@ -925,10 +925,8 @@ export default class EventTile extends React.Component {
                         { ircTimestamp }
                         { avatar }
                         { sender }
-                        { ircPadlock }
                         <div className="mx_EventTile_reply">
                             { groupTimestamp }
-                            { groupPadlock }
                             { thread }
                             <EventTileType ref={this._tile}
                                            mxEvent={this.props.mxEvent}
@@ -958,10 +956,8 @@ export default class EventTile extends React.Component {
                             { readAvatars }
                         </div>
                         { sender }
-                        { ircPadlock }
                         <div className="mx_EventTile_line">
                             { groupTimestamp }
-                            { groupPadlock }
                             { thread }
                             <EventTileType ref={this._tile}
                                            mxEvent={this.props.mxEvent}
