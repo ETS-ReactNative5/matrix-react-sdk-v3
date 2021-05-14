@@ -34,6 +34,7 @@ import GroupFilterOrderStore from "../../stores/GroupFilterOrderStore";
 import GroupStore from "../../stores/GroupStore";
 import FlairStore from "../../stores/FlairStore";
 import CountlyAnalytics from "../../CountlyAnalytics";
+import Tchap from "../../tchap/Tchap";
 
 const MAX_NAME_LENGTH = 80;
 const MAX_TOPIC_LENGTH = 800;
@@ -230,7 +231,11 @@ export default class RoomDirectory extends React.Component {
                 return;
             }
 
-            if (err && (err.errcode === "M_FORBIDDEN" || err.errcode === "M_UNKNOWN")) {
+            if (err && (
+                err.errcode === "M_FORBIDDEN" ||
+                err.errcode === "M_UNKNOWN" ||
+                err.errcode === "M_UNAUTHORIZED")
+            ) {
                 // We don't care about federation denied error.
                 // Just go to the next server.
                 return;
@@ -497,7 +502,7 @@ export default class RoomDirectory extends React.Component {
         // instead show them preview buttons for all rooms. If the room is not
         // world readable, a modal will appear asking you to register first. If
         // it is readable, the preview appears as normal.
-        if (!hasJoinedRoom && (room.world_readable || isGuest)) {
+        if (!hasJoinedRoom && room.world_readable) {
             previewButton = (
                 <AccessibleButton kind="secondary" className="tc_RoomDirectory_roomPreview" onClick={(ev) => this.onPreviewClick(ev, room)}>{_t("Preview")}</AccessibleButton>
             );
@@ -552,6 +557,14 @@ export default class RoomDirectory extends React.Component {
                     onClick={ (ev) => { ev.stopPropagation(); } }
                     dangerouslySetInnerHTML={{ __html: topic }}
                 />
+            </div>,
+            <div key={ `${room.room_id}_domain` }
+                onClick={(ev) => this.onRoomClicked(room, ev)}
+                // cancel onMouseDown otherwise shift-clicking highlights text
+                onMouseDown={(ev) => {ev.preventDefault();}}
+                className="mx_RoomDirectory_roomDomain"
+            >
+                { Tchap.getDomainFromId(room.room_id) }
             </div>,
             <div key={ `${room.room_id}_memberCount` }
                 onClick={(ev) => this.onRoomClicked(room, ev)}
@@ -636,8 +649,12 @@ export default class RoomDirectory extends React.Component {
         } else if (this.state.protocolsLoading) {
             content = <Loader />;
         } else {
-            const cells = (this.state.publicRooms || [])
-                .reduce((cells, room) => cells.concat(this.createRoomCells(room)), [],);
+            const rooms = this.state.publicRooms || [];
+            rooms.sort((a, b) => {
+                return b.num_joined_members - a.num_joined_members;
+            });
+
+            const cells = rooms.reduce((cells, room) => cells.concat(this.createRoomCells(room)), [],);
             // we still show the scrollpanel, at least for now, because
             // otherwise we don't fetch more because we don't get a fill
             // request from the scrollpanel because there isn't one

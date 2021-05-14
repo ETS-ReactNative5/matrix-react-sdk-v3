@@ -7,6 +7,8 @@
     "Error": "Erreur",
     "Existing Call": "Appel en cours",
     "Export E2E room keys": "Exporter les clés de chiffrement de salon",
+    "Export E2E keys": "Exporter les clés de chiffrement",
+    "Import E2E keys": "Importer les clés de chiffrement",
     "Failed to ban user": "Échec du bannissement de l'utilisateur",
     "Failed to change password. Is your password correct?": "Échec du changement de mot de passe. Votre mot de passe est-il correct ?",
     "Failed to change power level": "Échec du changement de rang",
@@ -3070,5 +3072,11 @@
     "Forgot password?": "Mot de passe oublié ?",
     "Infos": "Infos",
     "An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.": "Un e-mail a été envoyé à %(emailAddress)s, sauf si un compte Tchap lui a déjà été associé.",
-    "Please check your email to continue registration.": "Merci de vérifier votre e-mail afin de continuer votre inscription."
+    "Please check your email to continue registration.": "Merci de vérifier votre e-mail afin de continuer votre inscription.",
+    "Type & Access": "Type & Accès",
+    "Passphrase must be at least %(nbr)s character long": "La phrase secrète doit contenir au moins %(nbr)s caractères",
+    "Enter passphrase (%(nbr)s characters minimum)": "Saisir la phrase secrète (%(nbr)s caractères minimum)",
+    "Pin room": "Épingler le salon",
+    "Pinned room": "Épinglé",
+    "Pinned": "Épinglés"
 }

@@ -10,12 +10,38 @@
 .mx_RoomDirectory_table {
     row-gap: 10px;
     margin: 10px auto 10px auto;
+    grid-template-columns: max-content auto max-content max-content max-content max-content;
+}
+
+.mx_RoomDirectory .mx_RoomView_MessageList {
+    padding-right: 18px;
+}
+
+.mx_RoomDirectory_roomDomain {
+    align-self: center;
+    font-style: italic;
+    font-size: $font-11px;
+    padding: 3px 12px 0 10px;
+    text-align: right;
+}
+
+.mx_RoomDirectory_roomMemberCount {
+    padding-top: 3px;
 }
 
 .mx_RoomDirectory_name {
     font-size: 1.6rem;
     font-weight: 500;
     padding-top: 6px;
+}
+
+.mx_RoomDirectory_dialog {
+    max-width: 980px;
+}
+
+.mx_RoomDirectory_dialog .mx_Dialog_cancelButton {
+    top: 0;
+    right: 22px;
 }
 
 
@@ -105,6 +131,65 @@
     margin-right: -10px;
     background: white;
     color: $input-darker-fg-color;
+}
+
+
+// User Settings
+.tc_UserSettingsDialog .mx_Dialog_header {
+    margin-left: 20px;
+}
+.tc_UserSettingsDialog .mx_TabbedView_tabLabels {
+    margin-left: 26px;
+    margin-top: 20px;
+}
+.tc_UserSettingsDialog .mx_TabbedView_tabPanel {
+    margin-top: 18px;
+    margin-left: 250px;
+}
+.tc_UserSettingsDialog .mx_SettingsTab_heading {
+    margin-bottom: 30px;
+}
+.mx_SettingsTab_subsectionText {
+    margin-right: 0;
+}
+
+
+// Room Settings
+.tc_RoomSettingsDialog .mx_Dialog_header {
+    margin-left: 20px;
+}
+.tc_RoomSettingsDialog .mx_TabbedView_tabLabels {
+    margin-left: 26px;
+    margin-top: 20px;
+}
+.tc_RoomSettingsDialog .mx_TabbedView_tabPanel {
+    margin-top: 18px;
+    margin-left: 250px;
+}
+.tc_RoomSettingsDialog .mx_SettingsTab {
+    padding-right: 35px !important;
+}
+.tc_RoomSettingsDialog .mx_SettingsTab_heading {
+    margin-bottom: 30px;
+}
+
+.tc_RoomSettingsDialog .mx_AvatarSetting_avatar img,
+.tc_RoomSettingsDialog .mx_AvatarSetting_avatar_hovering,
+.tc_RoomSettingsDialog .mx_AvatarSetting_hover,
+.tc_RoomSettingsDialog .mx_AvatarSetting_avatarPlaceholder {
+    -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    border-radius: 0;
+}
+
+.tc_RoomSettingsDialog .mx_AvatarSetting_uploadButton {
+    display: none;
+}
+
+
+// Room Settings > Type & Access Tab
+.tc_RoomSettingsDialog_accessIcon::before {
+    mask-image: url('$(res)/img/tchap/room/settings/link.svg');
 }
 
 
@@ -604,9 +689,9 @@
     background-position: center;
     padding: 2px;
     img {
-        border-radius: 0;
         -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
         clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+        border-radius: 0;
     }
 }
 .tc_RoomSummaryCard_avatar_hexa {
@@ -681,6 +766,14 @@
     }
 }
 
+.mx_MiniAvatarUploader_room {
+    img {
+        -webkit-clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+        clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+        border-radius: 0;
+    }
+}
+
 
 // Timeline > Text Event > Message > "..." Context Menu
 .mx_MessageContextMenu_field {
@@ -737,6 +830,10 @@
 }
 .tc_InviteDialog_advanced {
     margin-top: 6px;
+}
+
+.mx_InviteDialog_userSections {
+    height: 472px;
 }
 
 

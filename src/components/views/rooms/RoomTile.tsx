@@ -487,7 +487,7 @@ export default class RoomTile extends React.PureComponent<IProps, IState> {
             const dmRoomMap = new DMRoomMap(MatrixClientPeg.get());
             const isDMRoom = Boolean(dmRoomMap.getUserIdForRoomId(this.props.room.roomId));
             const isFavorite = roomTags.includes(DefaultTagID.Favourite);
-            const favouriteLabel = isFavorite ? _t("Favourited") : _t("Favourite");
+            const favouriteLabel = isFavorite ? _t("Pinned room") : _t("Pin room");
 
             let roomOpts = null;
             if (!isDMRoom) {

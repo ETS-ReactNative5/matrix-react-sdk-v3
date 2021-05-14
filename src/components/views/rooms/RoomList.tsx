@@ -136,7 +136,7 @@ const TAG_AESTHETICS: ITagAestheticsMap = {
         defaultHidden: false,
     },
     [DefaultTagID.Favourite]: {
-        sectionLabel: _td("Favourites"),
+        sectionLabel: _td("Pinned"),
         isInvite: false,
         defaultHidden: false,
     },

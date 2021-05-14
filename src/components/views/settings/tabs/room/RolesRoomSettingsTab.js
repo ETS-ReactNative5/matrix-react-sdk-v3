@@ -76,12 +76,11 @@ export class BannedUser extends React.Component {
             );
         }
 
-        const userId = this.props.member.name === this.props.member.userId ? null : this.props.member.userId;
         return (
             <li>
                 {unbanButton}
                 <span title={_t("Banned by %(displayName)s", {displayName: this.props.by})}>
-                    <strong>{ this.props.member.name }</strong> {userId}
+                    <strong>{ this.props.member.name }</strong>
                     {this.props.reason ? " " + _t('Reason') + ": " + this.props.reason : ""}
                 </span>
             </li>

@@ -1326,7 +1326,7 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
 
         cli.on('sync', (state, prevState, data) => {
             Tchap.isUserExpired(cli.getUserId()).then(ei => {
-                if (ei && ei.expired) {
+                if (ei && ei === true) {
                     Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
                         newEmailRequested: newEmailRequested,
                         onRequestNewEmail: () => {

@@ -992,6 +992,8 @@
     "Warning!": "Warning!",
     "Changing password will currently reset any end-to-end encryption keys on all sessions, making encrypted chat history unreadable, unless you first export your room keys and re-import them afterwards. In future this will be improved.": "Changing password will currently reset any end-to-end encryption keys on all sessions, making encrypted chat history unreadable, unless you first export your room keys and re-import them afterwards. In future this will be improved.",
     "Export E2E room keys": "Export E2E room keys",
+    "Export E2E keys": "Export E2E keys",
+    "Import E2E keys": "Import E2E keys",
     "Do you want to set an email address?": "Do you want to set an email address?",
     "Confirm password": "Confirm password",
     "Passwords don't match": "Passwords don't match",
@@ -2892,5 +2894,11 @@
     "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.": "<b>Information</b>: The domain of your email address is not declared in Tchap. If you have received an invitation, you will be able to create a \"guest\" account, allowing only to participate in private exchanges to which you are invited.",
     "Infos": "Infos",
     "An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.": "An email has been sent to %(emailAddress)s, unless a Tchap account is already associated with it.",
-    "Please check your email to continue registration.": "Please check your email to continue registration."
+    "Please check your email to continue registration.": "Please check your email to continue registration.",
+    "Type & Access": "Type & Access",
+    "Passphrase must be at least %(nbr)s character long": "Passphrase must be at least %(nbr)s character long",
+    "Enter passphrase (%(nbr)s characters minimum)": "Enter passphrase (%(nbr)s characters minimum)",
+    "Pin room": "Pin room",
+    "Pinned room": "Pinned room",
+    "Pinned": "Pinned"
 }

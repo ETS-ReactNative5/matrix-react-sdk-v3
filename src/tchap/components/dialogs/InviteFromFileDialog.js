@@ -46,7 +46,8 @@ export default class InviteFromFileDialog extends React.Component {
             fileType: null,
             type: "",
             authorizedTypeTxt: ['text/plain'],
-            authorizedTypeCsv: ['text/csv', 'text/x-csv', 'application/vnd.ms-excel', 'application/csv', 'application/x-csv']
+            authorizedTypeCsv: ['text/csv', 'text/x-csv', 'application/vnd.ms-excel', 'application/csv', 'application/x-csv'],
+            authorizedTypeString: ".txt, .csv"
         };
     }
 
@@ -207,7 +208,7 @@ export default class InviteFromFileDialog extends React.Component {
         const totalProcess = this.state.processingIndex;
         const totalSize = this.state.listSize;
         const type = this.state.type;
-        const authorizedType = (this.state.authorizedTypeTxt).concat(this.state.authorizedTypeCsv).join(',')
+        const authorizedType = this.state.authorizedTypeString;
 
         let errorRestricted = null;
         if (this.state.errorRestricted && !error) {

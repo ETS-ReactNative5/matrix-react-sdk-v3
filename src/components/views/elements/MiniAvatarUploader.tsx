@@ -32,9 +32,10 @@ interface IProps {
     noAvatarLabel?: string;
     hasAvatarLabel?: string;
     setAvatarUrl(url: string): Promise<void>;
+    isDirect?: boolean;
 }
 
-const MiniAvatarUploader: React.FC<IProps> = ({ hasAvatar, hasAvatarLabel, noAvatarLabel, setAvatarUrl, children }) => {
+const MiniAvatarUploader: React.FC<IProps> = ({ hasAvatar, hasAvatarLabel, noAvatarLabel, setAvatarUrl, isDirect, children }) => {
     const cli = useContext(MatrixClientContext);
     const [busy, setBusy] = useState(false);
     const [hover, setHover] = useState(false);
@@ -78,6 +79,7 @@ const MiniAvatarUploader: React.FC<IProps> = ({ hasAvatar, hasAvatarLabel, noAva
             className={classNames("mx_MiniAvatarUploader", {
                 mx_MiniAvatarUploader_busy: busy,
                 mx_MiniAvatarUploader_hasAvatar: hasAvatar,
+                mx_MiniAvatarUploader_room: !isDirect,
             })}
             disabled={busy}
             onClick={() => {

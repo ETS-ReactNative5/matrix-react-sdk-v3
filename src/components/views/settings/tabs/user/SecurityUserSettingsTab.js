@@ -213,10 +213,10 @@ export default class SecurityUserSettingsTab extends React.Component {
             importExportButtons = (
                 <div className='mx_SecurityUserSettingsTab_importExportButtons'>
                     <AccessibleButton kind='primary' onClick={this._onExportE2eKeysClicked}>
-                        {_t("Export E2E room keys")}
+                        {_t("Export E2E keys")}
                     </AccessibleButton>
                     <AccessibleButton kind='primary' onClick={this._onImportE2eKeysClicked}>
-                        {_t("Import E2E room keys")}
+                        {_t("Import E2E keys")}
                     </AccessibleButton>
                 </div>
             );
@@ -397,7 +397,6 @@ export default class SecurityUserSettingsTab extends React.Component {
                         <DevicesPanel />
                     </div>
                 </div>
-                { advancedSection }
             </div>
         );
     }

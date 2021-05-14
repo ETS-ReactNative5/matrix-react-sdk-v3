@@ -227,9 +227,6 @@ export default class MultiInviter {
                 const unknownProfileErrors = ['M_NOT_FOUND', 'M_USER_NOT_FOUND', 'M_PROFILE_UNDISCLOSED', 'M_PROFILE_NOT_FOUND', 'RIOT.USER_NOT_FOUND'];
                 const unknownProfileUsers = Object.keys(this.errors).filter(a => unknownProfileErrors.includes(this.errors[a].errcode));
 
-                console.error("unknownProfileUsers")
-                console.error(unknownProfileUsers)
-
                 if (unknownProfileUsers.length > 0) {
                     const inviteUnknowns = () => {
                         const promises = unknownProfileUsers.map(u => this._doInvite(u, true));

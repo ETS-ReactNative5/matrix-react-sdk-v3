@@ -25,10 +25,12 @@ import * as sdk from '../../../../index';
 
 const PHASE_EDIT = 1;
 const PHASE_EXPORTING = 2;
+const PASSPHRASE_MIN_LENGTH = 8;
 
 export default class ExportE2eKeysDialog extends React.Component {
     static propTypes = {
         matrixClient: PropTypes.instanceOf(MatrixClient).isRequired,
+        isLogout: PropTypes.bool,
         onFinished: PropTypes.func.isRequired,
     };
 
@@ -56,6 +58,10 @@ export default class ExportE2eKeysDialog extends React.Component {
         const passphrase = this._passphrase1.current.value;
         if (passphrase !== this._passphrase2.current.value) {
             this.setState({errStr: _t('Passphrases must match')});
+            return false;
+        }
+        if (passphrase.length < PASSPHRASE_MIN_LENGTH) {
+            this.setState({errStr: _t('Passphrase must be at least %(nbr)s character long', { nbr: PASSPHRASE_MIN_LENGTH })});
             return false;
         }
         if (!passphrase) {
@@ -108,8 +114,8 @@ export default class ExportE2eKeysDialog extends React.Component {
 
     render() {
         const BaseDialog = sdk.getComponent('views.dialogs.BaseDialog');
-
         const disableForm = (this.state.phase === PHASE_EXPORTING);
+        const btnLabel = this.props.isLogout ? _t('Save and log-out') : _t('Export E2E keys') ;
 
         return (
             <BaseDialog className='mx_exportE2eKeysDialog'
@@ -144,7 +150,7 @@ export default class ExportE2eKeysDialog extends React.Component {
                             <div className='mx_E2eKeysDialog_inputRow'>
                                 <div className='mx_E2eKeysDialog_inputLabel'>
                                     <label htmlFor='passphrase1'>
-                                        { _t("Enter passphrase") }
+                                        { _t('Enter passphrase (%(nbr)s characters minimum)', {nbr: PASSPHRASE_MIN_LENGTH}) }
                                     </label>
                                 </div>
                                 <div className='mx_E2eKeysDialog_inputCell'>
@@ -170,7 +176,7 @@ export default class ExportE2eKeysDialog extends React.Component {
                         </div>
                     </div>
                     <div className='mx_Dialog_buttons'>
-                        <input className='mx_Dialog_primary' type='submit' value={_t('Save and log-out')}
+                        <input className='mx_Dialog_primary' type='submit' value={btnLabel}
                              disabled={disableForm}
                         />
                         <button onClick={this._onCancelClick} disabled={disableForm}>

@@ -123,8 +123,10 @@ export default class LeftPanel extends React.Component<IProps, IState> {
         if (settingBgMxc) {
             avatarUrl = MatrixClientPeg.get().mxcUrlToHttp(settingBgMxc, avatarSize, avatarSize);
         }
-
-        const scAvatarUrl = ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(avatarUrl)}, true);
+        let scAvatarUrl = null;
+        if (avatarUrl) {
+            scAvatarUrl = ContentScanner.getUnencryptedContentUrl({url: Tchap.imgUrlToUri(avatarUrl)}, true);
+        }
         const avatarUrlProp = `url(${scAvatarUrl})`;
         if (!avatarUrl) {
             document.body.style.removeProperty("--avatar-url");

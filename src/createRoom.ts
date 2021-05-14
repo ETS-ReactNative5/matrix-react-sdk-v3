@@ -71,7 +71,6 @@ interface ICreateOpts {
     initial_state?: IStateEvent[];
     preset?: Preset;
     is_direct?: boolean;
-    power_level_content_override?: object;
     access_rules?: string;
 }
 
@@ -168,10 +167,6 @@ export default function createRoom(opts: IOpts): Promise<string | null> {
         createOpts.room_alias_name = alias;
     }
 
-    createOpts.power_level_content_override = {
-        invite: 50,
-    };
-
     createOpts.initial_state = createOpts.initial_state || [
         {
             content: {
@@ -182,7 +177,7 @@ export default function createRoom(opts: IOpts): Promise<string | null> {
         },
         {
             content: {
-                history_visibility: createOpts.visibility === "private" ? 'invited' : 'world_readable',
+                history_visibility: createOpts.visibility === 'private' ? 'invited' : 'world_readable',
             },
             type: 'm.room.history_visibility',
             state_key: '',

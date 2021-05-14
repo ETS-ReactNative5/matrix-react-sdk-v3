@@ -254,7 +254,7 @@ export default class MFileBody extends React.Component {
         const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
         const fileSize = content.info ? content.info.size : null;
         const fileType = content.info ? content.info.mimetype : "application/octet-stream";
-        let decrypting = this.state.decrypting;
+        const decrypting = this.state.decrypting;
 
         if (isEncrypted) {
             if (this.state.decryptedBlob === null) {

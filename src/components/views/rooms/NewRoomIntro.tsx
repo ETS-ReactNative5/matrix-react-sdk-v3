@@ -125,6 +125,7 @@ const NewRoomIntro = () => {
                 hasAvatar={!!avatarUrl}
                 noAvatarLabel={_t("Add a photo, so people can easily spot your room.")}
                 setAvatarUrl={url => cli.sendStateEvent(roomId, EventType.RoomAvatar, { url }, '')}
+                isDirect={Boolean(dmPartner)}
             >
                 <RoomAvatar room={room} width={AVATAR_SIZE} height={AVATAR_SIZE} />
             </MiniAvatarUploader>

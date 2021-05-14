@@ -30,8 +30,10 @@ import {MatrixClientPeg} from "../../../MatrixClientPeg";
 import dis from "../../../dispatcher/dispatcher";
 import SettingsStore from "../../../settings/SettingsStore";
 import {UIFeature} from "../../../settings/UIFeature";
+import AccessRoomSettingsTab from "../../../tchap/components/dialogs/tabs/AccessRoomSettingsTab";
 
 export const ROOM_GENERAL_TAB = "ROOM_GENERAL_TAB";
+export const ROOM_ACCESS_TAB = "ROOM_ACCESS_TAB";
 export const ROOM_SECURITY_TAB = "ROOM_SECURITY_TAB";
 export const ROOM_ROLES_TAB = "ROOM_ROLES_TAB";
 export const ROOM_NOTIFICATIONS_TAB = "ROOM_NOTIFICATIONS_TAB";
@@ -70,6 +72,12 @@ export default class RoomSettingsDialog extends React.Component {
             <GeneralRoomSettingsTab roomId={this.props.roomId} />,
         ));
         tabs.push(new Tab(
+            ROOM_ACCESS_TAB,
+            _td("Type & Access"),
+            "tc_RoomSettingsDialog_accessIcon",
+            <AccessRoomSettingsTab roomId={this.props.roomId} />,
+        ));
+        tabs.push(new Tab(
             ROOM_ROLES_TAB,
             _td("Roles & Permissions"),
             "mx_RoomSettingsDialog_rolesIcon",
@@ -99,7 +107,7 @@ export default class RoomSettingsDialog extends React.Component {
 
         const roomName = MatrixClientPeg.get().getRoom(this.props.roomId).name;
         return (
-            <BaseDialog className='mx_RoomSettingsDialog' hasCancel={true}
+            <BaseDialog className='mx_RoomSettingsDialog tc_RoomSettingsDialog' hasCancel={true}
                         onFinished={this.props.onFinished} title={_t("Room Settings - %(roomName)s", {roomName})}>
                 <div className='ms_SettingsDialog_content'>
                     <TabbedView tabs={this._getTabs()} />

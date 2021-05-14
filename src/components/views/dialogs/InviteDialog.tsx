@@ -590,6 +590,14 @@ export default class InviteDialog extends React.PureComponent<IInviteDialogProps
                         user: firstErrorAddress,
                     }),
                 });
+            } else if (result.inviter.errors[Object.keys(result.inviter.errors)[0]].errcode === "M_BAD_STATE") {
+                const firstErrorAddress = MatrixClientPeg.get().getUser(result.inviter.addrs[0]).rawDisplayName;
+                const longErrorText = `${_t("Failed to invite the following users to chat: %(csvUsers)s", { csvUsers: firstErrorAddress })}
+                    : ${result.inviter.errors[Object.keys(result.inviter.errors)[0]].errorText}`;
+                this.setState({
+                    busy: false,
+                    errorText: longErrorText,
+                });
             } else {
                 this.setState({
                     busy: false,

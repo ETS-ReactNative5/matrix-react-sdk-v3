@@ -120,6 +120,9 @@ export default class Tchap {
             return res.json();
         }).then(data => {
             return data;
+        }).then(obj => {
+            return !!((obj.errcode && obj.errcode === "ORG_MATRIX_EXPIRED_ACCOUNT") ||
+                (obj.expired && obj.expired === true));
         });
     }
 
@@ -391,7 +394,7 @@ export default class Tchap {
     static transformServerErrors(str, short = false) {
         let translatedString = str;
         if (str) {
-            if (str.startsWith("** Unable to decrypt: ")) {
+            if (str.includes("** Unable to decrypt: ")) {
                 translatedString = short ? _t("Decryption fail") : _t("Decryption fail: Please open Tchap on an other connected device to allow key sharing.");
             }
         } else {

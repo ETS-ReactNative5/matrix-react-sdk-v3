@@ -37,43 +37,7 @@ export default class GeneralRoomSettingsTab extends React.Component {
 
     constructor() {
         super();
-
-        this.state = {
-            isRoomPublished: false, // loaded async
-        };
     }
-
-    componentDidMount() {
-        this.context.getRoomDirectoryVisibility(this.props.roomId).then((result => {
-            this.setState({isRoomPublished: result.visibility === 'public'});
-        }));
-    }
-
-    _onRoomPublishChange = () => {
-        const client = this.context;
-        console.error(client);
-        const room = client.getRoom(this.props.roomId);
-        const self = this;
-        const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
-
-        Modal.createTrackedDialog('Remove this room from the forums directory', '', QuestionDialog, {
-            title: _t('Remove this room from the forums directory'),
-            description: ( _t('This action is irreversible.') + " " + _t('Are you sure you want to remove this room from the forums directory?')),
-            onFinished: (confirm) => {
-                if (confirm) {
-                    client.sendStateEvent(room.roomId, "m.room.encryption", { algorithm: "m.megolm.v1.aes-sha2" });
-                    client.sendStateEvent(room.roomId, "m.room.join_rules", {join_rule: "invite"}, "");
-                    client.sendStateEvent(room.roomId, "m.room.history_visibility", {history_visibility: "invited"}, "");
-                    client.setRoomDirectoryVisibility(room.roomId, 'private').catch(() => {
-                        // Roll back the local echo on the change
-                        this.setState({isRoomPublished: true});
-                    });
-                    self.setState({isRoomPublished: false});
-
-                }
-            },
-        });
-    };
 
     _onLeaveClick = () => {
         const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
@@ -104,48 +68,12 @@ export default class GeneralRoomSettingsTab extends React.Component {
     };
 
     render() {
-        const UrlPreviewSettings = sdk.getComponent("room_settings.UrlPreviewSettings");
-
-        const client = this.context;
-        const room = client.getRoom(this.props.roomId);
-        const isCurrentUserAdmin = room.getMember(client.getUserId()).powerLevelNorm >= 100;
-
-        let roomPublishChange = null;
-        if (isCurrentUserAdmin && this.state.isRoomPublished) {
-            roomPublishChange = (
-                <div>
-                    <span className='mx_SettingsTab_subheading'>{_t('Remove this room from the forums directory')}</span>
-                    <div className='mx_SettingsTab_section'>
-                        <AccessibleButton kind='primary' onClick={this._onRoomPublishChange}>
-                            {_t('Remove this room from the forums directory')}
-                        </AccessibleButton>
-                    </div>
-                </div>
-            );
-        }
-
-        let urlPreviewSettings = <>
-            <span className='mx_SettingsTab_subheading'>{_t("URL Previews")}</span>
-            <div className='mx_SettingsTab_section'>
-                <UrlPreviewSettings room={room} />
-            </div>
-        </>;
-        if (!SettingsStore.getValue(UIFeature.URLPreviews)) {
-            urlPreviewSettings = null;
-        }
-
         return (
             <div className="mx_SettingsTab mx_GeneralRoomSettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("General")}</div>
                 <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
                     <RoomProfileSettings roomId={this.props.roomId} />
                 </div>
-                <div className="mx_SettingsTab_heading">{_t("Access")}</div>
-                <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
-                    <RoomAccessSettings roomId={this.props.roomId} />
-                    { roomPublishChange }
-                </div>
-
                 <span className='mx_SettingsTab_subheading'>{_t("Leave room")}</span>
                 <div className='mx_SettingsTab_section'>
                     <AccessibleButton kind='danger' onClick={this._onLeaveClick}>
