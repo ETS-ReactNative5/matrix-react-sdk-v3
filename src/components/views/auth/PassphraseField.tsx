@@ -17,11 +17,10 @@ limitations under the License.
 import React, {PureComponent, RefCallback, RefObject} from "react";
 import classNames from "classnames";
 import zxcvbn from "zxcvbn";
-
-import SdkConfig from "../../../SdkConfig";
 import withValidation, {IFieldState, IValidationResult} from "../elements/Validation";
 import {_t, _td} from "../../../languageHandler";
 import Field, {IInputProps} from "../elements/Field";
+import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 
 interface IProps extends Omit<IInputProps, "onValidate"> {
     autoFocus?: boolean;
@@ -48,9 +47,11 @@ class PassphraseField extends PureComponent<IProps> {
         labelAllowedButUnsafe: _td("Password is allowed, but unsafe"),
     };
 
+    static errorArray = [];
+
     public readonly validate = withValidation<this, zxcvbn.ZXCVBNResult>({
         description: function(complexity) {
-            const score = complexity ? complexity.score : 0;
+            const score = 4 - PassphraseField.errorArray.length;
             return <progress className="mx_PassphraseField_progress" max={4} value={score} />;
         },
         deriveData: async ({ value }) => {
@@ -65,30 +66,20 @@ class PassphraseField extends PureComponent<IProps> {
                 invalid: () => _t(this.props.labelEnterPassword),
             },
             {
-                key: "complexity",
-                test: async function({ value }, complexity) {
+                key: "match",
+                test({ value }) {
                     if (!value) {
                         return false;
                     }
-                    const safe = complexity.score >= this.props.minScore;
-                    const allowUnsafe = SdkConfig.get()["dangerously_allow_unsafe_and_insecure_passwords"];
-                    return allowUnsafe || safe;
+                    const passwordValid = TchapStrongPassword.isPasswordValid(value);
+                    PassphraseField.errorArray = passwordValid.errorList;
+                    return passwordValid.isValid;
                 },
-                valid: function(complexity) {
-                    // Unsafe passwords that are valid are only possible through a
-                    // configuration flag. We'll print some helper text to signal
-                    // to the user that their password is allowed, but unsafe.
-                    if (complexity.score >= this.props.minScore) {
-                        return _t(this.props.labelStrongPassword);
-                    }
-                    return _t(this.props.labelAllowedButUnsafe);
+                invalid: (data) => {
+                    return this.buildErrors();
                 },
-                invalid: function(complexity) {
-                    if (!complexity) {
-                        return null;
-                    }
-                    const { feedback } = complexity;
-                    return feedback.warning || feedback.suggestions[0] || _t("Keep going...");
+                valid: () => {
+                    return _t(this.props.labelStrongPassword);
                 },
             },
         ],
@@ -98,6 +89,18 @@ class PassphraseField extends PureComponent<IProps> {
         const result = await this.validate(fieldState);
         this.props.onValidate(result);
         return result;
+    };
+
+    buildErrors() {
+        const errors = PassphraseField.errorArray;
+        let errorText = [];
+        errorText.push(_t("Password too weak !"))
+        errorText.push(<br />)
+        for (let i = 0; i < errors.length; i++) {
+            errorText.push(_t(errors[i]));
+            i !== errors.length ? errorText.push(<br />) : null;
+        }
+        return errorText;
     };
 
     render() {

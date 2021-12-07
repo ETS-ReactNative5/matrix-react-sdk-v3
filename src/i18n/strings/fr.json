@@ -3078,5 +3078,12 @@
     "Enter passphrase (%(nbr)s characters minimum)": "Saisir la phrase secrète (%(nbr)s caractères minimum)",
     "Pin room": "Épingler le salon",
     "Pinned room": "Épinglé",
-    "Pinned": "Épinglés"
+    "Pinned": "Épinglés",
+    "Changing your password will reset any end-to-end encryption keys on all of your devices, making encrypted chat history unreadable. Set up Key Backup or export your room keys from another device before resetting your password.": "Modifier votre mot de passe réinitialisera toutes les clés de chiffrement de bout en bout sur toutes vos appareils, ce qui rendra l’historique de vos messages chiffrés illisible. Configurez la sauvegarde de clés ou exportez vos clés de salon depuis un autre appareil avant de réinitialiser votre mot de passe.",
+    "If a Tchap account exists, an email has been sent to the address: %(emailAddress)s. Once you've followed the link it contains, click below.": "Si un compte Tchap existe, un e-mail a été envoyé à l’adresse : %(emailAddress)s. Une fois que vous aurez suivi le lien qu’il contient, cliquez ci-dessous.",
+    "An uppercase letter is required": "- Une lettre majuscule est nécéssaire",
+    "A lowercase letter is required": "- Une lettre minuscule est nécéssaire",
+    "A digit is required": "- Un chiffre est nécéssaire",
+    "A symbol is required": "- Un caractère spécial est nécéssaire",
+    "At least 8 characters are required": "- Au moins 8 caractères sont nécéssaires"
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2019 New Vector Ltd
+Copyright 2021 Léo Mora <l.mora@outlook.fr>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ export default class AccessRoomSettingsTab extends React.Component {
         return (
             <div className="mx_SettingsTab mx_GeneralRoomSettingsTab">
                 <div className="mx_SettingsTab_heading">{_t("Type & Access")}</div>
-                <div className="mx_SettingsTab_heading">{_t("Access")}</div>
+                <div className="mx_SettingsTab_subheading">{_t("Access")}</div>
                 <div className='mx_SettingsTab_section mx_GeneralRoomSettingsTab_profileSection'>
                     <RoomAccessSettings roomId={this.props.roomId} />
                     { roomPublishChange }

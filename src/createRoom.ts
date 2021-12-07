@@ -30,6 +30,7 @@ import { getE2EEWellKnown } from "./utils/WellKnownUtils";
 import GroupStore from "./stores/GroupStore";
 import CountlyAnalytics from "./CountlyAnalytics";
 import { isJoinedOrNearlyJoined } from "./utils/membership";
+import { generateRandomString } from "./tchap/utils/TchapUtils";
 
 // we define a number of interfaces which take their names from the js-sdk
 /* eslint-disable camelcase */
@@ -150,7 +151,6 @@ export default function createRoom(opts: IOpts): Promise<string | null> {
         opts.andView = true;
     }
 
-
     if (opts.access_rules) {
         createOpts.access_rules = opts.access_rules;
     }
@@ -158,9 +158,9 @@ export default function createRoom(opts: IOpts): Promise<string | null> {
     let alias;
     if (createOpts.name) {
         const tmpAlias = createOpts.name.replace(/[^a-z0-9]/gi, "");
-        alias = tmpAlias + _generateRandomString(11);
+        alias = tmpAlias + generateRandomString(11);
     } else {
-        alias = _generateRandomString(11);
+        alias = generateRandomString(11);
     }
 
     if (createOpts.visibility !== 'private') {
@@ -350,14 +350,4 @@ export function privateShouldBeEncrypted(): boolean {
         return !defaultDisabled;
     }
     return true;
-}
-
-function _generateRandomString(len) {
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let str = '';
-    for (let i = 0; i < len; i++) {
-        let r = Math.floor(Math.random() * charset.length);
-        str += charset.substring(r, r + 1);
-    }
-    return str;
 }

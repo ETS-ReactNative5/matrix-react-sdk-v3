@@ -1,8 +1,25 @@
+/*
+Copyright 2021 Léo Mora <l.mora@outlook.fr>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 import {MatrixClientPeg} from '../MatrixClientPeg';
 import SdkConfig from "../SdkConfig";
 import TchapApi from './TchapApi';
 import DMRoomMap from "../utils/DMRoomMap";
 import {_t} from "../languageHandler";
+import {capitalize, getDeepEvent, shuffle} from "./utils/TchapUtils";
 
 /**
  * Tchap utils.
@@ -17,7 +34,7 @@ export default class Tchap {
         const baseDomain = cli.getDomain();
         const domain = baseDomain.split('.tchap.gouv.fr')[0].split('.').reverse().filter(Boolean)[0];
 
-        return this._capitalize(domain) || 'Tchap';
+        return capitalize(domain) || 'Tchap';
     }
 
     /**
@@ -28,7 +45,7 @@ export default class Tchap {
     static getDomainFromId(id) {
         const domain = id.split(':').reverse()[0].split('.tchap.gouv.fr')[0].split('.').filter(Boolean).reverse()[0];
 
-        return this._capitalize(domain) || 'Tchap';
+        return capitalize(domain) || 'Tchap';
     }
 
     /**
@@ -46,7 +63,7 @@ export default class Tchap {
      * @returns {Promise}
      */
     static getHSInfoFromEmail(email) {
-        const tchapHostsList = this._shuffle(SdkConfig.get()['hs_url_list']);
+        const tchapHostsList = shuffle(SdkConfig.get()['hs_url_list']);
         const hostBase = TchapApi.hostBase;
         const infoUrl = TchapApi.infoFromEmailUrl;
         return fetch(hostBase + tchapHostsList[0] + infoUrl + email).then(res => {
@@ -63,7 +80,7 @@ export default class Tchap {
         const hostBase = TchapApi.hostBase;
         const infoUrl = TchapApi.infoFromEmailUrl;
         return new Promise((resolve, reject) => {
-            const tchapHostsList = this._shuffle(SdkConfig.get()['hs_url_list']);
+            const tchapHostsList = shuffle(SdkConfig.get()['hs_url_list']);
             if (tchapHostsList) {
                 const promises = tchapHostsList.map(url => this._httpRequest(hostBase + url + infoUrl + email, {}));
                 Promise.all(promises).then(data => {
@@ -77,7 +94,6 @@ export default class Tchap {
                         } else {
                             err = ("ERR_UNREACHABLE_HOMESERVER");
                         }
-                        console.error(err);
                     }
                     if (hs !== null) {
                         resolve(hostBase + hs);
@@ -95,7 +111,7 @@ export default class Tchap {
      */
     static getRandomHSUrlFromList() {
         const hostBase = TchapApi.hostBase;
-        const randomHs = this._shuffle(SdkConfig.get()['hs_url_list'])[0];
+        const randomHs = shuffle(SdkConfig.get()['hs_url_list'])[0];
         return hostBase + randomHs;
     }
 
@@ -200,7 +216,7 @@ export default class Tchap {
         let domainName = roomId;
         domainName = domainName.split(":")[1];
         domainName = domainName.startsWith("agent") ? domainName.split(".")[1] : domainName.split(".")[0];
-        return this._capitalize(domainName);
+        return capitalize(domainName);
     }
 
     /**
@@ -224,7 +240,7 @@ export default class Tchap {
             userPart = userPart.replace(".", " ");
             dn = ((u) => {
                 return u.split(" ").map(d => {
-                    return this._capitalize(d)
+                    return capitalize(d)
                 }).join(" ");
             })(userPart);
         }
@@ -314,8 +330,10 @@ export default class Tchap {
         const defaultValue = "restricted";
         const room = MatrixClientPeg.get().getRoom(roomId);
         const event = room.currentState.getStateEvents(stateEventType, '');
+
         if (!event) {
-            return defaultValue;
+            const deepEvent = getDeepEvent(room, stateEventType, "rule");
+            return deepEvent ? deepEvent : defaultValue;
         }
         const content = event.getContent();
         return keyName in content ? content[keyName] : defaultValue;
@@ -444,31 +462,5 @@ export default class Tchap {
                   resolve({err});
               });
         });
-    }
-
-    /**
-     * A static function shuffeling an array.
-     * @param {array} arr The array to shuffle.
-     * @returns {array} The array shuffeled.
-     * @private
-     */
-    static _shuffle(arr) {
-        for (let index = 0; index < arr.length; index++) {
-            const r = Math.floor(Math.random() * arr.length);
-            const tmp = arr[index];
-            arr[index] = arr[r];
-            arr[r] = tmp;
-        }
-        return arr.slice(0, arr.length);
-    }
-
-    /**
-     * Capitalize a string.
-     * @param {string} s The sting to capitalize.
-     * @returns {string} The capitalized string.
-     * @private
-     */
-    static _capitalize(s) {
-        return s.charAt(0).toUpperCase() + s.slice(1);
     }
 }

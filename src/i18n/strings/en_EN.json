@@ -2900,5 +2900,11 @@
     "Enter passphrase (%(nbr)s characters minimum)": "Enter passphrase (%(nbr)s characters minimum)",
     "Pin room": "Pin room",
     "Pinned room": "Pinned room",
-    "Pinned": "Pinned"
+    "Pinned": "Pinned",
+    "Changing your password will reset any end-to-end encryption keys on all of your devices, making encrypted chat history unreadable. Set up Key Backup or export your room keys from another device before resetting your password.": "Changing your password will reset any end-to-end encryption keys on all of your devices, making encrypted chat history unreadable. Set up Key Backup or export your room keys from another device before resetting your password.",
+    "An uppercase letter is required": "- An uppercase letter is required",
+    "A lowercase letter is required": "- A lowercase letter is required",
+    "A digit is required": "- A digit is required",
+    "A symbol is required": "- A symbol is required",
+    "At least 8 characters are required": "- At least 8 characters are required"
 }

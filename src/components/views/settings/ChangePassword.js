@@ -267,19 +267,18 @@ export default class ChangePassword extends React.Component {
         if (err) {
             this.props.onError(err);
         } else {
-            TchapStrongPassword.validatePassword(MatrixClientPeg.get().getHomeserverUrl(), newPassword).then(isValidPassword => {
-                if (!isValidPassword) {
-                    const InfoDialog = sdk.getComponent('dialogs.InfoDialog');
-                    Modal.createTrackedDialog('Password too weak ', 'Password too weak', InfoDialog, {
-                        title: _t('Password too weak !'),
-                        description: <div>
-                            <p>{ _t('This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.') }</p>
-                        </div>,
-                    });
-                } else {
-                    self.changePassword(oldPassword, newPassword);
-                }
-            });
+            const isValidPassword = TchapStrongPassword.isPasswordValid(newPassword)
+            if (!isValidPassword.isValid) {
+                const InfoDialog = sdk.getComponent('dialogs.InfoDialog');
+                Modal.createTrackedDialog('Password too weak ', 'Password too weak', InfoDialog, {
+                    title: _t('Password too weak !'),
+                    description: <div>
+                        <p>{ _t('This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.') }</p>
+                    </div>,
+                });
+            } else {
+                self.changePassword(oldPassword, newPassword);
+            }
         }
     };
 
