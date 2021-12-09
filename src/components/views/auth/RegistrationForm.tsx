@@ -74,6 +74,7 @@ interface IState {
     passwordConfirm: string;
     passwordComplexity?: number;
     isExtern: boolean;
+    hsUrl: string;
 }
 
 /*
@@ -97,6 +98,7 @@ export default class RegistrationForm extends React.PureComponent<IProps, IState
             passwordConfirm: this.props.defaultPassword || "",
             passwordComplexity: null,
             isExtern: false,
+            hsUrl: null,
         };
 
         CountlyAnalytics.instance.track("onboarding_registration_begin");
@@ -125,6 +127,7 @@ export default class RegistrationForm extends React.PureComponent<IProps, IState
         });
 
         const promise = this.props.onRegisterClick({
+            username: null,
             password: this.state.password.trim(),
             email: email,
         });
@@ -227,9 +230,10 @@ export default class RegistrationForm extends React.PureComponent<IProps, IState
         const result = await this.validateEmailRules(fieldState);
         if (result.valid) {
             Tchap.discoverPlatform(fieldState.value).then(hsUrl => {
-                if (Tchap.isUserExternFromServer(hsUrl)) {
-                    this.setState({isExtern: true})
-                }
+                this.setState({
+                    isExtern: Tchap.isUserExternFromServer(hsUrl),
+                    hsUrl: hsUrl,
+                })
             });
         }
         this.markFieldValid(RegistrationField.Email, result.valid);
@@ -264,26 +268,6 @@ export default class RegistrationForm extends React.PureComponent<IProps, IState
     private onPasswordValidate = result => {
         this.markFieldValid(RegistrationField.Password, result.valid);
     };
-
-/*    validatePasswordRules = withValidation({
-        description: () => _t("Your password must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length."),
-        rules: [
-            {
-                key: "required",
-                test: ({ value, allowEmpty }) => allowEmpty || !!value,
-                invalid: () => _t("Enter password"),
-            },
-            {
-                key: "match",
-                test({ value }) {
-                    return !value || Tchap.discoverPlatform(this.state.email).then(hsUrl => {
-                        return TchapStrongPassword.validatePassword(hsUrl, value);
-                    });
-                },
-                invalid: () => _t("Password too weak !"),
-            },
-        ],
-    });*/
 
     private onPasswordConfirmChange = ev => {
         this.setState({

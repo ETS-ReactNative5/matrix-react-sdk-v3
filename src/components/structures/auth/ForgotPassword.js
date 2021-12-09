@@ -29,6 +29,7 @@ import ServerPicker from "../../views/elements/ServerPicker";
 import Tchap from "../../../tchap/Tchap";
 import TchapStrongPassword from "../../../tchap/TchapStrongPassword";
 import TextWithTooltip from "../../views/elements/TextWithTooltip";
+import PassphraseField from "../../views/auth/PassphraseField";
 
 // Phases
 // Show the forgot password inputs
@@ -76,18 +77,25 @@ export default class ForgotPassword extends React.Component {
         this.setState({
             phase: PHASE_SENDING_EMAIL,
         });
-        this.reset = new PasswordReset(this.props.serverConfig.hsUrl, this.props.serverConfig.isUrl);
-        let lowercaseEmail = email.toLowerCase();
-        this.reset.resetPassword(lowercaseEmail, password).then(() => {
-            this.setState({
-                phase: PHASE_EMAIL_SENT,
+        Tchap.discoverPlatform(email).then(hs => {
+            const lowercaseEmail = email.toLowerCase();
+            this.reset = new PasswordReset(hs, hs);
+            this.reset.resetPassword(lowercaseEmail, password).then(() => {
+                this.setState({
+                    phase: PHASE_EMAIL_SENT,
+                });
+            }, (err) => {
+                this.showErrorDialog(_t('Failed to send email') + ": " + err.message);
+                this.setState({
+                    phase: PHASE_FORGOT,
+                });
             });
-        }, (err) => {
+        }).catch(err => {
             this.showErrorDialog(_t('Failed to send email') + ": " + err.message);
             this.setState({
                 phase: PHASE_FORGOT,
             });
-        });
+        })
     }
 
     onVerify = async ev => {
@@ -114,33 +122,29 @@ export default class ForgotPassword extends React.Component {
         } else if (this.state.password !== this.state.password2) {
             this.showErrorDialog(_t('New passwords must match each other.'));
         } else {
-            Tchap.discoverPlatform(this.state.email).then(hs => {
-                TchapStrongPassword.validatePassword(hs, this.state.password).then(isValidPassword => {
-                    if (!isValidPassword) {
-                        this.showErrorDialog(_t('This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.'));
-                    } else {
-                        const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
-                        Modal.createTrackedDialog('Forgot Password Warning', '', QuestionDialog, {
-                            title: _t('Warning!'),
-                            description:
-                                <div>
-                                    { _t(
-                                        "Changing your password will reset any end-to-end encryption keys " +
-                                        "on all of your devices, making encrypted chat history unreadable. Set up " +
-                                        "Key Backup or export your room keys from another device before resetting your " +
-                                        "password.",
-                                    ) }
-                                </div>,
-                            button: _t('Continue'),
-                            onFinished: (confirmed) => {
-                                if (confirmed) {
-                                    this.submitPasswordReset(this.state.email, this.state.password);
-                                }
-                            },
-                        });
-                    }
+            const isValidPassword = TchapStrongPassword.isPasswordValid(this.state.password);
+            if (!isValidPassword.isValid) {
+                this.showErrorDialog(_t('This password is too weak. It must include a lower-case letter, an upper-case letter, a number and a symbol and be at a minimum 8 characters in length.'));
+            } else {
+                const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
+                Modal.createTrackedDialog('Forgot Password Warning', '', QuestionDialog, {
+                    title: _t('Warning!'),
+                    description:
+                        <div>
+                            { _t(
+                                "Changing your password will reset any end-to-end encryption keys on all of your devices, " +
+                                "making encrypted chat history unreadable. Set up Key Backup or export your room keys from another " +
+                                "device before resetting your password.",
+                            ) }
+                        </div>,
+                    button: _t('Continue'),
+                    onFinished: (confirmed) => {
+                        if (confirmed) {
+                            this.submitPasswordReset(this.state.email, this.state.password);
+                        }
+                    },
                 });
-            });
+            }
         }
     };
 
@@ -204,12 +208,12 @@ export default class ForgotPassword extends React.Component {
                     />
                 </div>
                 <div className="mx_AuthBody_fieldRow">
-                    <Field
+                    <PassphraseField
                         name="reset_password"
-                        type="password"
-                        label={_t('New Password')}
+                        minScore={0}
                         value={this.state.password}
                         onChange={this.onInputChanged.bind(this, "password")}
+                        onValidate={() => {}}
                         onFocus={() => CountlyAnalytics.instance.track("onboarding_forgot_password_newPassword_focus")}
                         onBlur={() => CountlyAnalytics.instance.track("onboarding_forgot_password_newPassword_blur")}
                         autoComplete="new-password"

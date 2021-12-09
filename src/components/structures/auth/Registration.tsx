@@ -188,22 +188,21 @@ export default class Registration extends React.Component<IProps, IState> {
 
     onFormSubmit = formVals => {
         Tchap.discoverPlatform(formVals.email).then(hs => {
-            TchapStrongPassword.validatePassword(hs, formVals.password).then(isPasswdValid => {
-                if (!isPasswdValid) {
-                    this.setState({
-                        errorText: _t('This password is too weak. It must include a lower-case letter, an upper-case letter, ' +
-                            'a number and a symbol and be at a minimum 8 characters in length.'),
-                    });
-                } else {
-                    this.setState({
-                        errorText: "",
-                        busy: true,
-                        formVals: formVals,
-                        doingUIAuth: true,
-                    });
-                }
-                this.replaceClient(hs);
-            });
+            const isPasswdValid = TchapStrongPassword.isPasswordValid(formVals.password);
+            if (!isPasswdValid.isValid) {
+                this.setState({
+                    errorText: _t('This password is too weak. It must include a lower-case letter, an upper-case letter, ' +
+                        'a number and a symbol and be at a minimum 8 characters in length.'),
+                });
+            } else {
+                this.setState({
+                    errorText: "",
+                    busy: true,
+                    formVals: formVals,
+                    doingUIAuth: true,
+                });
+            }
+            this.replaceClient(hs);
         }).catch(err => {
             console.warn(err);
             let errorText;

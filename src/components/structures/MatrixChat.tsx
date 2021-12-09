@@ -1325,20 +1325,22 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         });
 
         cli.on('sync', (state, prevState, data) => {
-            Tchap.isUserExpired(cli.getUserId()).then(ei => {
-                if (ei && ei === true) {
-                    Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
-                        newEmailRequested: newEmailRequested,
-                        onRequestNewEmail: () => {
-                            newEmailRequested = true;
-                            Tchap.requestNewExpiredAccountEmail();
-                        },
-                        onFinished: () => {
-                            newEmailRequested = false;
-                        },
-                    });
-                }
-            });
+            if (data && data.error && data.error.errcode === "ORG_MATRIX_EXPIRED_ACCOUNT") {
+                expiredAccount = true;
+                Modal.createTrackedDialog('Expired Account Dialog', '', ExpiredAccountDialog, {
+                    newEmailRequested: newEmailRequested,
+                    onRequestNewEmail: () => {
+                        newEmailRequested = true;
+                        Tchap.requestNewExpiredAccountEmail();
+                    },
+                    onFinished: () => {
+                        newEmailRequested = false;
+                    },
+                });
+            } else {
+                expiredAccount = false;
+            }
+
             // LifecycleStore and others cannot directly subscribe to matrix client for
             // events because flux only allows store state changes during flux dispatches.
             // So dispatch directly from here. Ideally we'd use a SyncStateStore that

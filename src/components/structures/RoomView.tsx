@@ -79,6 +79,8 @@ import Notifier from "../../Notifier";
 import { showToast as showNotificationsToast } from "../../toasts/DesktopNotificationsToast";
 import { RoomNotificationStateStore } from "../../stores/notifications/RoomNotificationStateStore";
 import { Container, WidgetLayoutStore } from "../../stores/widgets/WidgetLayoutStore";
+import Tchap from "../../tchap/Tchap";
+import {isJoinedOrNearlyJoined} from "../../utils/membership";
 
 const DEBUG = false;
 let debuglog = function(msg: string) {};
@@ -869,6 +871,13 @@ export default class RoomView extends React.Component<IProps, IState> {
         this.updateE2EStatus(room);
         this.updatePermissions(room);
         this.checkWidgets(room);
+        const isDM = Tchap.getAccessRules(room.roomId);
+        if (isDM) {
+            const members = room.currentState.getMembers();
+            const joinedMembers = members.filter(m => isJoinedOrNearlyJoined(m.membership));
+            const otherMember = joinedMembers.find(m => m.userId !== this.context.getUserId());
+            Rooms.setDMRoom(room.roomId, otherMember.userId);
+        }
     };
 
     private async calculateRecommendedVersion(room: Room) {

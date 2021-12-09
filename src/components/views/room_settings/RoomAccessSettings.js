@@ -25,7 +25,7 @@ import Modal from '../../../Modal';
 import * as ContextualMenu from "../../structures/ContextMenu";
 import {RoomPermalinkCreator, makeGroupPermalink, makeUserPermalink} from "../../../utils/permalinks/Permalinks";
 import AccessibleTooltipButton from "../elements/AccessibleTooltipButton";
-import {copyPlaintext} from "../../../utils/strings";
+import {copyPlaintext, selectText} from "../../../utils/strings";
 import * as ContextMenu from "../../structures/ContextMenu";
 import {toRightOf} from "../../structures/ContextMenu";
 import {Room} from "matrix-js-sdk/src/models/room";
@@ -34,6 +34,7 @@ import {Group} from "matrix-js-sdk/src/models/group";
 import {RoomMember} from "matrix-js-sdk/src/models/room-member";
 import {MatrixEvent} from "matrix-js-sdk/src/models/event";
 import TextWithTooltip from "../elements/TextWithTooltip";
+import { generateRandomString } from "../../../tchap/utils/TchapUtils";
 
 // TODO: Merge with ProfileSettings?
 export default class RoomAccessSettings extends React.Component {
@@ -47,6 +48,8 @@ export default class RoomAccessSettings extends React.Component {
         this._onCopyClick = this._onCopyClick.bind(this);
         this._onLinkClick = this._onLinkClick.bind(this);
 
+        this.closeCopiedTooltip = null;
+
         const client = MatrixClientPeg.get();
         const room = client.getRoom(props.roomId);
         if (!room) throw new Error("Expected a room for ID: ", props.roomId);
@@ -55,9 +58,9 @@ export default class RoomAccessSettings extends React.Component {
         permalinkCreator.load();
         const link = permalinkCreator.forRoom();
 
-        let link_sharing = false;
+        let linkSharing = false;
         if (client.isRoomEncrypted(props.roomId) && Tchap.getJoinRules(props.roomId) === "public") {
-            link_sharing = true;
+            linkSharing = true;
         }
 
         this.state = {
@@ -65,50 +68,33 @@ export default class RoomAccessSettings extends React.Component {
             accessRules: Tchap.getAccessRules(props.roomId),
             joinRules: Tchap.getJoinRules(props.roomId),
             isForumRoom: Tchap.isRoomForum(props.roomId),
-            linkSharing: link_sharing,
+            linkSharing: linkSharing,
             link: link,
         };
     }
 
-    _selectText(target) {
-        const range = document.createRange();
-        range.selectNodeContents(target);
-
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-    };
+    componentWillUnmount() {
+        if (this.closeCopiedTooltip) this.closeCopiedTooltip();
+    }
 
     _onLinkClick(e) {
         e.preventDefault();
-        this._selectText(e.target);
-    };
+        selectText(e.target);
+    }
 
     async _onCopyClick(e) {
         e.preventDefault();
+        const target = e.target; // copy target before we go async and React throws it away
 
-        this._selectText(this.refs.link);
-
-        let successful;
-        try {
-            successful = document.execCommand('copy');
-        } catch (err) {
-            console.error('Failed to copy: ', err);
-        }
-
+        const successful = await copyPlaintext(this.state.link);
+        const buttonRect = target.getBoundingClientRect();
         const GenericTextContextMenu = sdk.getComponent('context_menus.GenericTextContextMenu');
-        const buttonRect = e.target.getBoundingClientRect();
-
-        // The window X and Y offsets are to adjust position when zoomed in to page
-        const x = buttonRect.right + window.pageXOffset;
-        const y = (buttonRect.top + (buttonRect.height / 2) + window.pageYOffset) - 19;
-        const {close} = ContextualMenu.createMenu(GenericTextContextMenu, {
-            chevronOffset: 10,
-            left: x,
-            top: y,
+        const {close} = ContextMenu.createMenu(GenericTextContextMenu, {
+            ...toRightOf(buttonRect, 2),
             message: successful ? _t('Copied!') : _t('Failed to copy'),
-        }, false);
-        e.target.onmouseleave = close;
+        });
+        // Drop a reference to this close handler for componentWillUnmount
+        this.closeCopiedTooltip = target.onmouseleave = close;
     };
 
     _getGuestAccessRules(room) {
@@ -121,16 +107,6 @@ export default class RoomAccessSettings extends React.Component {
         }
         const content = event.getContent();
         return keyName in content ? content[keyName] : defaultValue;
-    };
-
-    _generateRandomString(len) {
-        const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let str = '';
-        for (let i = 0; i < len; i++) {
-            let r = Math.floor(Math.random() * charset.length);
-            str += charset.substring(r, r + 1);
-        }
-        return str;0
     };
 
     _setJoinRules = (room, joinRules) => {
@@ -163,9 +139,9 @@ export default class RoomAccessSettings extends React.Component {
             let alias = "";
             if (room.name) {
                 const tmpAlias = room.name.replace(/[^a-z0-9]/gi, "");
-                alias = tmpAlias + this._generateRandomString(11);
+                alias = tmpAlias + generateRandomString(11);
             } else {
-                alias = this._generateRandomString(11);
+                alias = generateRandomString(11);
             }
             alias = `#${alias}:${client.getDomain()}`;
             client.createAlias(alias, room.roomId).then(() => {
