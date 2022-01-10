@@ -56,6 +56,8 @@ import { ToggleRightPanelPayload } from "../../dispatcher/payloads/ToggleRightPa
 import { IThreepidInvite } from "../../stores/ThreepidInviteStore";
 import { ICollapseConfig } from "../../resizer/distributors/collapse";
 import HostSignupContainer from '../views/host_signup/HostSignupContainer';
+import {UIFeature} from "../../settings/UIFeature";
+
 
 // We need to fetch each pinned message individually (if we don't already have it)
 // so each pinned message may trigger a request. Limit the number per room for sanity.
@@ -161,7 +163,9 @@ class LoggedInView extends React.Component<IProps, IState> {
         // stash the MatrixClient in case we log out before we are unmounted
         this._matrixClient = this.props.matrixClient;
 
-        CallMediaHandler.loadDevices();
+        if (SettingsStore.getValue(UIFeature.Voip)) {
+            CallMediaHandler.loadDevices();
+        }
 
         fixupColorFonts();
 

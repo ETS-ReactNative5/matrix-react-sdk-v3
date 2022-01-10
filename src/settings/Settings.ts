@@ -683,7 +683,7 @@ export const SETTINGS: {[setting: string]: ISetting} = {
     },
     [UIFeature.Voip]: {
         supportedLevels: LEVELS_UI_FEATURE,
-        default: true,
+        default: false,
     },
     [UIFeature.Feedback]: {
         supportedLevels: LEVELS_UI_FEATURE,
