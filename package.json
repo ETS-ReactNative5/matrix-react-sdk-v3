@@ -78,7 +78,7 @@
     "lodash": "^4.17.20",
     "matrix-js-sdk": "9.7.0",
     "matrix-widget-api": "^0.1.0-beta.13",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "pako": "^2.0.3",
     "parse5": "^6.0.1",
     "png-chunks-extract": "^1.0.0",
